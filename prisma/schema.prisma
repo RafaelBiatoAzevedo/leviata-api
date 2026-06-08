@@ -1,0 +1,380 @@
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-1.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+}
+
+enum ArticleType {
+  ARTICLE
+  DOSSIER
+}
+
+enum PersonCategory {
+  DOCENTE
+  DISCENTE
+  EGRESSO
+  PESQUISADOR
+  SUB-COORDENADOR
+  COORDENADOR
+}
+
+enum ResearchInstrumentType {
+  DOSSIER
+  CATALOG
+  DATABASE
+}
+
+enum MeetingType {
+  SEMINAR
+  MEETING
+}
+
+enum MeetingType {
+  SEMINAR
+  MEETING
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+
+  firstName String?
+  lastName  String?
+
+  role      Role     @default(ADMIN)
+
+  isActive  Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AcademicTitle {
+  id           String @id @default(uuid())
+  name         String
+  abbreviation String
+
+  people       Person[]
+}
+
+model Country {
+  id        String @id @default(uuid())
+
+  code      String @unique
+  name      String @unique
+
+  institutions Institution[]
+  nationals Person[] @relation("Nationality")
+}
+
+
+model Institution {
+  id   String @id @default(uuid())
+
+  name String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  countryId String
+  country   Country
+    @relation(fields: [countryId], references: [id])
+
+  people Person[]
+
+  deletedAt   DateTime?
+  deletedById String?
+}
+
+model Person {
+  id String @id @default(uuid())
+
+  imageUrl String?
+
+  firstName String
+  lastName  String?
+
+  birthDate DateTime?
+
+  category PersonCategory
+
+  bio  String?;
+
+  link  String?;
+
+  honorificTitle String?
+
+  videos Video[]
+
+  books Book[]
+
+  nationalityId String?
+  nationality   Country?
+    @relation("Nationality", fields: [nationalityId], references: [id])
+
+  academicTitleId String?
+  academicTitle   AcademicTitle?
+    @relation(fields: [academicTitleId], references: [id])
+
+  institutionId String?
+  institution   Institution?
+    @relation(fields: [institutionId], references: [id])
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  coordinatedThematics Thematic[] @relation("ThematicCoordinator")
+
+  thematics Thematic[] @relation("ThematicResearchers")
+
+  deletedAt   DateTime?
+  deletedById String?
+}
+
+
+model Book {
+  id String @id @default(uuid())
+
+  title       String
+  subtitle    String?
+
+  cover       String?
+  description String?
+
+  isbn        String?
+
+  year        Int?
+
+  publisher   String?
+
+  externalUrl String?
+
+  authors Person[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  deletedAt   DateTime?
+  deletedById String?
+}
+
+
+model Article {
+  id String @id @default(uuid())
+
+  title String
+
+  cover String?
+
+  type ArticleType @default(ARTICLE)
+
+  journal String?
+
+  volume  String?
+
+  year Int?
+
+  doi String?
+
+  summary String?
+
+  externalUrl String?
+
+  authors Person[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  deletedAt   DateTime?
+  deletedById String?
+}
+
+model ResearchInstrument {
+  id String @id @default(uuid())
+
+  type ResearchInstrumentType
+
+  title String
+
+  startYear Int
+  endYear   Int
+
+  content String?
+
+  pdfUrl String?
+
+  externalUrl String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  deletedAt   DateTime?
+  deletedById String?
+}
+
+model Board {
+  id String @id @default(uuid())
+
+  title String
+
+  candidateId String
+  candidate   Person @relation("BoardCandidate", fields: [candidateId], references: [id])
+
+  advisorId String
+  advisor   Person @relation("BoardAdvisor", fields: [advisorId], references: [id])
+
+  members Person[] @relation("BoardMembers")
+
+  date DateTime
+
+  images Image[]
+
+  meetingUrl String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Jury {
+  id String @id @default(uuid())
+
+  title String
+
+  date DateTime
+
+  images Image[]
+
+  judges Person[] @relation("JuryJudges")
+
+  jurors Person[] @relation("JuryJurors")
+
+  prosecutors Person[] @relation("JuryProsecutors")
+
+  defenders Person[] @relation("JuryDefenders")
+
+  bailiffs Person[] @relation("JuryBailiffs")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PresentedWork {
+  id String @id @default(uuid())
+
+  title String
+
+  date DateTime
+
+  images Image[]
+
+  meetingId String?
+  meeting   Meeting?
+    @relation(fields: [meetingId], references: [id])
+
+  authors Person[]
+}
+
+model Meeting {
+  id String @id @default(uuid())
+
+  type MeetingType
+
+  title String
+
+  coverImage String?
+
+  description String?
+
+  date DateTime
+
+  location String?
+
+  registrationUrl String?
+
+  meetingUrl String?
+
+  speakers Person[]
+
+  images Image[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Image {
+  id String @id @default(uuid())
+
+  imageUrl String
+
+  description String?
+
+  createdAt DateTime @default(now())
+}
+
+model Video {
+  id String @id @default(uuid())
+
+  title String
+
+  embedLink String
+
+  description String?
+
+  createdAt DateTime @default(now())
+}
+
+model ThematicVideo {
+  id String @id @default(uuid())
+
+  thematicId String
+  thematic   Thematic @relation(fields: [thematicId], references: [id])
+
+  videoId String
+  video   Video @relation(fields: [videoId], references: [id])
+
+  personId String?
+  person   Person?
+    @relation(fields: [personId], references: [id])
+
+  title String
+  
+  description String?
+
+  createdAt DateTime @default(now())
+}
+
+model Thematic {
+  id String @id @default(uuid())
+
+  title String
+
+  description String?
+
+  mainVideoId String?
+  mainVideo   Video?
+    @relation("ThematicMainVideo", fields: [mainVideoId], references: [id])
+
+  coordinatorId String?
+  coordinator   Person?
+    @relation("ThematicCoordinator", fields: [coordinatorId], references: [id])
+
+  additionalVideos Video[] @relation("ThematicAdditionalVideos")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  deletedAt   DateTime?
+  deletedById String?
+}
+
+
+
