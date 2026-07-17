@@ -22,7 +22,7 @@ enum PersonCategory {
   DISCENTE
   EGRESSO
   PESQUISADOR
-  SUB-COORDENADOR
+  SUB_COORDENADOR
   COORDENADOR
 }
 
@@ -37,9 +37,23 @@ enum MeetingType {
   MEETING
 }
 
-enum MeetingType {
-  SEMINAR
+enum NewsCategory {
+  PUBLICATION // publicação
+  EVENT       // evento
+  AWARD       // premiação
+  INTERNSHIP  // estágio
+  RESEARCH    // pesquisa
+  PODCAST     // podcast
+  CALL        // convocação
+}
+
+enum NewsRelatedType {
+  BOARD
+  JURY
   MEETING
+  PUBLICATION
+  RESEARCH_INSTRUMENT
+  THEMATIC
 }
 
 model User {
@@ -60,8 +74,9 @@ model User {
 
 model AcademicTitle {
   id           String @id @default(uuid())
-  name         String
-  abbreviation String
+  
+  name         String @unique
+  abbreviation String @unique
 
   people       Person[]
 }
@@ -81,13 +96,13 @@ model Institution {
   id   String @id @default(uuid())
 
   name String @unique
+  acronym String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   countryId String
-  country   Country
-    @relation(fields: [countryId], references: [id])
+  country   Country @relation(fields: [countryId], references: [id])
 
   people Person[]
 
@@ -98,18 +113,24 @@ model Institution {
 model Person {
   id String @id @default(uuid())
 
-  imageUrl String?
+  slug String @unique
+  isActive Boolean @default(true)
+  displayOrder Int @default(0)
 
-  firstName String
-  lastName  String?
+  imageUrl String?
+  name String
 
   birthDate DateTime?
 
   category PersonCategory
 
-  bio  String?;
+  bio  String?
+  orcid String?
+  email String?
 
-  link  String?;
+  lattesUrl String?
+  website String?
+  linkedinUrl String?
 
   honorificTitle String?
 
@@ -117,24 +138,45 @@ model Person {
 
   books Book[]
 
+  articles Article[]
+
+  thematicVideos ThematicVideo[]
+
+  researchInstruments ResearchInstrument[]
+
+  boardCandidates Board[] @relation("BoardCandidate")
+
+  boardAdvisors Board[] @relation("BoardAdvisor")
+
+  boardMemberships Board[] @relation("BoardMembers")
+
+  juryJudges Jury[] @relation("JuryJudges")
+
+  juryJurors Jury[] @relation("JuryJurors")
+
+  juryProsecutors Jury[] @relation("JuryProsecutors")
+
+  juryDefenders Jury[] @relation("JuryDefenders")
+
+  juryBailiffs Jury[] @relation("JuryBailiffs")
+
   nationalityId String?
-  nationality   Country?
-    @relation("Nationality", fields: [nationalityId], references: [id])
+  nationality   Country? @relation("Nationality", fields: [nationalityId], references: [id])
 
   academicTitleId String?
-  academicTitle   AcademicTitle?
-    @relation(fields: [academicTitleId], references: [id])
+  academicTitle   AcademicTitle? @relation(fields: [academicTitleId], references: [id])
 
   institutionId String?
-  institution   Institution?
-    @relation(fields: [institutionId], references: [id])
+  institution   Institution? @relation(fields: [institutionId], references: [id])
   
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
   coordinatedThematics Thematic[] @relation("ThematicCoordinator")
 
-  thematics Thematic[] @relation("ThematicResearchers")
+  meetingsAsSpeaker Meeting[] @relation("MeetingSpeakers")
+
+  presentedWorks PresentedWork[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   deletedAt   DateTime?
   deletedById String?
@@ -190,29 +232,6 @@ model Article {
   externalUrl String?
 
   authors Person[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  deletedAt   DateTime?
-  deletedById String?
-}
-
-model ResearchInstrument {
-  id String @id @default(uuid())
-
-  type ResearchInstrumentType
-
-  title String
-
-  startYear Int
-  endYear   Int
-
-  content String?
-
-  pdfUrl String?
-
-  externalUrl String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -277,8 +296,7 @@ model PresentedWork {
   images Image[]
 
   meetingId String?
-  meeting   Meeting?
-    @relation(fields: [meetingId], references: [id])
+  meeting   Meeting? @relation(fields: [meetingId], references: [id])
 
   authors Person[]
 }
@@ -302,7 +320,9 @@ model Meeting {
 
   meetingUrl String?
 
-  speakers Person[]
+  speakers Person[] @relation("MeetingSpeakers")
+
+  presentedWorks PresentedWork[]
 
   images Image[]
 
@@ -317,6 +337,18 @@ model Image {
 
   description String?
 
+  boardId String?
+  board Board? @relation(fields: [boardId], references: [id])
+
+  juryId String?
+  jury Jury? @relation(fields: [juryId], references: [id])
+
+  meetingId String?
+  meeting Meeting? @relation(fields: [meetingId], references: [id])
+
+  presentedWorkId String?
+  presentedWork PresentedWork? @relation(fields: [presentedWorkId], references: [id])
+
   createdAt DateTime @default(now())
 }
 
@@ -329,6 +361,12 @@ model Video {
 
   description String?
 
+  people Person[]
+
+  thematicMain Thematic[] @relation("ThematicMainVideo")
+
+  thematicVideos ThematicVideo[]
+  
   createdAt DateTime @default(now())
 }
 
@@ -342,11 +380,10 @@ model ThematicVideo {
   video   Video @relation(fields: [videoId], references: [id])
 
   personId String?
-  person   Person?
-    @relation(fields: [personId], references: [id])
+  person Person? @relation(fields: [personId], references: [id])
 
   title String
-  
+
   description String?
 
   createdAt DateTime @default(now())
@@ -360,21 +397,139 @@ model Thematic {
   description String?
 
   mainVideoId String?
-  mainVideo   Video?
-    @relation("ThematicMainVideo", fields: [mainVideoId], references: [id])
+  mainVideo Video? @relation("ThematicMainVideo", fields: [mainVideoId], references: [id])
 
   coordinatorId String?
-  coordinator   Person?
-    @relation("ThematicCoordinator", fields: [coordinatorId], references: [id])
+  coordinator Person? @relation("ThematicCoordinator", fields: [coordinatorId], references: [id])
 
-  additionalVideos Video[] @relation("ThematicAdditionalVideos")
+  additionalVideos ThematicVideo[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  deletedAt   DateTime?
+  deletedAt DateTime?
   deletedById String?
 }
 
+model News {
+  id String @id @default(uuid())
+
+  title String
+
+  description String
+
+  cover String?
+
+  date DateTime
+
+  category NewsCategory
+
+  isInternal Boolean @default(false)
+
+  externalUrl String?
+
+  relatedType NewsRelatedType?
+  relatedId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  deletedAt DateTime?
+  deletedById String?
+}
+
+model Newsletter {
+  id String @id @default(uuid())
+
+  title String
+
+  subject String
+
+  htmlContent String @db.Text
+
+  coverUrl String?
+
+  pdfUrl String?
+
+  publishedAt DateTime?
+
+  sentAt DateTime?
+
+  deliveries NewsletterDelivery[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  deletedAt DateTime?
+  deletedById String?
+}
+
+model NewsletterSubscriber {
+  id String @id @default(uuid())
+
+  email String @unique
+
+  name String?
+
+  cellphone String?
+
+  allowEmail Boolean @default(true)
+
+  allowWhatsapp Boolean @default(false)
+
+  isActive Boolean @default(true)
+
+  subscribedAt DateTime @default(now())
+
+  unsubscribedAt DateTime?
+
+  deliveries NewsletterDelivery[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model NewsletterDelivery {
+  id String @id @default(uuid())
+
+  newsletterId String
+  newsletter Newsletter @relation(fields: [newsletterId], references: [id])
+
+  subscriberId String
+  subscriber NewsletterSubscriber @relation(fields: [subscriberId], references: [id])
+
+  sentAt DateTime
+
+  openedAt DateTime?
+
+  clickedAt DateTime?
+
+  errorMessage String?
+}
+
+model ResearchInstrument {
+  id String @id @default(uuid())
+
+  type ResearchInstrumentType
+
+  title String
+
+  startYear Int?
+  endYear Int?
+
+  content String?
+
+  pdfUrl String?
+
+  externalUrl String?
+
+  people Person[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  deletedAt DateTime?
+  deletedById String?
+}
 
 

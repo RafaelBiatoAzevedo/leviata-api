@@ -1,0 +1,42 @@
+[
+  {
+    "name": "Graduado",
+    "abbreviation": "Grad."
+  },
+  {
+    "name": "Especialista",
+    "abbreviation": "Esp."
+  },
+  {
+    "name": "Mestre",
+    "abbreviation": "Me."
+  },
+  {
+    "name": "Mestra",
+    "abbreviation": "Ma."
+  },
+  {
+    "name": "Doutor",
+    "abbreviation": "Dr."
+  },
+  {
+    "name": "Doutora",
+    "abbreviation": "Dra."
+  },
+  {
+    "name": "Pós-Doutor",
+    "abbreviation": "Pós-Dr."
+  },
+  {
+    "name": "Pós-Doutora",
+    "abbreviation": "Pós-Dra."
+  },
+  {
+    "name": "Professor",
+    "abbreviation": "Prof."
+  },
+  {
+    "name": "Professora",
+    "abbreviation": "Profa."
+  }
+]
