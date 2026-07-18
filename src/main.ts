@@ -22,6 +22,14 @@ async function bootstrap() {
       'Leviathan API is a RESTful backend service designed to manage and provide access to academic and historical research content. It supports the administration of publications, books, dossiers, researchers, institutions, examination boards, events, and digital assets through a secure and scalable architecture built with NestJS, Prisma, and PostgreSQL.',
     )
     .setVersion(version)
+    .addTag(
+      'Auth',
+      'Handles user authentication, authorization, and access control.',
+    )
+    .addTag(
+      'People',
+      'Manages researchers, professors, students, collaborators, and other people related to the project.',
+    )
     .addTag('Books', 'Manages books, publications, and bibliographic records.')
     .addTag(
       'Dossiers',
