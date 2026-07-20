@@ -3,22 +3,22 @@ import { PersonCategory } from '@prisma/client';
 
 export class PersonResponseDto {
   @ApiProperty()
-  id: string;
+  id!: string;
 
   @ApiProperty()
-  slug: string;
+  slug!: string;
 
   @ApiProperty()
-  name: string;
+  name!: string;
 
   @ApiProperty()
-  category: PersonCategory;
+  category!: PersonCategory;
 
   @ApiProperty()
-  isActive: boolean;
+  isActive!: boolean;
 
   @ApiProperty()
-  displayOrder: number;
+  displayOrder!: number;
 
   @ApiPropertyOptional()
   imageUrl?: string;
@@ -57,8 +57,8 @@ export class PersonResponseDto {
   institutionId?: string;
 
   @ApiProperty()
-  createdAt: Date;
+  createdAt!: Date;
 
   @ApiProperty()
-  updatedAt: Date;
+  updatedAt!: Date;
 }

@@ -21,20 +21,20 @@ export class CreatePersonDto {
   })
   @IsString()
   @MaxLength(255)
-  slug: string;
+  slug!: string;
 
   @ApiProperty({
     example: 'Larissa Biato',
   })
   @IsString()
   @MaxLength(255)
-  name: string;
+  name!: string;
 
   @ApiProperty({
     enum: PersonCategory,
   })
   @IsEnum(PersonCategory)
-  category: PersonCategory;
+  category!: PersonCategory;
 
   @ApiPropertyOptional({
     example: true,

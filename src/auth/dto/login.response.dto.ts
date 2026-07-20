@@ -2,10 +2,10 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class LoginUserResponseDto {
   @ApiProperty()
-  id: string;
+  id!: string;
 
   @ApiProperty()
-  email: string;
+  email!: string;
 
   @ApiProperty({
     nullable: true,
@@ -20,20 +20,20 @@ export class LoginUserResponseDto {
   @ApiProperty({
     example: 'SUPER_ADMIN',
   })
-  role: string;
+  role!: string;
 }
 
 export class LoginResponseDto {
   @ApiProperty()
-  accessToken: string;
+  accessToken!: string;
 
   @ApiProperty({
     example: 'Bearer',
   })
-  tokenType: string;
+  tokenType!: string;
 
   @ApiProperty({
     type: LoginUserResponseDto,
   })
-  user: LoginUserResponseDto;
+  user!: LoginUserResponseDto;
 }

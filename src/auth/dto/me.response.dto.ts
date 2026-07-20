@@ -2,13 +2,13 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class MeResponseDto {
   @ApiProperty()
-  id: string;
+  id!: string;
 
   @ApiProperty()
-  email: string;
+  email!: string;
 
   @ApiProperty({
     example: 'SUPER_ADMIN',
   })
-  role: string;
+  role!: string;
 }

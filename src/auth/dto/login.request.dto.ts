@@ -6,11 +6,11 @@ export class LoginRequestDto {
     example: 'admin@leviata.com',
   })
   @IsEmail()
-  email: string;
+  email!: string;
 
   @ApiProperty({
     example: '123456',
   })
   @IsString()
-  password: string;
+  password!: string;
 }
