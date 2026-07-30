@@ -25,6 +25,16 @@ export class PeopleRepository {
     });
   }
 
+  async findBySlug(slug: string) {
+    return this.prisma.person.findUnique({
+      where: {
+        slug,
+      },
+
+      include: this.include,
+    });
+  }
+
   findAll(query: PeopleQueryDto) {
     const {
       page = 1,

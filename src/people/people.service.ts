@@ -21,7 +21,7 @@ export class PeopleService {
     return people;
   }
 
-  async findOne(id: string) {
+  async findOneById(id: string) {
     const person = await this.peopleRepository.findById(id);
 
     if (!person) {
@@ -32,7 +32,7 @@ export class PeopleService {
   }
 
   async update(id: string, dto: UpdatePersonDto) {
-    await this.findOne(id);
+    await this.findOneById(id);
 
     const person = await this.peopleRepository.update(id, dto);
 
@@ -40,9 +40,35 @@ export class PeopleService {
   }
 
   async remove(id: string) {
-    await this.findOne(id);
+    await this.findOneById(id);
 
     await this.peopleRepository.remove(id);
+
+    return;
+  }
+
+  async findOneBySlug(slug: string) {
+    const person = await this.peopleRepository.findBySlug(slug);
+
+    if (!person) {
+      throw new NotFoundException('Person not found.');
+    }
+
+    return person;
+  }
+
+  async updateBySlug(slug: string, dto: UpdatePersonDto) {
+    const person = await this.findOneBySlug(slug);
+
+    const personUpdated = await this.peopleRepository.update(person.id, dto);
+
+    return personUpdated;
+  }
+
+  async removeBySlug(slug: string) {
+    const person = await this.findOneBySlug(slug);
+
+    await this.peopleRepository.remove(person.id);
 
     return;
   }

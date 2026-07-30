@@ -66,8 +66,8 @@ export class PeopleController {
     description: 'Person retrieved successfully.',
     type: PersonResponseDto,
   })
-  findOne(@Param('id') id: string) {
-    return this.peopleService.findOne(id);
+  findOneById(@Param('id') id: string) {
+    return this.peopleService.findOneById(id);
   }
 
   @Patch(':id')
@@ -82,7 +82,7 @@ export class PeopleController {
     description: 'Person updated successfully.',
     type: PersonResponseDto,
   })
-  update(@Param('id') id: string, @Body() dto: UpdatePersonDto) {
+  updateById(@Param('id') id: string, @Body() dto: UpdatePersonDto) {
     return this.peopleService.update(id, dto);
   }
 
@@ -97,7 +97,7 @@ export class PeopleController {
   @ApiNoContentResponse({
     description: 'Person deleted successfully.',
   })
-  remove(@Param('id') id: string) {
+  removeById(@Param('id') id: string) {
     return this.peopleService.remove(id);
   }
 
@@ -134,5 +134,55 @@ export class PeopleController {
   })
   removeImage(@Param('id') id: string) {
     return this.peopleService.removeImage(id);
+  }
+
+  @Get(':slug')
+  @ApiOperation({
+    summary: 'Get person by slug',
+  })
+  @ApiParam({
+    name: 'slug',
+    description: 'Person slug',
+    example: 'rafael-biato-azevedo',
+  })
+  @ApiOkResponse({
+    description: 'Person retrieved successfully.',
+    type: PersonResponseDto,
+  })
+  findOneBySlug(@Param('slug') slug: string) {
+    return this.peopleService.findOneBySlug(slug);
+  }
+
+  @Patch(':slug')
+  @ApiOperation({
+    summary: 'Update person',
+  })
+  @ApiParam({
+    name: 'slug',
+    description: 'Person slug',
+    example: 'rafael-biato-azevedo',
+  })
+  @ApiOkResponse({
+    description: 'Person updated successfully.',
+    type: PersonResponseDto,
+  })
+  updateBySlug(@Param('slug') slug: string, @Body() dto: UpdatePersonDto) {
+    return this.peopleService.updateBySlug(slug, dto);
+  }
+
+  @Delete(':slug')
+  @ApiOperation({
+    summary: 'Deactivate person',
+  })
+  @ApiParam({
+    name: 'slug',
+    description: 'Person slug',
+    example: 'rafael-biato-azevedo',
+  })
+  @ApiNoContentResponse({
+    description: 'Person deleted successfully.',
+  })
+  removeBySlug(@Param('slug') slug: string) {
+    return this.peopleService.removeBySlug(slug);
   }
 }
