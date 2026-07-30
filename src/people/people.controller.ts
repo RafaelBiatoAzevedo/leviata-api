@@ -7,7 +7,9 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
+
 import {
   ApiCreatedResponse,
   ApiNoContentResponse,
@@ -23,7 +25,9 @@ import { CreatePersonDto } from './dto/create-person.dto';
 import { UpdatePersonDto } from './dto/update-person.dto';
 import { PeopleQueryDto } from './dto/people-query.dto';
 import { PersonResponseDto } from './dto/person-response.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('people')
 @ApiTags('People')
 export class PeopleController {
@@ -136,7 +140,7 @@ export class PeopleController {
     return this.peopleService.removeImage(id);
   }
 
-  @Get(':slug')
+  @Get('slug/:slug')
   @ApiOperation({
     summary: 'Get person by slug',
   })
@@ -153,7 +157,7 @@ export class PeopleController {
     return this.peopleService.findOneBySlug(slug);
   }
 
-  @Patch(':slug')
+  @Patch('slug/:slug')
   @ApiOperation({
     summary: 'Update person',
   })
@@ -170,7 +174,7 @@ export class PeopleController {
     return this.peopleService.updateBySlug(slug, dto);
   }
 
-  @Delete(':slug')
+  @Delete('slug/:slug')
   @ApiOperation({
     summary: 'Deactivate person',
   })
