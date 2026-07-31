@@ -14,6 +14,9 @@ import { MeetingModule } from './meeting/meeting.module';
 import { SeminarsModule } from './seminars/seminars.module';
 import { NewsModule } from './news/news.module';
 import { NewsletterModule } from './newsletter/newsletter.module';
+import { CountriesModule } from './countries/countries.module';
+import { AcademicTitlesModule } from './academic-titles/academic-titles.module';
+import { InstitutionsModule } from './institutions/institutions.module';
 
 @Module({
   imports: [
@@ -36,6 +39,9 @@ import { NewsletterModule } from './newsletter/newsletter.module';
     SeminarsModule,
     NewsModule,
     NewsletterModule,
+    CountriesModule,
+    AcademicTitlesModule,
+    InstitutionsModule,
   ],
   controllers: [AppController],
   providers: [],
