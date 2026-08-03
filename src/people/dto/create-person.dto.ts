@@ -1,6 +1,5 @@
 import {
   IsBoolean,
-  IsDateString,
   IsEmail,
   IsEnum,
   IsInt,
@@ -14,6 +13,7 @@ import {
 
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { PersonCategory } from '@prisma/client';
+import { Transform } from 'class-transformer';
 
 export class CreatePersonDto {
   @ApiProperty({
@@ -56,6 +56,9 @@ export class CreatePersonDto {
   @ApiPropertyOptional({
     example: 'https://site.com/avatar.jpg',
   })
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' && value.trim() === '' ? undefined : value,
+  )
   @IsOptional()
   @IsUrl()
   imageUrl?: string;
@@ -64,8 +67,8 @@ export class CreatePersonDto {
     example: '1985-05-12',
   })
   @IsOptional()
-  @IsDateString()
-  birthDate?: string;
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
+  birthDate?: Date;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -87,16 +90,25 @@ export class CreatePersonDto {
   email?: string;
 
   @ApiPropertyOptional()
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' && value.trim() === '' ? undefined : value,
+  )
   @IsOptional()
   @IsUrl()
   lattesUrl?: string;
 
   @ApiPropertyOptional()
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' && value.trim() === '' ? undefined : value,
+  )
   @IsOptional()
   @IsUrl()
   website?: string;
 
   @ApiPropertyOptional()
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' && value.trim() === '' ? undefined : value,
+  )
   @IsOptional()
   @IsUrl()
   linkedinUrl?: string;
