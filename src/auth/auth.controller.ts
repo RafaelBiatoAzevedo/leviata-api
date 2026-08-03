@@ -22,6 +22,7 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 import { MeResponseDto } from './dto/me.response.dto';
 import { RefreshRequestDto } from './dto/refresh.request.dto';
 import { RefreshResponseDto } from './dto/refresh.response.dto';
+import { Role } from '@prisma/client';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -73,7 +74,9 @@ export class AuthController {
   @ApiOkResponse({
     type: MeResponseDto,
   })
-  me(@Req() req: any) {
+  me(
+    @Req() req: Request & { user: { id: string; email: string; role: Role } },
+  ) {
     return req.user;
   }
 }
