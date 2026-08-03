@@ -64,6 +64,8 @@ model User {
   firstName String?
   lastName  String?
 
+  hashedRefreshToken String?
+
   role      Role     @default(ADMIN)
 
   isActive  Boolean  @default(true)

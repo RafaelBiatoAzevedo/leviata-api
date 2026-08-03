@@ -12,4 +12,26 @@ export class AuthRepository {
       },
     });
   }
+
+  async clearRefreshToken(userId: string) {
+    return this.prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        hashedRefreshToken: null,
+      },
+    });
+  }
+
+  async updateRefreshToken(userId: string, hashedRefreshToken: string) {
+    return this.prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        hashedRefreshToken: hashedRefreshToken,
+      },
+    });
+  }
 }
