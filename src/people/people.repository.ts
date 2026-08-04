@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { UpdatePersonDto } from './dto/update-person.dto';
-import { CreatePersonDto } from './dto/create-person.dto';
 import { PeopleQueryDto } from './dto/people-query.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class PeopleRepository {
@@ -33,6 +32,22 @@ export class PeopleRepository {
 
       include: this.include,
     });
+  }
+
+  async existsSlug(slug: string, ignoreId?: string): Promise<boolean> {
+    const count = await this.prisma.person.count({
+      where: {
+        slug,
+        deletedAt: null,
+        ...(ignoreId && {
+          NOT: {
+            id: ignoreId,
+          },
+        }),
+      },
+    });
+
+    return count > 0;
   }
 
   findAll(query: PeopleQueryDto) {
@@ -97,25 +112,21 @@ export class PeopleRepository {
     });
   }
 
-  update(id: string, dto: UpdatePersonDto) {
+  update(id: string, data: Prisma.PersonUpdateInput) {
     return this.prisma.person.update({
       where: {
         id,
       },
 
-      data: {
-        ...dto,
-      },
+      data,
 
       include: this.include,
     });
   }
 
-  create(dto: CreatePersonDto) {
+  create(data: Prisma.PersonCreateInput) {
     return this.prisma.person.create({
-      data: {
-        ...dto,
-      },
+      data,
       include: this.include,
     });
   }

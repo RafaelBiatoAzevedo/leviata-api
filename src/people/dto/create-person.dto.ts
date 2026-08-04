@@ -17,13 +17,6 @@ import { Transform } from 'class-transformer';
 
 export class CreatePersonDto {
   @ApiProperty({
-    example: 'larissa-biato',
-  })
-  @IsString()
-  @MaxLength(255)
-  slug!: string;
-
-  @ApiProperty({
     example: 'Larissa Biato',
   })
   @IsString()

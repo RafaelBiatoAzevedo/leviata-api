@@ -5,13 +5,24 @@ import { UpdatePersonDto } from './dto/update-person.dto';
 import { PeopleQueryDto } from './dto/people-query.dto';
 import { PeopleRepository } from './people.repository';
 import { IUserJwt } from 'src/auth/jwt.strategy';
+import { generateSlug } from 'src/common/utils/slug.util';
 
 @Injectable()
 export class PeopleService {
   constructor(private readonly peopleRepository: PeopleRepository) {}
 
   async create(dto: CreatePersonDto) {
-    const person = await this.peopleRepository.create(dto);
+    let slug = generateSlug(dto.name);
+
+    let counter = 2;
+
+    while (await this.peopleRepository.existsSlug(slug)) {
+      slug = `${generateSlug(dto.name)}-${counter++}`;
+    }
+
+    const personInput = { ...dto, slug };
+
+    const person = await this.peopleRepository.create(personInput);
 
     return person;
   }
@@ -33,9 +44,25 @@ export class PeopleService {
   }
 
   async update(id: string, dto: UpdatePersonDto) {
-    await this.findOneById(id);
+    const personFound = await this.findOneById(id);
 
-    const person = await this.peopleRepository.update(id, dto);
+    let slug = personFound.slug;
+
+    if (dto.name && dto.name !== personFound.name) {
+      const baseSlug = generateSlug(dto.name);
+
+      let newSlug = baseSlug;
+      let counter = 2;
+
+      while (await this.peopleRepository.existsSlug(slug, id)) {
+        newSlug = `${baseSlug}-${counter++}`;
+      }
+
+      slug = newSlug;
+    }
+
+    const personUpdate = { ...dto, slug };
+    const person = await this.peopleRepository.update(id, personUpdate);
 
     return person;
   }
@@ -59,11 +86,30 @@ export class PeopleService {
   }
 
   async updateBySlug(slug: string, dto: UpdatePersonDto) {
-    const person = await this.findOneBySlug(slug);
+    const personFound = await this.findOneBySlug(slug);
 
-    const personUpdated = await this.peopleRepository.update(person.id, dto);
+    let tempSlug = personFound.slug;
 
-    return personUpdated;
+    if (dto.name && dto.name !== personFound.name) {
+      const baseSlug = generateSlug(dto.name);
+
+      let newSlug = baseSlug;
+      let counter = 2;
+
+      while (await this.peopleRepository.existsSlug(newSlug, personFound.id)) {
+        newSlug = `${baseSlug}-${counter++}`;
+      }
+
+      tempSlug = newSlug;
+    }
+
+    const personUpdate = { ...dto, slug: tempSlug };
+    const person = await this.peopleRepository.update(
+      personFound.id,
+      personUpdate,
+    );
+
+    return person;
   }
 
   async removeBySlug(slug: string, user: IUserJwt) {
