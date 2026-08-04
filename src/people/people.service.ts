@@ -4,6 +4,7 @@ import { CreatePersonDto } from './dto/create-person.dto';
 import { UpdatePersonDto } from './dto/update-person.dto';
 import { PeopleQueryDto } from './dto/people-query.dto';
 import { PeopleRepository } from './people.repository';
+import { IUserJwt } from 'src/auth/jwt.strategy';
 
 @Injectable()
 export class PeopleService {
@@ -39,10 +40,10 @@ export class PeopleService {
     return person;
   }
 
-  async remove(id: string) {
+  async remove(id: string, user: IUserJwt) {
     await this.findOneById(id);
 
-    await this.peopleRepository.remove(id);
+    await this.peopleRepository.remove(id, user.id);
 
     return;
   }
@@ -65,10 +66,10 @@ export class PeopleService {
     return personUpdated;
   }
 
-  async removeBySlug(slug: string) {
+  async removeBySlug(slug: string, user: IUserJwt) {
     const person = await this.findOneBySlug(slug);
 
-    await this.peopleRepository.remove(person.id);
+    await this.peopleRepository.remove(person.id, user.id);
 
     return;
   }

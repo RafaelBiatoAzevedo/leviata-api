@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 
@@ -26,6 +27,7 @@ import { UpdatePersonDto } from './dto/update-person.dto';
 import { PeopleQueryDto } from './dto/people-query.dto';
 import { PersonResponseDto } from './dto/person-response.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { IUserJwt } from 'src/auth/jwt.strategy';
 
 @UseGuards(JwtAuthGuard)
 @Controller('people')
@@ -101,8 +103,11 @@ export class PeopleController {
   @ApiNoContentResponse({
     description: 'Person deleted successfully.',
   })
-  removeById(@Param('id') id: string) {
-    return this.peopleService.remove(id);
+  removeById(
+    @Param('id') id: string,
+    @Req() req: Request & { user: IUserJwt },
+  ) {
+    return this.peopleService.remove(id, req.user);
   }
 
   @Patch(':id/image')
@@ -186,7 +191,10 @@ export class PeopleController {
   @ApiNoContentResponse({
     description: 'Person deleted successfully.',
   })
-  removeBySlug(@Param('slug') slug: string) {
-    return this.peopleService.removeBySlug(slug);
+  removeBySlug(
+    @Param('slug') slug: string,
+    @Req() req: Request & { user: IUserJwt },
+  ) {
+    return this.peopleService.removeBySlug(slug, req.user);
   }
 }

@@ -34,6 +34,7 @@ export class AuthService {
       {
         sub: user.id,
         email: user.email,
+        role: user.role,
       },
       {
         secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
@@ -55,10 +56,6 @@ export class AuthService {
     }
 
     const passwordMatch = await bcrypt.compare(dto.password, user.password);
-
-    if (!passwordMatch) {
-      throw new UnauthorizedException('Invalid email or password');
-    }
 
     if (!passwordMatch) {
       throw new UnauthorizedException('Invalid email or password');
@@ -88,15 +85,12 @@ export class AuthService {
 
   async refresh(dto: RefreshRequestDto): Promise<RefreshResponseDto> {
     try {
-      console.log('entrou', dto.refreshToken);
       const payload = await this.jwtService.verifyAsync<JwtPayload>(
         dto.refreshToken,
         {
           secret: process.env.JWT_REFRESH_SECRET,
         },
       );
-
-      console.log(payload);
 
       const user = await this.authRepository.findUserByEmail(payload.email);
 
@@ -111,8 +105,6 @@ export class AuthService {
       if (!user.hashedRefreshToken) {
         throw new UnauthorizedException('Refresh token not found.');
       }
-
-      console.log('teste', dto.refreshToken);
 
       const refreshTokenMatches = await bcrypt.compare(
         dto.refreshToken,

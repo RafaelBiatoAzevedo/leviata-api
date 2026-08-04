@@ -47,10 +47,6 @@ async function bootstrap() {
       'Events',
       'Manages academic events, seminars, conferences, and related activities.',
     )
-    .addTag(
-      'Researchers',
-      'Manages researchers, authors, scholars, and their academic profiles.',
-    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

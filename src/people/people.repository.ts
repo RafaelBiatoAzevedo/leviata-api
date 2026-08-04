@@ -84,7 +84,7 @@ export class PeopleRepository {
     });
   }
 
-  remove(id: string) {
+  remove(id: string, userId: string) {
     return this.prisma.person.update({
       where: {
         id,
@@ -92,6 +92,7 @@ export class PeopleRepository {
 
       data: {
         deletedAt: new Date(),
+        deletedById: userId,
       },
     });
   }
