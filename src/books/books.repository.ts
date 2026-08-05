@@ -1,20 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { PeopleQueryDto } from './dto/people-query.dto';
 import { Prisma } from '@prisma/client';
+import { BooksQueryDto } from './dto/book-query.dto';
 
 @Injectable()
-export class PeopleRepository {
+export class BookRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   private readonly include = {
-    nationality: true,
-    academicTitle: true,
-    institution: true,
+    authors: true,
   };
 
   findById(id: string) {
-    return this.prisma.person.findFirst({
+    return this.prisma.book.findFirst({
       where: {
         id,
         deletedAt: null,
@@ -25,7 +23,7 @@ export class PeopleRepository {
   }
 
   findBySlug(slug: string) {
-    return this.prisma.person.findUnique({
+    return this.prisma.book.findUnique({
       where: {
         slug,
       },
@@ -35,7 +33,7 @@ export class PeopleRepository {
   }
 
   async existsSlug(slug: string, ignoreId?: string): Promise<boolean> {
-    const count = await this.prisma.person.count({
+    const count = await this.prisma.book.count({
       where: {
         slug,
         deletedAt: null,
@@ -50,41 +48,56 @@ export class PeopleRepository {
     return count > 0;
   }
 
-  findAll(query: PeopleQueryDto) {
+  async findAll(query: BooksQueryDto) {
     const {
       page = 1,
       limit = 10,
       search,
-      category,
-      institutionId,
-      academicTitleId,
-      nationalityId,
-      isActive,
-      sortBy = 'displayOrder',
+      authorId,
+      publisher,
+      year,
+      sortBy = 'title',
       sortOrder = 'asc',
     } = query;
 
-    return this.prisma.person.findMany({
+    return this.prisma.book.findMany({
       where: {
         deletedAt: null,
 
         ...(search && {
-          name: {
-            contains: search,
+          OR: [
+            {
+              title: {
+                contains: search,
+                mode: 'insensitive',
+              },
+            },
+            {
+              subtitle: {
+                contains: search,
+                mode: 'insensitive',
+              },
+            },
+          ],
+        }),
+
+        ...(publisher && {
+          publisher: {
+            contains: publisher,
             mode: 'insensitive',
           },
         }),
 
-        ...(category && { category }),
+        ...(year && {
+          year,
+        }),
 
-        ...(institutionId && { institutionId }),
-
-        ...(academicTitleId && { academicTitleId }),
-
-        ...(nationalityId && { nationalityId }),
-
-        ...(isActive !== undefined && {
-          isActive: isActive === 'true',
+        ...(authorId && {
+          authors: {
+            some: {
+              id: authorId,
+            },
+          },
         }),
       },
 
@@ -99,21 +112,21 @@ export class PeopleRepository {
     });
   }
 
-  remove(id: string, userId: string) {
-    return this.prisma.person.update({
+  remove(id: string, bookId: string) {
+    return this.prisma.book.update({
       where: {
         id,
       },
 
       data: {
         deletedAt: new Date(),
-        deletedById: userId,
+        deletedById: bookId,
       },
     });
   }
 
-  update(id: string, data: Prisma.PersonUpdateInput) {
-    return this.prisma.person.update({
+  update(id: string, data: Prisma.BookUpdateInput) {
+    return this.prisma.book.update({
       where: {
         id,
       },
@@ -124,8 +137,8 @@ export class PeopleRepository {
     });
   }
 
-  create(data: Prisma.PersonCreateInput) {
-    return this.prisma.person.create({
+  create(data: Prisma.BookCreateInput) {
+    return this.prisma.book.create({
       data,
       include: this.include,
     });

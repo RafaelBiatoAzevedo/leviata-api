@@ -188,6 +188,8 @@ model Person {
 model Book {
   id String @id @default(uuid())
 
+  slug String @unique
+
   title       String
   subtitle    String?
 
@@ -214,6 +216,8 @@ model Book {
 
 model Article {
   id String @id @default(uuid())
+
+  slug String @unique
 
   title String
 
@@ -245,6 +249,8 @@ model Article {
 model Board {
   id String @id @default(uuid())
 
+  slug String @unique
+
   title String
 
   candidateId String
@@ -267,6 +273,8 @@ model Board {
 
 model Jury {
   id String @id @default(uuid())
+
+  slug String @unique
 
   title String
 
@@ -291,6 +299,8 @@ model Jury {
 model PresentedWork {
   id String @id @default(uuid())
 
+  slug String @unique
+
   title String
 
   date DateTime
@@ -305,6 +315,7 @@ model PresentedWork {
 
 model Meeting {
   id String @id @default(uuid())
+  slug String @unique
 
   type MeetingType
 
@@ -416,6 +427,8 @@ model Thematic {
 model News {
   id String @id @default(uuid())
 
+  slug String @unique
+
   title String
 
   description String
@@ -442,6 +455,8 @@ model News {
 
 model Newsletter {
   id String @id @default(uuid())
+
+  slug String @unique
 
   title String
 
@@ -511,6 +526,8 @@ model NewsletterDelivery {
 
 model ResearchInstrument {
   id String @id @default(uuid())
+
+  slug String @unique
 
   type ResearchInstrumentType
 

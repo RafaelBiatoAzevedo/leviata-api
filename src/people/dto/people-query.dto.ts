@@ -79,7 +79,9 @@ export class PeopleQueryDto {
     default: 'asc',
   })
   @IsOptional()
-  @Transform(({ value }) => value?.toLowerCase())
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.toLowerCase() : value,
+  )
   @IsIn(['asc', 'desc'])
   sortOrder?: 'asc' | 'desc' = 'asc';
 }
