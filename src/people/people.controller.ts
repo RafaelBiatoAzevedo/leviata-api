@@ -8,10 +8,14 @@ import {
   Post,
   Query,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 
 import {
+  ApiBody,
+  ApiConsumes,
   ApiCreatedResponse,
   ApiNoContentResponse,
   ApiOkResponse,
@@ -28,6 +32,8 @@ import { PeopleQueryDto } from './dto/people-query.dto';
 import { PersonResponseDto } from './dto/person-response.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { IUserJwt } from 'src/auth/jwt.strategy';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ImagePersonResponseDto } from './dto/image-person-response.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('people')
@@ -36,6 +42,19 @@ export class PeopleController {
   constructor(private readonly peopleService: PeopleService) {}
 
   @Post()
+  @UseInterceptors(FileInterceptor('image'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        image: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
   @ApiOperation({
     summary: 'Create person',
   })
@@ -43,8 +62,8 @@ export class PeopleController {
     description: 'Person created successfully.',
     type: PersonResponseDto,
   })
-  create(@Body() dto: CreatePersonDto) {
-    return this.peopleService.create(dto);
+  create(@Body() dto: CreatePersonDto, @UploadedFile() image?: any) {
+    return this.peopleService.create(dto, image);
   }
 
   @Get()
@@ -110,39 +129,49 @@ export class PeopleController {
     return this.peopleService.remove(id, req.user);
   }
 
-  @Patch(':id/image')
+  @Patch('slug/:slug/image')
+  @UseInterceptors(FileInterceptor('image'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        image: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
   @ApiOperation({
     summary: 'Upload person profile image',
   })
   @ApiParam({
-    name: 'id',
-    description: 'Person id',
+    name: 'slug',
+    description: 'Person slug',
   })
   @ApiOkResponse({
     description: 'Person profile image uploaded successfully.',
-    type: PersonResponseDto,
+    type: ImagePersonResponseDto,
   })
-  uploadImage(
-    @Param('id') id: string,
-    // @UploadedFile() file: Express.Multer.File,
-  ) {
-    return this.peopleService.uploadImage(id);
+  uploadImage(@Param('slug') slug: string, @UploadedFile() file: any) {
+    return this.peopleService.uploadImage(slug, file);
   }
 
-  @Delete(':id/image')
+  @Delete('slug/:slug/image')
   @ApiOperation({
     summary: 'Remove person profile image',
   })
   @ApiParam({
-    name: 'id',
-    description: 'Person id',
+    name: 'slug',
+    description: 'Person slug',
   })
   @ApiOkResponse({
     description: 'Person profile image removed successfully.',
     type: PersonResponseDto,
   })
-  removeImage(@Param('id') id: string) {
-    return this.peopleService.removeImage(id);
+  removeImage(@Param('slug') slug: string) {
+    return this.peopleService.removeImage(slug);
   }
 
   @Get('slug/:slug')

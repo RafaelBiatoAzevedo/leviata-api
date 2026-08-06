@@ -34,6 +34,7 @@ export class CreatePersonDto {
     default: true,
   })
   @IsOptional()
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean()
   isActive?: boolean;
 
@@ -42,19 +43,10 @@ export class CreatePersonDto {
     default: 0,
   })
   @IsOptional()
+  @Transform(({ value }) => Number(value))
   @IsInt()
   @Min(0)
   displayOrder?: number;
-
-  @ApiPropertyOptional({
-    example: 'https://site.com/avatar.jpg',
-  })
-  @Transform(({ value }: { value: unknown }) =>
-    typeof value === 'string' && value.trim() === '' ? undefined : value,
-  )
-  @IsOptional()
-  @IsUrl()
-  imageUrl?: string;
 
   @ApiPropertyOptional({
     example: '1985-05-12',

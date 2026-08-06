@@ -6,21 +6,36 @@ import { PeopleQueryDto } from './dto/people-query.dto';
 import { PeopleRepository } from './people.repository';
 import { IUserJwt } from 'src/auth/jwt.strategy';
 import { generateSlug } from 'src/common/utils/slug.util';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { CloudinaryUploadOptions } from 'src/cloudinary/interfaces/CloudnaryOptions';
 
 @Injectable()
 export class PeopleService {
-  constructor(private readonly peopleRepository: PeopleRepository) {}
+  constructor(
+    private readonly peopleRepository: PeopleRepository,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
-  async create(dto: CreatePersonDto) {
+  private folderCloudinaryName = 'leviata/images/people/';
+
+  async create(dto: CreatePersonDto, image?: any) {
+    let imageUrl: string | undefined;
+    let imagePublicId: string | undefined;
     let slug = generateSlug(dto.name);
-
     let counter = 2;
 
     while (await this.peopleRepository.existsSlug(slug)) {
       slug = `${generateSlug(dto.name)}-${counter++}`;
     }
 
-    const personInput = { ...dto, slug };
+    if (image) {
+      const result = await this.changeImage(slug, image);
+
+      imageUrl = result.url;
+      imagePublicId = result.public_id;
+    }
+
+    const personInput = { ...dto, slug, imageUrl, imagePublicId };
 
     const person = await this.peopleRepository.create(personInput);
 
@@ -47,6 +62,8 @@ export class PeopleService {
     const personFound = await this.findOneById(id);
 
     let slug = personFound.slug;
+    let imagePublicId = personFound.imagePublicId;
+    let imageUrl = personFound.imageUrl;
 
     if (dto.name && dto.name !== personFound.name) {
       const baseSlug = generateSlug(dto.name);
@@ -59,9 +76,28 @@ export class PeopleService {
       }
 
       slug = newSlug;
+
+      if (imagePublicId) {
+        const newPublicId = `${this.folderCloudinaryName}${newSlug}`;
+
+        const result = await this.cloudinaryService.rename(
+          imagePublicId,
+          newPublicId,
+        );
+
+        if (result) {
+          await this.cloudinaryService.updateDisplayName(
+            result.public_id,
+            newSlug,
+          );
+
+          imagePublicId = result.public_id;
+          imageUrl = result.url;
+        }
+      }
     }
 
-    const personUpdate = { ...dto, slug };
+    const personUpdate = { ...dto, slug, imagePublicId, imageUrl };
     const person = await this.peopleRepository.update(id, personUpdate);
 
     return person;
@@ -89,6 +125,8 @@ export class PeopleService {
     const personFound = await this.findOneBySlug(slug);
 
     let tempSlug = personFound.slug;
+    let imagePublicId = personFound.imagePublicId;
+    let imageUrl = personFound.imageUrl;
 
     if (dto.name && dto.name !== personFound.name) {
       const baseSlug = generateSlug(dto.name);
@@ -101,9 +139,28 @@ export class PeopleService {
       }
 
       tempSlug = newSlug;
+
+      if (imagePublicId) {
+        const newPublicId = `${this.folderCloudinaryName}${newSlug}`;
+
+        const result = await this.cloudinaryService.rename(
+          imagePublicId,
+          newPublicId,
+        );
+
+        if (result) {
+          await this.cloudinaryService.updateDisplayName(
+            result.public_id,
+            newSlug,
+          );
+
+          imagePublicId = result.public_id;
+          imageUrl = result.url;
+        }
+      }
     }
 
-    const personUpdate = { ...dto, slug: tempSlug };
+    const personUpdate = { ...dto, slug: tempSlug, imagePublicId, imageUrl };
     const person = await this.peopleRepository.update(
       personFound.id,
       personUpdate,
@@ -120,11 +177,38 @@ export class PeopleService {
     return;
   }
 
-  async uploadImage(id: string) {
-    throw new Error('Not implemented yet.');
+  async changeImage(slug: string, file: any) {
+    const cloudinaryOptions: CloudinaryUploadOptions = {
+      folder: `${this.folderCloudinaryName}`,
+      resourceType: 'image',
+      publicId: slug,
+      displayName: slug,
+    };
+
+    return this.cloudinaryService.upload(file, cloudinaryOptions);
   }
 
-  async removeImage(id: string) {
-    throw new Error('Not implemented yet.');
+  async uploadImage(slug: string, file: any) {
+    const person = await this.peopleRepository.findBySlug(slug);
+
+    if (!person) {
+      throw new NotFoundException('Person not found.');
+    }
+
+    const result = await this.changeImage(slug, file);
+
+    await this.peopleRepository.update(person.id, {
+      imageUrl: result.url,
+      imagePublicId: result.public_id,
+    });
+
+    return {
+      url: result.url,
+      public_id: result.public_id,
+    };
+  }
+
+  async removeImage(slug: string) {
+    await this.cloudinaryService.deleteFile(`leviata/people/${slug}`);
   }
 }

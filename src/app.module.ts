@@ -17,6 +17,8 @@ import { NewsletterModule } from './newsletter/newsletter.module';
 import { CountriesModule } from './countries/countries.module';
 import { AcademicTitlesModule } from './academic-titles/academic-titles.module';
 import { InstitutionsModule } from './institutions/institutions.module';
+import { UploadModule } from './upload/upload.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -26,6 +28,8 @@ import { InstitutionsModule } from './institutions/institutions.module';
     }),
 
     PrismaModule,
+    UploadModule,
+    CloudinaryModule,
 
     AuthModule,
     UsersModule,

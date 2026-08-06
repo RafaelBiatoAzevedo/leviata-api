@@ -120,6 +120,8 @@ model Person {
   displayOrder Int @default(0)
 
   imageUrl String?
+  imagePublicId String?
+  
   name String
 
   birthDate DateTime?
