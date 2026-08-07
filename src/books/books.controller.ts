@@ -8,10 +8,14 @@ import {
   Post,
   Query,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 
 import {
+  ApiBody,
+  ApiConsumes,
   ApiCreatedResponse,
   ApiNoContentResponse,
   ApiOkResponse,
@@ -27,6 +31,8 @@ import { BookResponseDto } from './dto/book-response.dto';
 import { CreateBookDto } from './dto/create-book.dto';
 import { BooksQueryDto } from './dto/book-query.dto';
 import { UpdateBookDto } from './dto/update.book.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { CreateBookWithImageDto } from './dto/create-book-with-cover.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('books')
@@ -35,6 +41,11 @@ export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 
   @Post()
+  @UseInterceptors(FileInterceptor('cover'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    type: CreateBookWithImageDto,
+  })
   @ApiOperation({
     summary: 'Create book',
   })
@@ -42,8 +53,8 @@ export class BooksController {
     description: 'Book created successfully.',
     type: BookResponseDto,
   })
-  create(@Body() dto: CreateBookDto) {
-    return this.booksService.create(dto);
+  create(@Body() dto: CreateBookDto, @UploadedFile() cover?: any) {
+    return this.booksService.create(dto, cover);
   }
 
   @Get()
@@ -109,39 +120,48 @@ export class BooksController {
     return this.booksService.remove(id, req.user);
   }
 
-  @Patch(':id/image')
+  @Patch('slug/:slug/cover')
+  @UseInterceptors(FileInterceptor('cover'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        image: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
   @ApiOperation({
-    summary: 'Upload book profile image',
+    summary: 'Upload book cover',
   })
   @ApiParam({
-    name: 'id',
-    description: 'Book id',
+    name: 'slug',
+    description: 'Book slug',
   })
   @ApiOkResponse({
-    description: 'Book profile image uploaded successfully.',
+    description: 'Book cover uploaded successfully.',
     type: BookResponseDto,
   })
-  uploadImage(
-    @Param('id') id: string,
-    // @UploadedFile() file: Express.Multer.File,
-  ) {
-    return this.booksService.uploadImage(id);
+  uploadCover(@Param('slug') slug: string, @UploadedFile() cover: any) {
+    return this.booksService.uploadCover(slug, cover);
   }
 
-  @Delete(':id/image')
+  @Delete('slug/:slug/cover')
   @ApiOperation({
-    summary: 'Remove book profile image',
+    summary: 'Remove book cover',
   })
   @ApiParam({
-    name: 'id',
-    description: 'Book id',
+    name: 'slug',
+    description: 'Book slug',
   })
-  @ApiOkResponse({
-    description: 'Book profile image removed successfully.',
-    type: BookResponseDto,
+  @ApiNoContentResponse({
+    description: 'Book cover removed successfully.',
   })
-  removeImage(@Param('id') id: string) {
-    return this.booksService.removeImage(id);
+  removeImage(@Param('slug') slug: string) {
+    return this.booksService.removeCover(slug);
   }
 
   @Get('slug/:slug')
@@ -151,7 +171,7 @@ export class BooksController {
   @ApiParam({
     name: 'slug',
     description: 'Book slug',
-    example: 'rafael-biato-azevedo',
+    example: 'livro-teste',
   })
   @ApiOkResponse({
     description: 'Book retrieved successfully.',
@@ -168,7 +188,7 @@ export class BooksController {
   @ApiParam({
     name: 'slug',
     description: 'Book slug',
-    example: 'rafael-biato-azevedo',
+    example: 'livro-teste',
   })
   @ApiOkResponse({
     description: 'Book updated successfully.',
@@ -185,7 +205,7 @@ export class BooksController {
   @ApiParam({
     name: 'slug',
     description: 'Book slug',
-    example: 'rafael-biato-azevedo',
+    example: 'livro-teste',
   })
   @ApiNoContentResponse({
     description: 'Book deleted successfully.',

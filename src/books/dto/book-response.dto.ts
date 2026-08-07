@@ -41,7 +41,7 @@ export class BookResponseDto {
   @ApiPropertyOptional({
     example: 'https://cdn.leviata.com/books/leviata.jpg',
   })
-  cover?: string;
+  coverUrl?: string;
 
   @ApiPropertyOptional({
     example: 'Livro que reúne pesquisas sobre o cativeiro no Brasil.',

@@ -177,7 +177,7 @@ export class PeopleService {
     return;
   }
 
-  async changeImage(slug: string, file: any) {
+  async changeImage(slug: string, image: any) {
     const cloudinaryOptions: CloudinaryUploadOptions = {
       folder: `${this.folderCloudinaryName}`,
       resourceType: 'image',
@@ -185,17 +185,17 @@ export class PeopleService {
       displayName: slug,
     };
 
-    return this.cloudinaryService.upload(file, cloudinaryOptions);
+    return this.cloudinaryService.upload(image, cloudinaryOptions);
   }
 
-  async uploadImage(slug: string, file: any) {
+  async uploadImage(slug: string, image: any) {
     const person = await this.peopleRepository.findBySlug(slug);
 
     if (!person) {
       throw new NotFoundException('Person not found.');
     }
 
-    const result = await this.changeImage(slug, file);
+    const result = await this.changeImage(slug, image);
 
     await this.peopleRepository.update(person.id, {
       imageUrl: result.url,
@@ -209,6 +209,19 @@ export class PeopleService {
   }
 
   async removeImage(slug: string) {
-    await this.cloudinaryService.deleteFile(`leviata/people/${slug}`);
+    const person = await this.peopleRepository.findBySlug(slug);
+
+    if (!person) {
+      throw new NotFoundException('Person not found.');
+    }
+
+    await this.cloudinaryService.deleteFile(
+      `${this.folderCloudinaryName}${slug}`,
+    );
+
+    await this.peopleRepository.update(person.id, {
+      imageUrl: null,
+      imagePublicId: null,
+    });
   }
 }

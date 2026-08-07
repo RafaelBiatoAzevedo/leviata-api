@@ -28,13 +28,6 @@ export class CreateBookDto {
   subtitle?: string;
 
   @ApiPropertyOptional({
-    example: 'https://cdn.leviata.com/books/leviata.jpg',
-  })
-  @IsOptional()
-  @IsUrl()
-  cover?: string;
-
-  @ApiPropertyOptional({
     example:
       'Livro que aborda as pesquisas do grupo Leviatã sobre o cativeiro.',
   })

@@ -70,7 +70,7 @@ export class CreatePersonDto {
   @ApiPropertyOptional({
     example: 'larissa@email.com',
   })
-  @IsOptional()
+  @IsString()
   @IsEmail()
   email?: string;
 
@@ -105,18 +105,15 @@ export class CreatePersonDto {
   @IsString()
   honorificTitle?: string;
 
-  @ApiPropertyOptional()
-  @IsOptional()
+  @ApiProperty()
   @IsUUID()
-  nationalityId?: string;
+  nationalityId!: string;
 
-  @ApiPropertyOptional()
-  @IsOptional()
+  @ApiProperty()
   @IsUUID()
-  academicTitleId?: string;
+  academicTitleId!: string;
 
-  @ApiPropertyOptional()
-  @IsOptional()
+  @ApiProperty()
   @IsUUID()
-  institutionId?: string;
+  institutionId!: string;
 }

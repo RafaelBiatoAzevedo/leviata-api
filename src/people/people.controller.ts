@@ -34,6 +34,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { IUserJwt } from 'src/auth/jwt.strategy';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ImagePersonResponseDto } from './dto/image-person-response.dto';
+import { CreatePersonWithImageDto } from './dto/create-person-with-image.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('people')
@@ -45,15 +46,7 @@ export class PeopleController {
   @UseInterceptors(FileInterceptor('image'))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        image: {
-          type: 'string',
-          format: 'binary',
-        },
-      },
-    },
+    type: CreatePersonWithImageDto,
   })
   @ApiOperation({
     summary: 'Create person',
@@ -154,8 +147,8 @@ export class PeopleController {
     description: 'Person profile image uploaded successfully.',
     type: ImagePersonResponseDto,
   })
-  uploadImage(@Param('slug') slug: string, @UploadedFile() file: any) {
-    return this.peopleService.uploadImage(slug, file);
+  uploadImage(@Param('slug') slug: string, @UploadedFile() image: any) {
+    return this.peopleService.uploadImage(slug, image);
   }
 
   @Delete('slug/:slug/image')
@@ -166,9 +159,8 @@ export class PeopleController {
     name: 'slug',
     description: 'Person slug',
   })
-  @ApiOkResponse({
+  @ApiNoContentResponse({
     description: 'Person profile image removed successfully.',
-    type: PersonResponseDto,
   })
   removeImage(@Param('slug') slug: string) {
     return this.peopleService.removeImage(slug);

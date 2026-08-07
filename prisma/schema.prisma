@@ -195,7 +195,9 @@ model Book {
   title       String
   subtitle    String?
 
-  cover       String?
+  coverUrl    String?
+  coverPublicId   String?
+  
   description String?
 
   isbn        String?
