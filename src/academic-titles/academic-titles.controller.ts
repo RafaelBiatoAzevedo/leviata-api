@@ -1,10 +1,11 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { AcademicTitlesService } from './academic-titles.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AcademicTitleResponseDto } from './dto/academic-title-response.dto';
 
 @Controller('academic-titles')
+@ApiTags('Academic Titles')
 export class AcademicTitlesController {
   constructor(private readonly academicTitlesService: AcademicTitlesService) {}
 
