@@ -35,7 +35,17 @@ export class BooksService {
       coverPublicId = result.public_id;
     }
 
-    const bookInput = { ...dto, slug, coverUrl, coverPublicId };
+    const bookInput = {
+      ...dto,
+      slug,
+      coverUrl,
+      coverPublicId,
+      ...(dto.authors && {
+        authors: {
+          connect: dto.authors.map((id) => ({ id })),
+        },
+      }),
+    };
 
     const book = await this.booksRepository.create(bookInput);
 
@@ -97,7 +107,18 @@ export class BooksService {
       }
     }
 
-    const bookUpdate = { ...dto, slug, coverUrl, coverPublicId };
+    const bookUpdate = {
+      ...dto,
+      slug,
+      coverUrl,
+      coverPublicId,
+      ...(dto.authors! && {
+        authors: {
+          set: dto.authors.map((id) => ({ id })),
+        },
+      }),
+    };
+
     const book = await this.booksRepository.update(id, bookUpdate);
 
     return book;
@@ -160,7 +181,17 @@ export class BooksService {
       }
     }
 
-    const bookUpdate = { ...dto, slug: tempSlug, coverUrl, coverPublicId };
+    const bookUpdate = {
+      ...dto,
+      slug: tempSlug,
+      coverUrl,
+      coverPublicId,
+      ...(dto.authors! && {
+        authors: {
+          set: dto.authors.map((id) => ({ id })),
+        },
+      }),
+    };
     const book = await this.booksRepository.update(bookFound.id, bookUpdate);
 
     return book;

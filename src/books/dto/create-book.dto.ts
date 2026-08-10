@@ -1,4 +1,5 @@
 import {
+  ArrayMinSize,
   IsArray,
   IsInt,
   IsOptional,
@@ -74,8 +75,8 @@ export class CreateBookDto {
       '550e8400-e29b-41d4-a716-446655440001',
     ],
   })
-  @IsOptional()
   @IsArray()
+  @ArrayMinSize(1)
   @IsUUID('4', { each: true })
-  authorsIds?: string[];
+  authors!: string[];
 }
