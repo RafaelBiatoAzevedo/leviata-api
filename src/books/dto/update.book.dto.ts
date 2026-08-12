@@ -20,6 +20,7 @@ export class UpdateBookDto extends PartialType(CreateBookDto) {
   @ArrayMinSize(1)
   @IsUUID('4', { each: true })
   authors?: string[];
+
   @ApiPropertyOptional({
     example: 'https://site.com/avatar.jpg',
   })

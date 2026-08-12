@@ -33,6 +33,7 @@ import { BooksQueryDto } from './dto/book-query.dto';
 import { UpdateBookDto } from './dto/update.book.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateBookWithImageDto } from './dto/create-book-with-cover.dto';
+import { Public } from 'src/common/decorators/public.decorator';
 
 @UseGuards(JwtAuthGuard)
 @Controller('books')
@@ -57,6 +58,7 @@ export class BooksController {
     return this.booksService.create(dto, cover);
   }
 
+  @Public()
   @Get()
   @ApiOperation({
     summary: 'List books',

@@ -35,6 +35,7 @@ import { IUserJwt } from 'src/auth/jwt.strategy';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ImagePersonResponseDto } from './dto/image-person-response.dto';
 import { CreatePersonWithImageDto } from './dto/create-person-with-image.dto';
+import { Public } from 'src/common/decorators/public.decorator';
 
 @UseGuards(JwtAuthGuard)
 @Controller('people')
@@ -59,6 +60,7 @@ export class PeopleController {
     return this.peopleService.create(dto, image);
   }
 
+  @Public()
   @Get()
   @ApiOperation({
     summary: 'List people',
