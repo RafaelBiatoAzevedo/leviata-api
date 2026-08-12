@@ -2,21 +2,83 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { IUserJwt } from 'src/auth/jwt.strategy';
 import { generateSlug } from 'src/common/utils/slug.util';
-import { BookRepository } from './books.repository';
+import { BooksRepository } from './books.repository';
 import { CreateBookDto } from './dto/create-book.dto';
 import { BooksQueryDto } from './dto/book-query.dto';
 import { UpdateBookDto } from './dto/update.book.dto';
 import { CloudinaryUploadOptions } from 'src/cloudinary/interfaces/CloudnaryOptions';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { Book } from '@prisma/client';
 
 @Injectable()
 export class BooksService {
   constructor(
-    private readonly booksRepository: BookRepository,
+    private readonly booksRepository: BooksRepository,
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   private folderCloudinaryName = 'leviata/images/books/';
+
+  private async changeCover(slug: string, file: any) {
+    const cloudinaryOptions: CloudinaryUploadOptions = {
+      folder: `${this.folderCloudinaryName}`,
+      resourceType: 'image',
+      publicId: slug,
+      displayName: slug,
+    };
+
+    return this.cloudinaryService.upload(file, cloudinaryOptions);
+  }
+
+  private async prepareBookUpdate(bookFound: Book, dto: UpdateBookDto) {
+    let slug = bookFound.slug;
+    let coverUrl = bookFound.coverUrl;
+    let coverPublicId = bookFound.coverPublicId;
+
+    if (dto.title && dto.title !== bookFound.title) {
+      const baseSlug = generateSlug(dto.title);
+
+      let newSlug = baseSlug;
+      let counter = 2;
+
+      while (await this.booksRepository.existsSlug(newSlug, bookFound.id)) {
+        newSlug = `${baseSlug}-${counter++}`;
+      }
+
+      slug = newSlug;
+
+      if (coverPublicId) {
+        const newPublicId = `${this.folderCloudinaryName}${newSlug}`;
+
+        const result = await this.cloudinaryService.rename(
+          coverPublicId,
+          newPublicId,
+        );
+
+        if (result) {
+          await this.cloudinaryService.updateDisplayName(
+            result.public_id,
+            newSlug,
+          );
+
+          coverPublicId = result.public_id;
+          coverUrl = result.url;
+        }
+      }
+    }
+
+    return {
+      ...dto,
+      slug,
+      coverUrl,
+      coverPublicId,
+      ...(dto.authors! && {
+        authors: {
+          set: dto.authors.map((id) => ({ id })),
+        },
+      }),
+    };
+  }
 
   async create(dto: CreateBookDto, cover?: any) {
     let coverUrl: string | undefined;
@@ -71,57 +133,17 @@ export class BooksService {
   async update(id: string, dto: UpdateBookDto) {
     const bookFound = await this.findOneById(id);
 
-    let slug = bookFound.slug;
-    let coverUrl = bookFound.coverUrl;
-    let coverPublicId = bookFound.coverPublicId;
+    const bookUpdate = await this.prepareBookUpdate(bookFound, dto);
 
-    if (dto.title && dto.title !== bookFound.title) {
-      const baseSlug = generateSlug(dto.title);
+    return this.booksRepository.update(id, bookUpdate);
+  }
 
-      let newSlug = baseSlug;
-      let counter = 2;
+  async updateBySlug(slug: string, dto: UpdateBookDto) {
+    const bookFound = await this.findOneBySlug(slug);
 
-      while (await this.booksRepository.existsSlug(slug, id)) {
-        newSlug = `${baseSlug}-${counter++}`;
-      }
+    const bookUpdate = await this.prepareBookUpdate(bookFound, dto);
 
-      slug = newSlug;
-
-      if (coverPublicId) {
-        const newPublicId = `${this.folderCloudinaryName}${newSlug}`;
-
-        const result = await this.cloudinaryService.rename(
-          coverPublicId,
-          newPublicId,
-        );
-
-        if (result) {
-          await this.cloudinaryService.updateDisplayName(
-            result.public_id,
-            newSlug,
-          );
-
-          coverPublicId = result.public_id;
-          coverUrl = result.url;
-        }
-      }
-    }
-
-    const bookUpdate = {
-      ...dto,
-      slug,
-      coverUrl,
-      coverPublicId,
-      ...(dto.authors! && {
-        authors: {
-          set: dto.authors.map((id) => ({ id })),
-        },
-      }),
-    };
-
-    const book = await this.booksRepository.update(id, bookUpdate);
-
-    return book;
+    return this.booksRepository.update(bookFound.id, bookUpdate);
   }
 
   async remove(id: string, user: IUserJwt) {
@@ -142,78 +164,12 @@ export class BooksService {
     return book;
   }
 
-  async updateBySlug(slug: string, dto: UpdateBookDto) {
-    const bookFound = await this.findOneBySlug(slug);
-
-    let tempSlug = bookFound.slug;
-    let coverPublicId = bookFound.coverPublicId;
-    let coverUrl = bookFound.coverUrl;
-
-    if (dto.title && dto.title !== bookFound.title) {
-      const baseSlug = generateSlug(dto.title);
-
-      let newSlug = baseSlug;
-      let counter = 2;
-
-      while (await this.booksRepository.existsSlug(newSlug, bookFound.id)) {
-        newSlug = `${baseSlug}-${counter++}`;
-      }
-
-      tempSlug = newSlug;
-
-      if (coverPublicId) {
-        const newPublicId = `${this.folderCloudinaryName}${newSlug}`;
-
-        const result = await this.cloudinaryService.rename(
-          coverPublicId,
-          newPublicId,
-        );
-
-        if (result) {
-          await this.cloudinaryService.updateDisplayName(
-            result.public_id,
-            newSlug,
-          );
-
-          coverPublicId = result.public_id;
-          coverUrl = result.url;
-        }
-      }
-    }
-
-    const bookUpdate = {
-      ...dto,
-      slug: tempSlug,
-      coverUrl,
-      coverPublicId,
-      ...(dto.authors! && {
-        authors: {
-          set: dto.authors.map((id) => ({ id })),
-        },
-      }),
-    };
-    const book = await this.booksRepository.update(bookFound.id, bookUpdate);
-
-    return book;
-  }
-
   async removeBySlug(slug: string, user: IUserJwt) {
     const book = await this.findOneBySlug(slug);
 
     await this.booksRepository.remove(book.id, user.id);
 
     return;
-  }
-
-  async changeCover(slug: string, file: any) {
-    const cloudinaryOptions: CloudinaryUploadOptions = {
-      folder: `${this.folderCloudinaryName}`,
-      resourceType: 'image',
-      publicId: slug,
-      displayName: slug,
-    };
-
-    return this.cloudinaryService.upload(file, cloudinaryOptions);
   }
 
   async uploadCover(slug: string, file: any) {

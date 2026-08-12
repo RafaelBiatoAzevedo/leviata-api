@@ -225,7 +225,8 @@ model Article {
 
   title String
 
-  cover String?
+  coverUrl String?
+  coverPublicId String?
 
   type ArticleType @default(ARTICLE)
 

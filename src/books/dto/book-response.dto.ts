@@ -1,21 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-
-class BookAuthorResponseDto {
-  @ApiProperty({
-    example: '550e8400-e29b-41d4-a716-446655440000',
-  })
-  id!: string;
-
-  @ApiProperty({
-    example: 'larissa-biato',
-  })
-  slug!: string;
-
-  @ApiProperty({
-    example: 'Larissa Biato',
-  })
-  name!: string;
-}
+import { PersonResponseDto } from 'src/people/dto/person-response.dto';
 
 export class BookResponseDto {
   @ApiProperty({
@@ -69,9 +53,9 @@ export class BookResponseDto {
   externalUrl?: string;
 
   @ApiProperty({
-    type: [BookAuthorResponseDto],
+    type: [PersonResponseDto],
   })
-  authors!: BookAuthorResponseDto[];
+  authors!: PersonResponseDto[];
 
   @ApiProperty()
   createdAt!: Date;

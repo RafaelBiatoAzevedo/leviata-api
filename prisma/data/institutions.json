@@ -31,13 +31,8 @@
   },
   {
     "name": "Universidade Aberta - (UAb)",
-    "acronym": "UAb",
+    "acronym": "UAb - Portugal",
     "countryCode": "PT"
-  },
-  {
-    "name": "Université de Nantes - (UN)",
-    "acronym": "UN",
-    "countryCode": "FR"
   },
   {
     "name": "Conselho Nacional de Desenvolvimento Científico e Tecnológico - (CNPq)",
@@ -70,18 +65,13 @@
     "countryCode": "BR"
   },
   {
-    "name": "UNIVERSIDADE ABERTA - (UAb)",
-    "acronym": "UAb",
-    "countryCode": "PT"
-  },
-  {
     "name": "UNIVERSITÉ DE NANTES",
-    "acronym": "",
+    "acronym": "UN - França",
     "countryCode": "FR"
   },
   {
     "name": "UNIVERSITY OF KENTUCKY",
-    "acronym": "",
+    "acronym": "UK - EUA",
     "countryCode": "US"
   }
 ]

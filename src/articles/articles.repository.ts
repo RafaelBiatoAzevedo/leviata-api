@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
-import { BooksQueryDto } from './dto/book-query.dto';
+import { ArticlesQueryDto } from './dto/article-query.dto';
 
 @Injectable()
-export class BooksRepository {
+export class ArticlesRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   private readonly include = {
@@ -17,7 +17,7 @@ export class BooksRepository {
   };
 
   findById(id: string) {
-    return this.prisma.book.findFirst({
+    return this.prisma.article.findFirst({
       where: {
         id,
         deletedAt: null,
@@ -28,7 +28,7 @@ export class BooksRepository {
   }
 
   findBySlug(slug: string) {
-    return this.prisma.book.findUnique({
+    return this.prisma.article.findUnique({
       where: {
         slug,
       },
@@ -38,7 +38,7 @@ export class BooksRepository {
   }
 
   async existsSlug(slug: string, ignoreId?: string): Promise<boolean> {
-    const count = await this.prisma.book.count({
+    const count = await this.prisma.article.count({
       where: {
         slug,
         deletedAt: null,
@@ -53,19 +53,18 @@ export class BooksRepository {
     return count > 0;
   }
 
-  async findAll(query: BooksQueryDto) {
+  async findAll(query: ArticlesQueryDto) {
     const {
       page = 1,
       limit = 10,
       search,
       authorId,
-      publisher,
       year,
       sortBy = 'title',
       sortOrder = 'asc',
     } = query;
 
-    return this.prisma.book.findMany({
+    return this.prisma.article.findMany({
       where: {
         deletedAt: null,
 
@@ -78,19 +77,24 @@ export class BooksRepository {
               },
             },
             {
-              subtitle: {
+              journal: {
+                contains: search,
+                mode: 'insensitive',
+              },
+            },
+            {
+              doi: {
+                contains: search,
+                mode: 'insensitive',
+              },
+            },
+            {
+              summary: {
                 contains: search,
                 mode: 'insensitive',
               },
             },
           ],
-        }),
-
-        ...(publisher && {
-          publisher: {
-            contains: publisher,
-            mode: 'insensitive',
-          },
         }),
 
         ...(year && {
@@ -117,21 +121,21 @@ export class BooksRepository {
     });
   }
 
-  remove(id: string, bookId: string) {
-    return this.prisma.book.update({
+  remove(id: string, articleId: string) {
+    return this.prisma.article.update({
       where: {
         id,
       },
 
       data: {
         deletedAt: new Date(),
-        deletedById: bookId,
+        deletedById: articleId,
       },
     });
   }
 
-  update(id: string, data: Prisma.BookUpdateInput) {
-    return this.prisma.book.update({
+  update(id: string, data: Prisma.ArticleUpdateInput) {
+    return this.prisma.article.update({
       where: {
         id,
       },
@@ -142,8 +146,8 @@ export class BooksRepository {
     });
   }
 
-  create(data: Prisma.BookCreateInput) {
-    return this.prisma.book.create({
+  create(data: Prisma.ArticleCreateInput) {
+    return this.prisma.article.create({
       data,
       include: this.include,
     });
