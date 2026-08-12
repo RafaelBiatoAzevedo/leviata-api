@@ -8,7 +8,12 @@ export class BookRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   private readonly include = {
-    authors: true,
+    authors: {
+      include: {
+        institution: true,
+        academicTitle: true,
+      },
+    },
   };
 
   findById(id: string) {

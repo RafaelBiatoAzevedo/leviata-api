@@ -7,5 +7,5 @@ export class CreateBookWithImageDto extends CreateBookDto {
     format: 'binary',
     required: false,
   })
-  coverUrl?: any;
+  cover?: any;
 }
