@@ -17,13 +17,6 @@ import { Transform } from 'class-transformer';
 
 export class CreateArticleDto {
   @ApiProperty({
-    example: 'historia-do-cativeiro-no-brasil',
-  })
-  @IsString()
-  @MaxLength(255)
-  slug!: string;
-
-  @ApiProperty({
     example: 'A História do Cativeiro no Brasil',
   })
   @IsString()
