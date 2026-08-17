@@ -14,6 +14,7 @@ import {
 } from '@nestjs/common';
 
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiConsumes,
   ApiCreatedResponse,
@@ -41,6 +42,7 @@ import { ArticleResponseDto } from './dto/article-response.dto';
 export class ArticlesController {
   constructor(private readonly articlesService: ArticlesService) {}
 
+  @ApiBearerAuth()
   @Post()
   @UseInterceptors(FileInterceptor('cover'))
   @ApiConsumes('multipart/form-data')
@@ -72,6 +74,7 @@ export class ArticlesController {
     return this.articlesService.findAll(query);
   }
 
+  @ApiBearerAuth()
   @Get(':id')
   @ApiOperation({
     summary: 'Get article by id',
@@ -88,6 +91,7 @@ export class ArticlesController {
     return this.articlesService.findOneById(id);
   }
 
+  @ApiBearerAuth()
   @Patch(':id')
   @ApiOperation({
     summary: 'Update article',
@@ -104,6 +108,7 @@ export class ArticlesController {
     return this.articlesService.update(id, dto);
   }
 
+  @ApiBearerAuth()
   @Delete(':id')
   @ApiOperation({
     summary: 'Deactivate article',
@@ -122,6 +127,7 @@ export class ArticlesController {
     return this.articlesService.remove(id, req.user);
   }
 
+  @ApiBearerAuth()
   @Patch('slug/:slug/cover')
   @UseInterceptors(FileInterceptor('cover'))
   @ApiConsumes('multipart/form-data')
@@ -151,6 +157,7 @@ export class ArticlesController {
     return this.articlesService.uploadCover(slug, cover);
   }
 
+  @ApiBearerAuth()
   @Delete('slug/:slug/cover')
   @ApiOperation({
     summary: 'Remove article cover',
@@ -166,6 +173,7 @@ export class ArticlesController {
     return this.articlesService.removeCover(slug);
   }
 
+  @ApiBearerAuth()
   @Get('slug/:slug')
   @ApiOperation({
     summary: 'Get article by slug',
@@ -183,6 +191,7 @@ export class ArticlesController {
     return this.articlesService.findOneBySlug(slug);
   }
 
+  @ApiBearerAuth()
   @Patch('slug/:slug')
   @ApiOperation({
     summary: 'Update article',
@@ -200,6 +209,7 @@ export class ArticlesController {
     return this.articlesService.updateBySlug(slug, dto);
   }
 
+  @ApiBearerAuth()
   @Delete('slug/:slug')
   @ApiOperation({
     summary: 'Deactivate article',

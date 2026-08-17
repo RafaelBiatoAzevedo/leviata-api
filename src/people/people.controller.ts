@@ -14,6 +14,7 @@ import {
 } from '@nestjs/common';
 
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiConsumes,
   ApiCreatedResponse,
@@ -43,6 +44,7 @@ import { Public } from 'src/common/decorators/public.decorator';
 export class PeopleController {
   constructor(private readonly peopleService: PeopleService) {}
 
+  @ApiBearerAuth()
   @Post()
   @UseInterceptors(FileInterceptor('image'))
   @ApiConsumes('multipart/form-data')
@@ -74,6 +76,7 @@ export class PeopleController {
     return this.peopleService.findAll(query);
   }
 
+  @ApiBearerAuth()
   @Get(':id')
   @ApiOperation({
     summary: 'Get person by id',
@@ -90,6 +93,7 @@ export class PeopleController {
     return this.peopleService.findOneById(id);
   }
 
+  @ApiBearerAuth()
   @Patch(':id')
   @ApiOperation({
     summary: 'Update person',
@@ -106,6 +110,7 @@ export class PeopleController {
     return this.peopleService.update(id, dto);
   }
 
+  @ApiBearerAuth()
   @Delete(':id')
   @ApiOperation({
     summary: 'Deactivate person',
@@ -124,6 +129,7 @@ export class PeopleController {
     return this.peopleService.remove(id, req.user);
   }
 
+  @ApiBearerAuth()
   @Patch('slug/:slug/image')
   @UseInterceptors(FileInterceptor('image'))
   @ApiConsumes('multipart/form-data')
@@ -153,6 +159,7 @@ export class PeopleController {
     return this.peopleService.uploadImage(slug, image);
   }
 
+  @ApiBearerAuth()
   @Delete('slug/:slug/image')
   @ApiOperation({
     summary: 'Remove person profile image',
@@ -168,6 +175,7 @@ export class PeopleController {
     return this.peopleService.removeImage(slug);
   }
 
+  @ApiBearerAuth()
   @Get('slug/:slug')
   @ApiOperation({
     summary: 'Get person by slug',
@@ -185,6 +193,7 @@ export class PeopleController {
     return this.peopleService.findOneBySlug(slug);
   }
 
+  @ApiBearerAuth()
   @Patch('slug/:slug')
   @ApiOperation({
     summary: 'Update person',
@@ -202,6 +211,7 @@ export class PeopleController {
     return this.peopleService.updateBySlug(slug, dto);
   }
 
+  @ApiBearerAuth()
   @Delete('slug/:slug')
   @ApiOperation({
     summary: 'Deactivate person',

@@ -32,12 +32,12 @@ async function bootstrap() {
     )
     .addTag('Books', 'Manages books, publications, and bibliographic records.')
     .addTag(
-      'Dossiers',
-      'Manages academic dossiers, research collections, and related documents.',
-    )
-    .addTag(
       'Articles',
       'Manages academic articles, papers, and research publications.',
+    )
+    .addTag(
+      'News',
+      'Manages Leviatã news, announcements, publications, events, awards, and other updates.',
     )
     .addTag(
       'Boards',

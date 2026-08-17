@@ -22,7 +22,7 @@ export class UpdateArticleDto extends PartialType(CreateArticleDto) {
   authors?: string[];
 
   @ApiPropertyOptional({
-    example: 'https://site.com/avatar.jpg',
+    example: 'https://site.com/cover.jpg',
   })
   @Transform(({ value }: { value: unknown }) =>
     typeof value === 'string' && value.trim() === '' ? undefined : value,

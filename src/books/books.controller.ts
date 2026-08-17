@@ -14,6 +14,7 @@ import {
 } from '@nestjs/common';
 
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiConsumes,
   ApiCreatedResponse,
@@ -41,6 +42,7 @@ import { Public } from 'src/common/decorators/public.decorator';
 export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 
+  @ApiBearerAuth()
   @Post()
   @UseInterceptors(FileInterceptor('cover'))
   @ApiConsumes('multipart/form-data')
@@ -72,6 +74,7 @@ export class BooksController {
     return this.booksService.findAll(query);
   }
 
+  @ApiBearerAuth()
   @Get(':id')
   @ApiOperation({
     summary: 'Get book by id',
@@ -88,6 +91,7 @@ export class BooksController {
     return this.booksService.findOneById(id);
   }
 
+  @ApiBearerAuth()
   @Patch(':id')
   @ApiOperation({
     summary: 'Update book',
@@ -104,6 +108,7 @@ export class BooksController {
     return this.booksService.update(id, dto);
   }
 
+  @ApiBearerAuth()
   @Delete(':id')
   @ApiOperation({
     summary: 'Deactivate book',
@@ -122,6 +127,7 @@ export class BooksController {
     return this.booksService.remove(id, req.user);
   }
 
+  @ApiBearerAuth()
   @Patch('slug/:slug/cover')
   @UseInterceptors(FileInterceptor('cover'))
   @ApiConsumes('multipart/form-data')
@@ -151,6 +157,7 @@ export class BooksController {
     return this.booksService.uploadCover(slug, cover);
   }
 
+  @ApiBearerAuth()
   @Delete('slug/:slug/cover')
   @ApiOperation({
     summary: 'Remove book cover',
@@ -166,6 +173,7 @@ export class BooksController {
     return this.booksService.removeCover(slug);
   }
 
+  @ApiBearerAuth()
   @Get('slug/:slug')
   @ApiOperation({
     summary: 'Get book by slug',
@@ -183,6 +191,7 @@ export class BooksController {
     return this.booksService.findOneBySlug(slug);
   }
 
+  @ApiBearerAuth()
   @Patch('slug/:slug')
   @ApiOperation({
     summary: 'Update book',
@@ -200,6 +209,7 @@ export class BooksController {
     return this.booksService.updateBySlug(slug, dto);
   }
 
+  @ApiBearerAuth()
   @Delete('slug/:slug')
   @ApiOperation({
     summary: 'Deactivate book',

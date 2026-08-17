@@ -8,7 +8,7 @@ export class CoverBookResponseDto {
 
   @ApiProperty({
     example:
-      'https://res.cloudinary.com/seu-cloud/images/upload/v1754460000/leviata/books/livro-teste.jpg',
+      'https://res.cloudinary.com/seu-cloud/images/upload/v1754460000/leviata/images/books/livro-teste.jpg',
   })
   url!: string;
 }

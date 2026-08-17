@@ -438,7 +438,8 @@ model News {
 
   description String
 
-  cover String?
+  coverUrl String?
+  coverPublicId String?
 
   date DateTime
 

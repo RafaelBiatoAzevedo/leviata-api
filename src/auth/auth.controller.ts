@@ -23,12 +23,15 @@ import { MeResponseDto } from './dto/me.response.dto';
 import { RefreshRequestDto } from './dto/refresh.request.dto';
 import { RefreshResponseDto } from './dto/refresh.response.dto';
 import { Role } from '@prisma/client';
+import { Public } from 'src/common/decorators/public.decorator';
 
-@ApiTags('Auth')
+@UseGuards(JwtAuthGuard)
 @Controller('auth')
+@ApiTags('Auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Public()
   @Post('login')
   @ApiOperation({
     summary: 'Authenticate user',
@@ -41,7 +44,6 @@ export class AuthController {
   }
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
   @Post('logout')
   @ApiOperation({
     summary: 'Logout authenticated user',
@@ -54,6 +56,7 @@ export class AuthController {
     return this.authService.logout(req.user.id);
   }
 
+  @ApiBearerAuth()
   @Post('refresh')
   @ApiOperation({
     summary: 'Refresh access token',
@@ -65,6 +68,7 @@ export class AuthController {
     return this.authService.refresh(dto);
   }
 
+  @ApiBearerAuth()
   @Get('me')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
