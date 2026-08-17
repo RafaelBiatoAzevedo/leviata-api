@@ -18,7 +18,7 @@ export class ArticleResponseDto {
 
   @ApiPropertyOptional({
     example:
-      'https://res.cloudinary.com/seu-cloud/image/upload/v123/leviata/articles/historia-do-cativeiro-no-brasil.jpg',
+      'https://res.cloudinary.com/seu-cloud/image/upload/v123/leviata/images/articles/historia-do-cativeiro-no-brasil.jpg',
     nullable: true,
   })
   cover!: string | null;

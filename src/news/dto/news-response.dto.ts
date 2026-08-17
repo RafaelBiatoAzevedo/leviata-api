@@ -23,10 +23,10 @@ export class NewsResponseDto {
 
   @ApiPropertyOptional({
     example:
-      'https://res.cloudinary.com/seu-cloud/image/upload/v123/leviata/news/novo-projeto-de-pesquisa-leviata.jpg',
+      'https://res.cloudinary.com/seu-cloud/image/upload/v123/leviata/images/news/novo-projeto-de-pesquisa-leviata.jpg',
     nullable: true,
   })
-  cover!: string | null;
+  coverUrl!: string | null;
 
   @ApiProperty({
     example: '2026-08-17T14:00:00.000Z',

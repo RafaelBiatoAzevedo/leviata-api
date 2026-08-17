@@ -8,7 +8,7 @@ export class ImagePersonResponseDto {
 
   @ApiProperty({
     example:
-      'https://res.cloudinary.com/seu-cloud/images/upload/v1754460000/leviata/people/larissa-biato.jpg',
+      'https://res.cloudinary.com/seu-cloud/images/upload/v1754460000/leviata/images/people/larissa-biato.jpg',
   })
   url!: string;
 }
