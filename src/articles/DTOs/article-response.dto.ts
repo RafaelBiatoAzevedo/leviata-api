@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ArticleType } from '@prisma/client';
-import { PersonResponseDto } from 'src/people/dto/person-response.dto';
+import { PersonResponseDto } from 'src/people/DTOs/person-response.dto';
 
 export class ArticleResponseDto {
   @ApiProperty()

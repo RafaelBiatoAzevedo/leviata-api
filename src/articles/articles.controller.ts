@@ -27,14 +27,14 @@ import {
 
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { IUserJwt } from 'src/auth/jwt.strategy';
-import { CreateArticleDto } from './dto/create-article.dto';
-import { UpdateArticleDto } from './dto/update.article.dto';
+import { CreateArticleDto } from './DTOs/create-article.dto';
+import { UpdateArticleDto } from './DTOs/update.article.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CreateArticleWithImageDto } from './dto/create-article-with-cover.dto';
+import { CreateArticleWithImageDto } from './DTOs/create-article-with-cover.dto';
 import { Public } from 'src/common/decorators/public.decorator';
 import { ArticlesService } from './articles.service';
-import { ArticlesQueryDto } from './dto/article-query.dto';
-import { ArticleResponseDto } from './dto/article-response.dto';
+import { ArticlesQueryDto } from './DTOs/article-query.dto';
+import { ArticleResponseDto } from './DTOs/article-response.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('articles')

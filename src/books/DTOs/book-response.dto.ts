@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { PersonResponseDto } from 'src/people/dto/person-response.dto';
+import { PersonResponseDto } from 'src/people/DTOs/person-response.dto';
 
 export class BookResponseDto {
   @ApiProperty({

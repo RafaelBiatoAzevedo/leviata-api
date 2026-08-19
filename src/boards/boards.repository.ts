@@ -1,14 +1,26 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
-import { ArticlesQueryDto } from './DTOs/article-query.dto';
+import { BoardQueryDto } from './DTOs/board-query.dto';
 
 @Injectable()
-export class ArticlesRepository {
+export class BoardsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   private readonly include = {
-    authors: {
+    candidate: {
+      include: {
+        institution: true,
+        academicTitle: true,
+      },
+    },
+    advisor: {
+      include: {
+        institution: true,
+        academicTitle: true,
+      },
+    },
+    members: {
       include: {
         institution: true,
         academicTitle: true,
@@ -17,10 +29,9 @@ export class ArticlesRepository {
   };
 
   findById(id: string) {
-    return this.prisma.article.findFirst({
+    return this.prisma.board.findFirst({
       where: {
         id,
-        deletedAt: null,
       },
 
       include: this.include,
@@ -28,7 +39,7 @@ export class ArticlesRepository {
   }
 
   findBySlug(slug: string) {
-    return this.prisma.article.findUnique({
+    return this.prisma.board.findUnique({
       where: {
         slug,
       },
@@ -38,10 +49,9 @@ export class ArticlesRepository {
   }
 
   async existsSlug(slug: string, ignoreId?: string): Promise<boolean> {
-    const count = await this.prisma.article.count({
+    const count = await this.prisma.board.count({
       where: {
         slug,
-        deletedAt: null,
         ...(ignoreId && {
           NOT: {
             id: ignoreId,
@@ -53,21 +63,19 @@ export class ArticlesRepository {
     return count > 0;
   }
 
-  async findAll(query: ArticlesQueryDto) {
+  async findAll(query: BoardQueryDto) {
     const {
       page = 1,
       limit = 10,
       search,
-      authorId,
-      year,
-      sortBy = 'title',
-      sortOrder = 'asc',
+      candidateId,
+      advisorId,
+      dateFrom,
+      dateTo,
     } = query;
 
-    return this.prisma.article.findMany({
+    return this.prisma.board.findMany({
       where: {
-        deletedAt: null,
-
         ...(search && {
           OR: [
             {
@@ -77,19 +85,7 @@ export class ArticlesRepository {
               },
             },
             {
-              journal: {
-                contains: search,
-                mode: 'insensitive',
-              },
-            },
-            {
-              doi: {
-                contains: search,
-                mode: 'insensitive',
-              },
-            },
-            {
-              summary: {
+              slug: {
                 contains: search,
                 mode: 'insensitive',
               },
@@ -97,15 +93,22 @@ export class ArticlesRepository {
           ],
         }),
 
-        ...(year && {
-          year,
+        ...(candidateId && {
+          candidateId,
         }),
 
-        ...(authorId && {
-          authors: {
-            some: {
-              id: authorId,
-            },
+        ...(advisorId && {
+          advisorId,
+        }),
+
+        ...((dateFrom || dateTo) && {
+          date: {
+            ...(dateFrom && {
+              gte: new Date(dateFrom),
+            }),
+            ...(dateTo && {
+              lte: new Date(dateTo),
+            }),
           },
         }),
       },
@@ -113,7 +116,7 @@ export class ArticlesRepository {
       include: this.include,
 
       orderBy: {
-        [sortBy]: sortOrder,
+        date: 'asc',
       },
 
       skip: (page - 1) * limit,
@@ -122,20 +125,17 @@ export class ArticlesRepository {
   }
 
   remove(id: string, userId: string) {
-    return this.prisma.article.update({
+    return this.prisma.board.update({
       where: {
         id,
       },
 
-      data: {
-        deletedAt: new Date(),
-        deletedById: userId,
-      },
+      data: {},
     });
   }
 
-  update(id: string, data: Prisma.ArticleUpdateInput) {
-    return this.prisma.article.update({
+  update(id: string, data: Prisma.BoardUpdateInput) {
+    return this.prisma.board.update({
       where: {
         id,
       },
@@ -146,8 +146,8 @@ export class ArticlesRepository {
     });
   }
 
-  create(data: Prisma.ArticleCreateInput) {
-    return this.prisma.article.create({
+  create(data: Prisma.BoardCreateInput) {
+    return this.prisma.board.create({
       data,
       include: this.include,
     });

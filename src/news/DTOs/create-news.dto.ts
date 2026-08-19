@@ -9,6 +9,7 @@ import {
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { NewsCategory, NewsRelatedType } from '@prisma/client';
+import { Transform } from 'class-transformer';
 
 export class CreateNewsDto {
   @ApiProperty({
@@ -26,9 +27,9 @@ export class CreateNewsDto {
   description!: string;
 
   @ApiProperty({
-    example: '2026-08-17T14:00:00.000Z',
+    example: '1985-05-12',
   })
-  @IsDateString()
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
   date!: string;
 
   @ApiProperty({

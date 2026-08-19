@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
-import { NewsQueryDto } from './dto/news-query.dto';
+import { NewsQueryDto } from './DTOs/news-query.dto';
 
 @Injectable()
 export class NewsRepository {
@@ -103,7 +103,7 @@ export class NewsRepository {
     });
   }
 
-  remove(id: string, bookId: string) {
+  remove(id: string, userId: string) {
     return this.prisma.news.update({
       where: {
         id,
@@ -111,7 +111,7 @@ export class NewsRepository {
 
       data: {
         deletedAt: new Date(),
-        deletedById: bookId,
+        deletedById: userId,
       },
     });
   }

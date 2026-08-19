@@ -1,12 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ArticlesRepository } from './articles.repository';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
-import { CreateArticleDto } from './dto/create-article.dto';
+import { CreateArticleDto } from './DTOs/create-article.dto';
 import { generateSlug } from 'src/common/utils/slug.util';
 import { CloudinaryUploadOptions } from 'src/cloudinary/interfaces/CloudnaryOptions';
-import { ArticlesQueryDto } from './dto/article-query.dto';
+import { ArticlesQueryDto } from './DTOs/article-query.dto';
 import { IUserJwt } from 'src/auth/jwt.strategy';
-import { UpdateArticleDto } from './dto/update.article.dto';
+import { UpdateArticleDto } from './DTOs/update.article.dto';
 import { Article } from '@prisma/client';
 
 @Injectable()

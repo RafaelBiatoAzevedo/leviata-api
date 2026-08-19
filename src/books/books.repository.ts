@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
-import { BooksQueryDto } from './dto/book-query.dto';
+import { BooksQueryDto } from './DTOs/book-query.dto';
 
 @Injectable()
 export class BooksRepository {

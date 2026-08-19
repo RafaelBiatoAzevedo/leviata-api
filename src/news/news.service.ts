@@ -6,9 +6,9 @@ import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { News } from '@prisma/client';
 import { NewsRepository } from './news.repository';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { UpdateNewsDto } from './dto/update.news.dto';
-import { CreateNewsDto } from './dto/create-news.dto';
-import { NewsQueryDto } from './dto/news-query.dto';
+import { UpdateNewsDto } from './DTOs/update.news.dto';
+import { CreateNewsDto } from './DTOs/create-news.dto';
+import { NewsQueryDto } from './DTOs/news-query.dto';
 
 @Injectable()
 export class NewsService {

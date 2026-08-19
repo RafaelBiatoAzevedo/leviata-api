@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 
-import { CreatePersonDto } from './dto/create-person.dto';
-import { UpdatePersonDto } from './dto/update-person.dto';
-import { PeopleQueryDto } from './dto/people-query.dto';
+import { CreatePersonDto } from './DTOs/create-person.dto';
+import { UpdatePersonDto } from './DTOs/update-person.dto';
+import { PeopleQueryDto } from './DTOs/people-query.dto';
 import { PeopleRepository } from './people.repository';
 import { IUserJwt } from 'src/auth/jwt.strategy';
 import { generateSlug } from 'src/common/utils/slug.util';

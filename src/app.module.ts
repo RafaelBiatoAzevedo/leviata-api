@@ -4,7 +4,6 @@ import { AppController } from './app.controller';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-import { DossiersModule } from './dossiers/dossiers.module';
 import { BoardsModule } from './boards/boards.module';
 import { BooksModule } from './books/books.module';
 import { PeopleModule } from './people/people.module';
@@ -31,21 +30,21 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     UploadModule,
     CloudinaryModule,
 
-    AuthModule,
-    UsersModule,
-    DossiersModule,
-    BoardsModule,
-    BooksModule,
-    PeopleModule,
-    ArticlesModule,
-    JurisModule,
-    MeetingModule,
-    SeminarsModule,
-    NewsModule,
-    NewsletterModule,
     CountriesModule,
     AcademicTitlesModule,
     InstitutionsModule,
+
+    AuthModule,
+    UsersModule,
+    PeopleModule,
+    BooksModule,
+    ArticlesModule,
+    NewsModule,
+    BoardsModule,
+    JurisModule,
+    MeetingModule,
+    SeminarsModule,
+    NewsletterModule,
   ],
   controllers: [AppController],
   providers: [],

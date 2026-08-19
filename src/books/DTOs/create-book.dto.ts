@@ -45,7 +45,7 @@ export class CreateBookDto {
   @MaxLength(20)
   isbn?: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     example: 2025,
   })
   @Transform(({ value }) =>
@@ -53,22 +53,22 @@ export class CreateBookDto {
   )
   @IsInt()
   @Min(0)
-  year?: number;
+  year!: number;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     example: 'Editora Unicamp',
   })
   @IsString()
   @MaxLength(255)
-  publisher?: string;
+  publisher!: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     example: 'https://editora.com/livro/leviata',
   })
   @IsUrl()
-  externalUrl?: string;
+  externalUrl!: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'IDs dos autores do livro.',
     type: [String],
     example: [

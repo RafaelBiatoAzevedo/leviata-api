@@ -27,15 +27,15 @@ import {
 
 import { PeopleService } from './people.service';
 
-import { CreatePersonDto } from './dto/create-person.dto';
-import { UpdatePersonDto } from './dto/update-person.dto';
-import { PeopleQueryDto } from './dto/people-query.dto';
-import { PersonResponseDto } from './dto/person-response.dto';
+import { CreatePersonDto } from './DTOs/create-person.dto';
+import { UpdatePersonDto } from './DTOs/update-person.dto';
+import { PeopleQueryDto } from './DTOs/people-query.dto';
+import { PersonResponseDto } from './DTOs/person-response.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { IUserJwt } from 'src/auth/jwt.strategy';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ImagePersonResponseDto } from './dto/image-person-response.dto';
-import { CreatePersonWithImageDto } from './dto/create-person-with-image.dto';
+import { ImagePersonResponseDto } from './DTOs/image-person-response.dto';
+import { CreatePersonWithImageDto } from './DTOs/create-person-with-image.dto';
 import { Public } from 'src/common/decorators/public.decorator';
 
 @UseGuards(JwtAuthGuard)

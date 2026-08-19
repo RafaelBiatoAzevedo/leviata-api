@@ -28,12 +28,12 @@ import {
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { IUserJwt } from 'src/auth/jwt.strategy';
 import { BooksService } from './books.service';
-import { BookResponseDto } from './dto/book-response.dto';
-import { CreateBookDto } from './dto/create-book.dto';
-import { BooksQueryDto } from './dto/book-query.dto';
-import { UpdateBookDto } from './dto/update.book.dto';
+import { BookResponseDto } from './DTOs/book-response.dto';
+import { CreateBookDto } from './DTOs/create-book.dto';
+import { BooksQueryDto } from './DTOs/book-query.dto';
+import { UpdateBookDto } from './DTOs/update.book.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CreateBookWithImageDto } from './dto/create-book-with-cover.dto';
+import { CreateBookWithImageDto } from './DTOs/create-book-with-cover.dto';
 import { Public } from 'src/common/decorators/public.decorator';
 
 @UseGuards(JwtAuthGuard)

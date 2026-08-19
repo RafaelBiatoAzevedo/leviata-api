@@ -31,11 +31,11 @@ import { IUserJwt } from 'src/auth/jwt.strategy';
 import { Public } from 'src/common/decorators/public.decorator';
 import { NewsService } from './news.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CreateNewsWithImageDto } from './dto/create-news-with-cover.dto';
-import { CreateNewsDto } from './dto/create-news.dto';
-import { NewsResponseDto } from './dto/news-response.dto';
-import { NewsQueryDto } from './dto/news-query.dto';
-import { UpdateNewsDto } from './dto/update.news.dto';
+import { CreateNewsWithImageDto } from './DTOs/create-news-with-cover.dto';
+import { CreateNewsDto } from './DTOs/create-news.dto';
+import { NewsResponseDto } from './DTOs/news-response.dto';
+import { NewsQueryDto } from './DTOs/news-query.dto';
+import { UpdateNewsDto } from './DTOs/update.news.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('news')
