@@ -78,12 +78,6 @@ export class MeetingsRepository {
                 mode: 'insensitive',
               },
             },
-            {
-              subtitle: {
-                contains: search,
-                mode: 'insensitive',
-              },
-            },
           ],
         }),
 
