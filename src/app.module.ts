@@ -9,7 +9,7 @@ import { BooksModule } from './books/books.module';
 import { PeopleModule } from './people/people.module';
 import { ArticlesModule } from './articles/articles.module';
 import { JurisModule } from './juris/juris.module';
-import { MeetingModule } from './meeting/meeting.module';
+import { MeetingsModule } from './meetings/meetings.module';
 import { SeminarsModule } from './seminars/seminars.module';
 import { NewsModule } from './news/news.module';
 import { NewsletterModule } from './newsletter/newsletter.module';
@@ -42,7 +42,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     NewsModule,
     BoardsModule,
     JurisModule,
-    MeetingModule,
+    MeetingsModule,
     SeminarsModule,
     NewsletterModule,
   ],
