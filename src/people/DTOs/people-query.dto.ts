@@ -17,6 +17,7 @@ import { PersonCategory } from '@prisma/client';
 export class PeopleQueryDto {
   @ApiPropertyOptional({
     default: 1,
+    type: Number,
   })
   @IsOptional()
   @Type(() => Number)
@@ -26,6 +27,7 @@ export class PeopleQueryDto {
 
   @ApiPropertyOptional({
     default: 10,
+    type: Number,
   })
   @IsOptional()
   @Type(() => Number)

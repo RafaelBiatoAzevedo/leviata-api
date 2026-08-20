@@ -14,6 +14,7 @@ export class ArticlesQueryDto {
   @ApiPropertyOptional({
     example: 1,
     default: 1,
+    type: Number,
   })
   @IsOptional()
   @Type(() => Number)
@@ -24,6 +25,7 @@ export class ArticlesQueryDto {
   @ApiPropertyOptional({
     example: 10,
     default: 10,
+    type: Number,
   })
   @IsOptional()
   @Type(() => Number)
@@ -48,6 +50,7 @@ export class ArticlesQueryDto {
 
   @ApiPropertyOptional({
     example: 2025,
+    type: Number,
   })
   @IsOptional()
   @Type(() => Number)

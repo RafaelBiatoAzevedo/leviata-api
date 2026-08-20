@@ -132,15 +132,7 @@ export class BooksController {
   @UseInterceptors(FileInterceptor('cover'))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        image: {
-          type: 'string',
-          format: 'binary',
-        },
-      },
-    },
+    type: CreateBookWithImageDto,
   })
   @ApiOperation({
     summary: 'Upload book cover',

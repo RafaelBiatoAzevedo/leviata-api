@@ -132,15 +132,7 @@ export class ArticlesController {
   @UseInterceptors(FileInterceptor('cover'))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        image: {
-          type: 'string',
-          format: 'binary',
-        },
-      },
-    },
+    type: CreateArticleWithImageDto,
   })
   @ApiOperation({
     summary: 'Upload article cover',

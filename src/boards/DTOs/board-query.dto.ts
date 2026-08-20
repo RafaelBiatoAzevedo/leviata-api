@@ -14,6 +14,7 @@ export class BoardsQueryDto {
     example: 1,
     default: 1,
     description: 'Número da página.',
+    type: Number,
   })
   @IsOptional()
   @Type(() => Number)
@@ -25,6 +26,7 @@ export class BoardsQueryDto {
     example: 10,
     default: 10,
     description: 'Quantidade de registros por página.',
+    type: Number,
   })
   @IsOptional()
   @Type(() => Number)

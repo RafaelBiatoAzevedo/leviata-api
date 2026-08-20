@@ -20,7 +20,6 @@ export class CreateBoardDto {
 
   @ApiProperty({
     description: 'ID do candidato',
-    type: IsUUID,
     example: '550e8400-e29b-41d4-a716-446655440000',
   })
   @IsUUID()
@@ -28,7 +27,6 @@ export class CreateBoardDto {
 
   @ApiProperty({
     description: 'ID do orientador',
-    type: IsUUID,
     example: '550e8400-e29b-41d4-a716-446655440000',
   })
   @IsUUID()

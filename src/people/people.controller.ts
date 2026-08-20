@@ -134,15 +134,7 @@ export class PeopleController {
   @UseInterceptors(FileInterceptor('image'))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        image: {
-          type: 'string',
-          format: 'binary',
-        },
-      },
-    },
+    type: CreatePersonWithImageDto,
   })
   @ApiOperation({
     summary: 'Upload person profile image',

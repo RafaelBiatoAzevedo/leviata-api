@@ -133,15 +133,7 @@ export class NewsController {
   @UseInterceptors(FileInterceptor('cover'))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        image: {
-          type: 'string',
-          format: 'binary',
-        },
-      },
-    },
+    type: CreateNewsWithImageDto,
   })
   @ApiOperation({
     summary: 'Upload news cover',

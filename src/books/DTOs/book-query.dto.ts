@@ -25,6 +25,7 @@ export class BooksQueryDto {
   @ApiPropertyOptional({
     example: 10,
     default: 10,
+    type: Number,
   })
   @IsOptional()
   @Type(() => Number)
@@ -60,6 +61,7 @@ export class BooksQueryDto {
   @ApiPropertyOptional({
     description: 'Filter by publication year.',
     example: 2025,
+    type: Number,
   })
   @IsOptional()
   @Type(() => Number)

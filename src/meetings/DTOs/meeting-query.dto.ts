@@ -16,6 +16,7 @@ export class MeetingsQueryDto {
   @ApiPropertyOptional({
     example: 1,
     default: 1,
+    type: Number,
   })
   @IsOptional()
   @Type(() => Number)
@@ -26,6 +27,7 @@ export class MeetingsQueryDto {
   @ApiPropertyOptional({
     example: 10,
     default: 10,
+    type: Number,
   })
   @IsOptional()
   @Type(() => Number)
