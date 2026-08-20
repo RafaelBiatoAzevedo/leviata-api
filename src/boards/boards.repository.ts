@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
-import { BoardQueryDto } from './DTOs/board-query.dto';
+import { BoardsQueryDto } from './DTOs/board-query.dto';
 
 @Injectable()
 export class BoardsRepository {
@@ -63,7 +63,7 @@ export class BoardsRepository {
     return count > 0;
   }
 
-  async findAll(query: BoardQueryDto) {
+  async findAll(query: BoardsQueryDto) {
     const {
       page = 1,
       limit = 10,
@@ -130,7 +130,10 @@ export class BoardsRepository {
         id,
       },
 
-      data: {},
+      data: {
+        deletedAt: new Date(),
+        deletedById: userId,
+      },
     });
   }
 

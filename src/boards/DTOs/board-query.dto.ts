@@ -9,7 +9,7 @@ import {
   Min,
 } from 'class-validator';
 
-export class BoardQueryDto {
+export class BoardsQueryDto {
   @ApiPropertyOptional({
     example: 1,
     default: 1,

@@ -1,5 +1,4 @@
 import { PartialType } from '@nestjs/swagger';
+import { CreateBoardDto } from './create-board.dto';
 
-import { CreateArticleDto } from 'src/articles/DTOs/create-article.dto';
-
-export class UpdateArticleDto extends PartialType(CreateArticleDto) {}
+export class UpdateBoardDto extends PartialType(CreateBoardDto) {}

@@ -117,7 +117,7 @@ export class BooksRepository {
     });
   }
 
-  remove(id: string, bookId: string) {
+  remove(id: string, userId: string) {
     return this.prisma.book.update({
       where: {
         id,
@@ -125,7 +125,7 @@ export class BooksRepository {
 
       data: {
         deletedAt: new Date(),
-        deletedById: bookId,
+        deletedById: userId,
       },
     });
   }
