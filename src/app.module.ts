@@ -10,7 +10,6 @@ import { PeopleModule } from './people/people.module';
 import { ArticlesModule } from './articles/articles.module';
 import { JurisModule } from './juris/juris.module';
 import { MeetingsModule } from './meetings/meetings.module';
-import { SeminarsModule } from './seminars/seminars.module';
 import { NewsModule } from './news/news.module';
 import { NewsletterModule } from './newsletter/newsletter.module';
 import { CountriesModule } from './countries/countries.module';
@@ -43,7 +42,6 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     BoardsModule,
     JurisModule,
     MeetingsModule,
-    SeminarsModule,
     NewsletterModule,
   ],
   controllers: [AppController],

@@ -24,6 +24,7 @@ export class CreatePersonDto {
   name!: string;
 
   @ApiProperty({
+    example: PersonCategory.COORDENADOR,
     enum: PersonCategory,
   })
   @IsEnum(PersonCategory)

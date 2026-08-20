@@ -13,18 +13,18 @@ import { MeetingType } from '@prisma/client';
 
 export class CreateMeetingDto {
   @ApiProperty({
-    example: MeetingType.SEMINAR,
-    enum: MeetingType,
-  })
-  @IsEnum(MeetingType)
-  type!: MeetingType;
-
-  @ApiProperty({
     example: 'Seminário: História e Memória',
   })
   @IsString()
   @MaxLength(255)
   title!: string;
+
+  @ApiProperty({
+    example: MeetingType.SEMINAR,
+    enum: MeetingType,
+  })
+  @IsEnum(MeetingType)
+  type!: MeetingType;
 
   @ApiPropertyOptional({
     example:

@@ -44,7 +44,7 @@ async function bootstrap() {
       'Manages examination boards, thesis defenses, and qualification committees.',
     )
     .addTag(
-      'Events',
+      'Meetings',
       'Manages academic events, seminars, conferences, and related activities.',
     )
     .addTag('Institutions', 'Manages academic and research institutions.')
