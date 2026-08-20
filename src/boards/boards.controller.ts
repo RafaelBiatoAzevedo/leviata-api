@@ -55,7 +55,7 @@ export class BoardsController {
     description: 'Board created successfully.',
     type: BoardResponseDto,
   })
-  create(@Body() dto: CreateBoardDto, @UploadedFile()) {
+  create(@Body() dto: CreateBoardDto) {
     return this.boardsService.create(dto);
   }
 
