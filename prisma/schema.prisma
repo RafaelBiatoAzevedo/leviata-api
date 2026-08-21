@@ -338,7 +338,8 @@ model Meeting {
 
   title String
 
-  coverImage String?
+  coverUrl String?
+  coverPublicId String?
 
   description String?
 

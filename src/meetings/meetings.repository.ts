@@ -14,6 +14,8 @@ export class MeetingsRepository {
         academicTitle: true,
       },
     },
+
+    images: {},
   };
 
   findById(id: string) {
