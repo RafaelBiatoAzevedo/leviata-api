@@ -28,7 +28,7 @@ export class MeetingResponseDto {
       'https://res.cloudinary.com/seu-cloud/image/upload/v123/leviata/meetings/seminario-historia-e-memoria.jpg',
     nullable: true,
   })
-  coverImage!: string | null;
+  coverUrl!: string | null;
 
   @ApiPropertyOptional({
     example:
