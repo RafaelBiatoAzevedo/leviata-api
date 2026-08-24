@@ -1,7 +1,8 @@
 import {
   IsBoolean,
-  IsDateString,
+  IsDate,
   IsEnum,
+  IsNotEmpty,
   IsOptional,
   IsString,
   IsUrl,
@@ -29,8 +30,10 @@ export class CreateNewsDto {
   @ApiProperty({
     example: '1985-05-12',
   })
-  @Transform(({ value }) => (value ? new Date(value) : undefined))
-  date!: string;
+  @IsNotEmpty()
+  @IsDate()
+  @Transform(({ value }) => new Date(value))
+  date!: Date;
 
   @ApiProperty({
     enum: NewsCategory,
@@ -44,6 +47,7 @@ export class CreateNewsDto {
     default: false,
   })
   @IsOptional()
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean()
   isInternal?: boolean;
 
