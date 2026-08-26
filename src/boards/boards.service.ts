@@ -5,10 +5,38 @@ import { BoardsRepository } from './boards.repository';
 import { UpdateBoardDto } from './DTOs/update-board.dto';
 import { BoardsQueryDto } from './DTOs/board-query.dto';
 import { CreateBoardDto } from './DTOs/create-board.dto';
+import { Board } from '@prisma/client';
 
 @Injectable()
 export class BoardsService {
   constructor(private readonly boardsRepository: BoardsRepository) {}
+
+  private async prepareBoardUpdate(boardFound: Board, dto: UpdateBoardDto) {
+    let slug = boardFound.slug;
+
+    if (dto.title && dto.title !== boardFound.title) {
+      const baseSlug = generateSlug(dto.title);
+
+      let newSlug = baseSlug;
+      let counter = 2;
+
+      while (await this.boardsRepository.existsSlug(newSlug, boardFound.id)) {
+        newSlug = `${baseSlug}-${counter++}`;
+      }
+
+      slug = newSlug;
+    }
+
+    return {
+      ...dto,
+      slug,
+      ...(dto.members! && {
+        members: {
+          set: dto.members.map((id) => ({ id })),
+        },
+      }),
+    };
+  }
 
   async create(dto: CreateBoardDto) {
     let slug = generateSlug(dto.title);
@@ -21,16 +49,6 @@ export class BoardsService {
     const boardInput = {
       ...dto,
       slug,
-      candidate: {
-        connect: {
-          id: dto.candidateId,
-        },
-      },
-      advisor: {
-        connect: {
-          id: dto.advisorId,
-        },
-      },
       members: {
         connect: dto.members.map((id) => ({
           id,
@@ -62,28 +80,7 @@ export class BoardsService {
   async update(id: string, dto: UpdateBoardDto) {
     const boardFound = await this.findOneById(id);
 
-    const boardUpdate = {
-      ...dto,
-      ...(dto.candidateId && {
-        candidate: {
-          connect: {
-            id: dto.candidateId,
-          },
-        },
-      }),
-      ...(dto.advisorId && {
-        advisor: {
-          connect: {
-            id: dto.advisorId,
-          },
-        },
-      }),
-      ...(dto.members! && {
-        members: {
-          set: dto.members.map((id) => ({ id })),
-        },
-      }),
-    };
+    const boardUpdate = await this.prepareBoardUpdate(boardFound, dto);
 
     return this.boardsRepository.update(boardFound.id, boardUpdate);
   }
@@ -91,29 +88,7 @@ export class BoardsService {
   async updateBySlug(slug: string, dto: UpdateBoardDto) {
     const boardFound = await this.findOneBySlug(slug);
 
-    const boardUpdate = {
-      ...dto,
-      ...(dto.candidateId && {
-        candidate: {
-          connect: {
-            id: dto.candidateId,
-          },
-        },
-      }),
-
-      ...(dto.advisorId && {
-        advisor: {
-          connect: {
-            id: dto.advisorId,
-          },
-        },
-      }),
-      ...(dto.members! && {
-        members: {
-          set: dto.members.map((id) => ({ id })),
-        },
-      }),
-    };
+    const boardUpdate = await this.prepareBoardUpdate(boardFound, dto);
 
     return this.boardsRepository.update(boardFound.id, boardUpdate);
   }

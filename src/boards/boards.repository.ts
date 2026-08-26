@@ -137,7 +137,7 @@ export class BoardsRepository {
     });
   }
 
-  update(id: string, data: Prisma.BoardUpdateInput) {
+  update(id: string, data: Prisma.BoardUncheckedUpdateInput) {
     return this.prisma.board.update({
       where: {
         id,
@@ -149,7 +149,7 @@ export class BoardsRepository {
     });
   }
 
-  create(data: Prisma.BoardCreateInput) {
+  create(data: Prisma.BoardUncheckedCreateInput) {
     return this.prisma.board.create({
       data,
       include: this.include,

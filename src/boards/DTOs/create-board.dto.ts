@@ -3,6 +3,8 @@ import { Transform } from 'class-transformer';
 import {
   ArrayMinSize,
   IsArray,
+  IsDate,
+  IsNotEmpty,
   IsString,
   IsUrl,
   IsUUID,
@@ -62,12 +64,14 @@ export class CreateBoardDto {
   @ApiProperty({
     example: '1985-05-12',
   })
-  @Transform(({ value }) => (value ? new Date(value) : undefined))
-  date!: string;
+  @IsNotEmpty()
+  @IsDate()
+  @Transform(({ value }) => new Date(value))
+  date!: Date;
 
   @ApiProperty({
     example: 'https://revista.com/artigo/historia-cativeiro',
   })
   @IsUrl()
-  externalUrl!: string;
+  meetingUrl!: string;
 }
