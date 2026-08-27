@@ -8,7 +8,7 @@ import { BoardsModule } from './boards/boards.module';
 import { BooksModule } from './books/books.module';
 import { PeopleModule } from './people/people.module';
 import { ArticlesModule } from './articles/articles.module';
-import { JurisModule } from './juris/juris.module';
+import { JuriesModule } from './juris/juries.module';
 import { MeetingsModule } from './meetings/meetings.module';
 import { NewsModule } from './news/news.module';
 import { NewsletterModule } from './newsletter/newsletter.module';
@@ -40,7 +40,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     ArticlesModule,
     NewsModule,
     BoardsModule,
-    JurisModule,
+    JuriesModule,
     MeetingsModule,
     NewsletterModule,
   ],

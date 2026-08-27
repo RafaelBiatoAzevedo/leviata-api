@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
-import { JurisController } from './juris.controller';
-import { JurisService } from './juris.service';
-import { JurisRepository } from './juris.repository';
+import { JuriesController } from './juries.controller';
+import { JuriesService } from './juries.service';
+import { JuriesRepository } from './juries.repository';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { UploadModule } from 'src/upload/upload.module';
 import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 
 @Module({
   imports: [PrismaModule, UploadModule, CloudinaryModule],
-  controllers: [JurisController],
-  providers: [JurisService, JurisRepository],
+  controllers: [JuriesController],
+  providers: [JuriesService, JuriesRepository],
 })
-export class JurisModule {}
+export class JuriesModule {}

@@ -4,7 +4,7 @@ import { Prisma } from '@prisma/client';
 import { JuriesQueryDto } from './DTOs/jury-query.dto';
 
 @Injectable()
-export class JurisRepository {
+export class JuriesRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   private readonly include = {
