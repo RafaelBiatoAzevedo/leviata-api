@@ -2,7 +2,6 @@ import {
   ArrayMinSize,
   IsArray,
   IsDate,
-  IsDateString,
   IsEnum,
   IsNotEmpty,
   IsOptional,
@@ -73,6 +72,16 @@ export class CreateMeetingDto {
   @IsOptional()
   @IsUrl()
   meetingUrl?: string;
+
+  @ApiPropertyOptional({
+    example: 'https://meet.google.com/abc-defg-hij',
+  })
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' && value.trim() === '' ? undefined : value,
+  )
+  @IsOptional()
+  @IsUrl()
+  recordingUrl?: string;
 
   @ApiPropertyOptional({
     description: 'IDs das pessoas que participarão como palestrantes.',

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { CreateBookDto } from './create-juri.dto';
+import { CreateJuryDto } from './create-jury.dto';
 
-export class CreateBookWithImageDto extends CreateBookDto {
+export class CreateJuryWithImageDto extends CreateJuryDto {
   @ApiProperty({
     type: 'string',
     format: 'binary',

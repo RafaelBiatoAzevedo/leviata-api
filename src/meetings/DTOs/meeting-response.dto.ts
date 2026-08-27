@@ -60,6 +60,12 @@ export class MeetingResponseDto {
   })
   meetingUrl!: string | null;
 
+  @ApiPropertyOptional({
+    example: 'https://youtube.com/abc-defg-hij',
+    nullable: true,
+  })
+  recordingUrl!: string | null;
+
   @ApiProperty({
     type: () => [PersonResponseDto],
   })

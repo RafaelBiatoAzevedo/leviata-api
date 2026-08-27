@@ -1,9 +1,9 @@
 import { ApiPropertyOptional, PartialType } from '@nestjs/swagger';
-import { CreateBookDto } from './create-juri.dto';
 import { Transform } from 'class-transformer';
 import { IsOptional, IsUrl } from 'class-validator';
+import { CreateBookDto } from 'src/books/DTOs/create-book.dto';
 
-export class UpdateBookDto extends PartialType(CreateBookDto) {
+export class UpdateJuryDto extends PartialType(CreateBookDto) {
   @ApiPropertyOptional({
     example: 'https://site.com/cover.jpg',
   })

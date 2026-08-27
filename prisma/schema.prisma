@@ -286,6 +286,9 @@ model Jury {
 
   title String
 
+  coverUrl String?
+  coverPublicId String?
+
   date DateTime
 
   images Image[]
@@ -299,6 +302,10 @@ model Jury {
   defenders Person[] @relation("JuryDefenders")
 
   bailiffs Person[] @relation("JuryBailiffs")
+
+  registrationUrl String?
+  recordingUrl String?
+  meetingUrl String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -348,7 +355,7 @@ model Meeting {
   location String?
 
   registrationUrl String?
-
+  recordingUrl String?
   meetingUrl String?
 
   speakers Person[] @relation("MeetingSpeakers")
