@@ -35,6 +35,7 @@ import { CreateMeetingDto } from './DTOs/create-meeting.dto';
 import { UpdateMeetingDto } from './DTOs/update.meeting.dto';
 import { MeetingsQueryDto } from './DTOs/meeting-query.dto';
 import { CreateMeetingWithImageDto } from './DTOs/create-book-with-cover.dto';
+import { UploadImageResponseDto } from 'src/images/DTOs/upload-image-response.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('meetings')
@@ -143,7 +144,7 @@ export class MeetingsController {
   })
   @ApiOkResponse({
     description: 'Meeting cover uploaded successfully.',
-    type: MeetingResponseDto,
+    type: UploadImageResponseDto,
   })
   uploadCover(@Param('slug') slug: string, @UploadedFile() cover: any) {
     return this.meetingsService.uploadCover(slug, cover);

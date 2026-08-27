@@ -77,6 +77,11 @@ export class MeetingsService {
       slug,
       coverUrl,
       coverPublicId,
+      ...(dto.speakers! && {
+        speakers: {
+          set: dto.speakers.map((id) => ({ id })),
+        },
+      }),
     };
   }
 
@@ -102,6 +107,11 @@ export class MeetingsService {
       slug,
       coverUrl,
       coverPublicId,
+      ...(dto.speakers! && {
+        speakers: {
+          connect: dto.speakers.map((id) => ({ id })),
+        },
+      }),
     };
 
     const Meeting = await this.MeetingsRepository.create(MeetingInput);

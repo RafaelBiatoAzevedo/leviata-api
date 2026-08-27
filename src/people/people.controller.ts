@@ -34,9 +34,9 @@ import { PersonResponseDto } from './DTOs/person-response.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { IUserJwt } from 'src/auth/jwt.strategy';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ImagePersonResponseDto } from './DTOs/image-person-response.dto';
 import { CreatePersonWithImageDto } from './DTOs/create-person-with-image.dto';
 import { Public } from 'src/common/decorators/public.decorator';
+import { UploadImageResponseDto } from 'src/images/DTOs/upload-image-response.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('people')
@@ -145,7 +145,7 @@ export class PeopleController {
   })
   @ApiOkResponse({
     description: 'Person profile image uploaded successfully.',
-    type: ImagePersonResponseDto,
+    type: UploadImageResponseDto,
   })
   uploadImage(@Param('slug') slug: string, @UploadedFile() image: any) {
     return this.peopleService.uploadImage(slug, image);

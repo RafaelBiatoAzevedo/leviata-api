@@ -35,6 +35,7 @@ import { Public } from 'src/common/decorators/public.decorator';
 import { ArticlesService } from './articles.service';
 import { ArticlesQueryDto } from './DTOs/article-query.dto';
 import { ArticleResponseDto } from './DTOs/article-response.dto';
+import { UploadImageResponseDto } from 'src/images/DTOs/upload-image-response.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('articles')
@@ -143,7 +144,7 @@ export class ArticlesController {
   })
   @ApiOkResponse({
     description: 'Article cover uploaded successfully.',
-    type: ArticleResponseDto,
+    type: UploadImageResponseDto,
   })
   uploadCover(@Param('slug') slug: string, @UploadedFile() cover: any) {
     return this.articlesService.uploadCover(slug, cover);

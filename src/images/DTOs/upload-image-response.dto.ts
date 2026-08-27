@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class ImagePersonResponseDto {
+export class UploadImageResponseDto {
   @ApiProperty({
     example: 'leviata/people/larissa-biato',
   })

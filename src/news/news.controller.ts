@@ -36,6 +36,7 @@ import { CreateNewsDto } from './DTOs/create-news.dto';
 import { NewsResponseDto } from './DTOs/news-response.dto';
 import { NewsQueryDto } from './DTOs/news-query.dto';
 import { UpdateNewsDto } from './DTOs/update.news.dto';
+import { UploadImageResponseDto } from 'src/images/DTOs/upload-image-response.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('news')
@@ -144,7 +145,7 @@ export class NewsController {
   })
   @ApiOkResponse({
     description: 'News cover uploaded successfully.',
-    type: NewsResponseDto,
+    type: UploadImageResponseDto,
   })
   uploadCover(@Param('slug') slug: string, @UploadedFile() cover: any) {
     return this.newsService.uploadCover(slug, cover);

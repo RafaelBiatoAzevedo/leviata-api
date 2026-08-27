@@ -35,6 +35,7 @@ import { UpdateBookDto } from './DTOs/update.book.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateBookWithImageDto } from './DTOs/create-book-with-cover.dto';
 import { Public } from 'src/common/decorators/public.decorator';
+import { UploadImageResponseDto } from 'src/images/DTOs/upload-image-response.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('books')
@@ -143,7 +144,7 @@ export class BooksController {
   })
   @ApiOkResponse({
     description: 'Book cover uploaded successfully.',
-    type: BookResponseDto,
+    type: UploadImageResponseDto,
   })
   uploadCover(@Param('slug') slug: string, @UploadedFile() cover: any) {
     return this.booksService.uploadCover(slug, cover);
