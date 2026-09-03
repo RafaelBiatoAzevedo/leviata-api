@@ -29,6 +29,21 @@ export class CreateJuryDto {
   date!: Date;
 
   @ApiPropertyOptional({
+    example: 'Júri que aborda as pesquisas do grupo Leviatã e o cativeiro.',
+  })
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @ApiPropertyOptional({
+    example: 'Auditório da Universidade',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  location?: string;
+
+  @ApiPropertyOptional({
     description: 'IDs dos juízes da banca.',
     type: [String],
     example: ['550e8400-e29b-41d4-a716-446655440000'],
@@ -147,6 +162,16 @@ export class CreateJuryDto {
   @ArrayMinSize(1)
   @IsUUID('4', { each: true })
   bailiffs?: string[];
+
+  @ApiPropertyOptional({
+    example: 'https://evento.unicamp.br/documento222',
+  })
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' && value.trim() === '' ? undefined : value,
+  )
+  @IsOptional()
+  @IsUrl()
+  documentUrl?: string;
 
   @ApiPropertyOptional({
     example: 'https://eventos.unicamp.br/inscricao',

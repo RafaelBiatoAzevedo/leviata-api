@@ -289,7 +289,11 @@ model Jury {
   coverUrl String?
   coverPublicId String?
 
+  description String?
+
   date DateTime
+
+  location String?
 
   images Image[]
 
@@ -303,6 +307,7 @@ model Jury {
 
   bailiffs Person[] @relation("JuryBailiffs")
 
+  documentUrl String?
   registrationUrl String?
   recordingUrl String?
   meetingUrl String?
