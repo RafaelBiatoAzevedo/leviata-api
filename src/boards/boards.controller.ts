@@ -8,15 +8,12 @@ import {
   Post,
   Query,
   Req,
-  UploadedFile,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 
 import {
   ApiBearerAuth,
   ApiBody,
-  ApiConsumes,
   ApiCreatedResponse,
   ApiNoContentResponse,
   ApiOkResponse,
@@ -27,8 +24,6 @@ import {
 
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { IUserJwt } from 'src/auth/jwt.strategy';
-
-import { FileInterceptor } from '@nestjs/platform-express';
 
 import { Public } from 'src/common/decorators/public.decorator';
 import { BoardsService } from './boards.service';

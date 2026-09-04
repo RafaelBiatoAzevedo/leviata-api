@@ -17,6 +17,7 @@ import { AcademicTitlesModule } from './academic-titles/academic-titles.module';
 import { InstitutionsModule } from './institutions/institutions.module';
 import { UploadModule } from './upload/upload.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { PresentedWorksModule } from './presentedWorks/presented-works.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     NewsModule,
     BoardsModule,
     JuriesModule,
+    PresentedWorksModule,
     MeetingsModule,
     NewsletterModule,
   ],

@@ -328,12 +328,19 @@ model PresentedWork {
 
   date DateTime
 
+  location String?
+
   images Image[]
 
   meetingId String?
   meeting   Meeting? @relation(fields: [meetingId], references: [id])
 
   authors Person[]
+
+  documentUrl String?
+  registrationUrl String?
+  recordingUrl String?
+  meetingUrl String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

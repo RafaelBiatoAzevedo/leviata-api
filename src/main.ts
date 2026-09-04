@@ -51,6 +51,10 @@ async function bootstrap() {
       'Juries',
       'Manages academic examination boards, juries, and related activities.',
     )
+    .addTag(
+      'Presented Works',
+      'Manages academic presentations, presented works, and related activities.',
+    )
     .addTag('Institutions', 'Manages academic and research institutions.')
     .addTag('Countries', 'Provides the list of available countries.')
     .addTag(
