@@ -50,6 +50,9 @@ export class CreatePresentedWorkDto {
     example: 'https://example.com/documento.pdf',
     nullable: true,
   })
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' && value.trim() === '' ? undefined : value,
+  )
   @IsOptional()
   @IsUrl()
   documentUrl?: string;
@@ -58,6 +61,9 @@ export class CreatePresentedWorkDto {
     example: 'https://eventos.unicamp.br/inscricao',
     nullable: true,
   })
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' && value.trim() === '' ? undefined : value,
+  )
   @IsOptional()
   @IsUrl()
   registrationUrl?: string;
@@ -66,6 +72,9 @@ export class CreatePresentedWorkDto {
     example: 'https://www.youtube.com/watch?v=abc123',
     nullable: true,
   })
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' && value.trim() === '' ? undefined : value,
+  )
   @IsOptional()
   @IsUrl()
   recordingUrl?: string;
@@ -74,6 +83,9 @@ export class CreatePresentedWorkDto {
     example: 'https://meet.google.com/abc-defg-hij',
     nullable: true,
   })
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' && value.trim() === '' ? undefined : value,
+  )
   @IsOptional()
   @IsUrl()
   meetingUrl?: string;
