@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { ThematicVideo } from '@prisma/client';
 import { PersonResponseDto } from 'src/people/DTOs/person-response.dto';
 import { VideoResponseDto } from 'src/videos/DTOs/video-response.dto';
+import { ThematicVideoResponseDto } from './thematic-video-response.dto';
 
 export class ThematicResponseDto {
   @ApiProperty({
@@ -43,7 +43,7 @@ export class ThematicResponseDto {
     type: 'array',
     description: 'Videos relacionadas à temática.',
   })
-  additionalVideos?: ThematicVideo[];
+  additionalVideos?: ThematicVideoResponseDto[];
 
   @ApiProperty({
     example: '2026-08-19T10:00:00.000Z',
