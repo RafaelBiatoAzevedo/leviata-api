@@ -444,6 +444,7 @@ model ThematicVideo {
 
 model Thematic {
   id String @id @default(uuid())
+  slug String @unique
 
   title String
 

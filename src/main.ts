@@ -55,6 +55,10 @@ async function bootstrap() {
       'Presented Works',
       'Manages academic presentations, presented works, and related activities.',
     )
+    .addTag(
+      'Thematics',
+      'Manages thematic areas, coordinators, videos, and related activities.',
+    )
     .addTag('Institutions', 'Manages academic and research institutions.')
     .addTag('Countries', 'Provides the list of available countries.')
     .addTag(
