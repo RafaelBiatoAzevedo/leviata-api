@@ -32,4 +32,7 @@ export class VideoResponseDto {
 
   @ApiProperty()
   createdAt!: Date;
+
+  @ApiProperty()
+  updateddAt!: Date;
 }
