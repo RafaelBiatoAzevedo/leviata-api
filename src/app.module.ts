@@ -19,6 +19,7 @@ import { UploadModule } from './upload/upload.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { PresentedWorksModule } from './presentedWorks/presented-works.module';
 import { ThematicsModule } from './thematics/thematics.module';
+import { VideosModule } from './videos/videos.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { ThematicsModule } from './thematics/thematics.module';
     UsersModule,
     PeopleModule,
     BooksModule,
+    VideosModule,
     ArticlesModule,
     NewsModule,
     BoardsModule,

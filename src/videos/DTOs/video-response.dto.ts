@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { PersonResponseDto } from 'src/people/DTOs/person-response.dto';
 
 export class VideoResponseDto {
   @ApiProperty()
@@ -18,7 +19,7 @@ export class VideoResponseDto {
     example: 'Entrevista realizada com pesquisadores do grupo Leviatã.',
     nullable: true,
   })
-  description!: string | null;
+  description?: string | null;
 
   @ApiProperty({
     type: [String],
@@ -27,7 +28,7 @@ export class VideoResponseDto {
       '550e8400-e29b-41d4-a716-446655440001',
     ],
   })
-  peopleIds!: string[];
+  people?: PersonResponseDto[];
 
   @ApiProperty()
   createdAt!: Date;

@@ -59,6 +59,10 @@ async function bootstrap() {
       'Thematics',
       'Manages thematic areas, coordinators, videos, and related activities.',
     )
+    .addTag(
+      'Videos',
+      'Manages videos and their related people and thematic areas.',
+    )
     .addTag('Institutions', 'Manages academic and research institutions.')
     .addTag('Countries', 'Provides the list of available countries.')
     .addTag(

@@ -407,6 +407,7 @@ model Image {
 
 model Video {
   id String @id @default(uuid())
+  slug String @unique
 
   title String
 
@@ -421,6 +422,8 @@ model Video {
   thematicVideos ThematicVideo[]
   
   createdAt DateTime @default(now())
+  deletedAt DateTime?
+  deletedById String?
 }
 
 model ThematicVideo {
