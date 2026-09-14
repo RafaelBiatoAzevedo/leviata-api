@@ -33,7 +33,7 @@ import { CreateBookDto } from './DTOs/create-book.dto';
 import { BooksQueryDto } from './DTOs/book-query.dto';
 import { UpdateBookDto } from './DTOs/update.book.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CreateBookWithImageDto } from './DTOs/create-book-with-cover.dto';
+import { CreateBookWithCoverDto } from './DTOs/create-book-with-cover.dto';
 import { Public } from 'src/common/decorators/public.decorator';
 import { UploadImageResponseDto } from 'src/images/DTOs/upload-image-response.dto';
 
@@ -48,7 +48,7 @@ export class BooksController {
   @UseInterceptors(FileInterceptor('cover'))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
-    type: CreateBookWithImageDto,
+    type: CreateBookWithCoverDto,
   })
   @ApiOperation({
     summary: 'Create book',
@@ -133,7 +133,7 @@ export class BooksController {
   @UseInterceptors(FileInterceptor('cover'))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
-    type: CreateBookWithImageDto,
+    type: CreateBookWithCoverDto,
   })
   @ApiOperation({
     summary: 'Upload book cover',

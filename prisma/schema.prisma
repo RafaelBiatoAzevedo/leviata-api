@@ -587,6 +587,7 @@ model ResearchInstrument {
   content String?
 
   pdfUrl String?
+  pdfPublicId String?
 
   externalUrl String?
 

@@ -1,6 +1,6 @@
 export interface CloudinaryUploadOptions {
   folder: string;
-  resourceType?: 'image' | 'auto';
+  resourceType?: 'image' | 'auto' | 'raw' | 'video';
   publicId?: string;
   displayName?: string;
 }

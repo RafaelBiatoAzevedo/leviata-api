@@ -11,7 +11,6 @@ import { ArticlesModule } from './articles/articles.module';
 import { JuriesModule } from './juris/juries.module';
 import { MeetingsModule } from './meetings/meetings.module';
 import { NewsModule } from './news/news.module';
-import { NewsletterModule } from './newsletter/newsletter.module';
 import { CountriesModule } from './countries/countries.module';
 import { AcademicTitlesModule } from './academic-titles/academic-titles.module';
 import { InstitutionsModule } from './institutions/institutions.module';
@@ -20,6 +19,8 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { PresentedWorksModule } from './presentedWorks/presented-works.module';
 import { ThematicsModule } from './thematics/thematics.module';
 import { VideosModule } from './videos/videos.module';
+import { ResearchInstrumentsModule } from './researchInstruments/researchInstruments.module';
+import { NewsletterModule } from './newsletter/newsletter.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { VideosModule } from './videos/videos.module';
     PresentedWorksModule,
     ThematicsModule,
     MeetingsModule,
+    ResearchInstrumentsModule,
     NewsletterModule,
   ],
   controllers: [AppController],
