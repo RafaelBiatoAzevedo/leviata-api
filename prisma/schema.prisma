@@ -610,6 +610,9 @@ model Research {
 
   slug String @unique
 
+  coverUrl String?
+  coverPublicId String?
+
   content String?
 
   people Person[]
