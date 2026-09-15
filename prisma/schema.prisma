@@ -179,7 +179,7 @@ model Person {
 
   presentedWorks PresentedWork[]
 
-  researchs Research[]
+  searchs Search[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -404,8 +404,8 @@ model Image {
   presentedWorkId String?
   presentedWork PresentedWork? @relation(fields: [presentedWorkId], references: [id])
 
-  photos Research[] @relation("ResearchImages")
-  supports Research[] @relation("ResearchSupports")
+  photos Search[] @relation("SearchImages")
+  supports Search[] @relation("SearchSupports")
 
   createdAt DateTime @default(now())
 }
@@ -605,10 +605,12 @@ model ResearchInstrument {
   deletedById String?
 }
 
-model Research {
+model Search {
   id String @id @default(uuid())
 
   slug String @unique
+
+  title String
 
   coverUrl String?
   coverPublicId String?
@@ -617,9 +619,9 @@ model Research {
 
   people Person[]
 
-  images Image[] @relation("ResearchImages")
+  images Image[] @relation("SearchImages")
 
-  supports Image[] @relation("ResearchSupports")
+  supports Image[] @relation("SearchSupports")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

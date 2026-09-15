@@ -21,6 +21,7 @@ import { ThematicsModule } from './thematics/thematics.module';
 import { VideosModule } from './videos/videos.module';
 import { ResearchInstrumentsModule } from './researchInstruments/researchInstruments.module';
 import { NewsletterModule } from './newsletter/newsletter.module';
+import { ResearchModule } from './research/researchs.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { NewsletterModule } from './newsletter/newsletter.module';
     ThematicsModule,
     MeetingsModule,
     ResearchInstrumentsModule,
+    ResearchModule,
     NewsletterModule,
   ],
   controllers: [AppController],

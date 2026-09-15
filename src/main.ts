@@ -63,6 +63,15 @@ async function bootstrap() {
       'Videos',
       'Manages videos and their related people and thematic areas.',
     )
+    .addTag(
+      'Research Instruments',
+      'Manages research instruments and their related people.',
+    )
+
+    .addTag(
+      'Research',
+      'Manages research projects and their related people and images.',
+    )
     .addTag('Institutions', 'Manages academic and research institutions.')
     .addTag('Countries', 'Provides the list of available countries.')
     .addTag(

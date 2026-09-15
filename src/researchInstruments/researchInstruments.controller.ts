@@ -40,7 +40,7 @@ import { UploadImageResponseDto } from 'src/images/DTOs/upload-image-response.dt
 
 @UseGuards(JwtAuthGuard)
 @Controller('researchInstruments')
-@ApiTags('ResearchInstruments')
+@ApiTags('Research Instruments')
 export class ResearchInstrumentsController {
   constructor(
     private readonly researchInstrumentsService: ResearchInstrumentsService,
