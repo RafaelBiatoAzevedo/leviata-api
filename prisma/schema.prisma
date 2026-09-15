@@ -179,6 +179,8 @@ model Person {
 
   presentedWorks PresentedWork[]
 
+  researchs Research[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -402,6 +404,9 @@ model Image {
   presentedWorkId String?
   presentedWork PresentedWork? @relation(fields: [presentedWorkId], references: [id])
 
+  photos Research[] @relation("ResearchImages")
+  supports Research[] @relation("ResearchSupports")
+
   createdAt DateTime @default(now())
 }
 
@@ -592,6 +597,26 @@ model ResearchInstrument {
   externalUrl String?
 
   people Person[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  deletedAt DateTime?
+  deletedById String?
+}
+
+model Research {
+  id String @id @default(uuid())
+
+  slug String @unique
+
+  content String?
+
+  people Person[]
+
+  images Image[] @relation("ResearchImages")
+
+  supports Image[] @relation("ResearchSupports")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
