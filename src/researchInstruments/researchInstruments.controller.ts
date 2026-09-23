@@ -48,8 +48,10 @@ export class ResearchInstrumentsController {
 
   @ApiBearerAuth()
   @Post()
+  @UseInterceptors(FileInterceptor('pdf'))
+  @ApiConsumes('multipart/form-data')
   @ApiBody({
-    type: CreateResearchInstrumentDto,
+    type: CreateResearchInstrumentWithPdfDto,
   })
   @ApiOperation({
     summary: 'Create researchInstrument',
@@ -58,8 +60,8 @@ export class ResearchInstrumentsController {
     description: 'ResearchInstrument created successfully.',
     type: ResearchInstrumentResponseDto,
   })
-  create(@Body() dto: CreateResearchInstrumentDto) {
-    return this.researchInstrumentsService.create(dto);
+  create(@Body() dto: CreateResearchInstrumentDto, @UploadedFile() pdf?: any) {
+    return this.researchInstrumentsService.create(dto, pdf);
   }
 
   @Public()

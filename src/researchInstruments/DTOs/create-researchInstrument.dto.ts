@@ -7,12 +7,12 @@ import {
   IsArray,
   IsEnum,
   IsInt,
-  IsNotEmpty,
   IsOptional,
   IsString,
   IsUrl,
   IsUUID,
   MaxLength,
+  Min,
 } from 'class-validator';
 
 import { ResearchInstrumentType } from '@prisma/client';
@@ -22,7 +22,6 @@ export class CreateResearchInstrumentDto {
     example: 'Dossiês sobre a escravidão no Brasil durante o período colonial',
   })
   @IsString()
-  @IsNotEmpty()
   @MaxLength(255)
   title!: string;
 
@@ -40,8 +39,8 @@ export class CreateResearchInstrumentDto {
   @Transform(({ value }) =>
     value === '' || value === null ? undefined : Number(value),
   )
-  @IsOptional()
   @IsInt()
+  @Min(0)
   startYear?: number;
 
   @ApiPropertyOptional({
@@ -51,8 +50,8 @@ export class CreateResearchInstrumentDto {
   @Transform(({ value }) =>
     value === '' || value === null ? undefined : Number(value),
   )
-  @IsOptional()
   @IsInt()
+  @Min(0)
   endYear?: number;
 
   @ApiPropertyOptional({
