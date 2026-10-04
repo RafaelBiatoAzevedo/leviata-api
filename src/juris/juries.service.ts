@@ -154,6 +154,10 @@ export class JuriesService {
     return jury;
   }
 
+  findPage(query: JuriesQueryDto) {
+    return this.juriesRepository.findPage(query);
+  }
+
   async findAll(query: JuriesQueryDto) {
     const juries = await this.juriesRepository.findAll(query);
 

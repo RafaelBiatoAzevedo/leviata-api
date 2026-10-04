@@ -114,6 +114,10 @@ export class BooksService {
     return book;
   }
 
+  findPage(query: BooksQueryDto) {
+    return this.booksRepository.findPage(query);
+  }
+
   async findAll(query: BooksQueryDto) {
     const books = await this.booksRepository.findAll(query);
 

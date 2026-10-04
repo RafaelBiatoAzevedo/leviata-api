@@ -1,3 +1,4 @@
+import { listPage } from '../common/utils/list-page';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
@@ -53,7 +54,26 @@ export class BooksRepository {
     return count > 0;
   }
 
-  async findAll(query: BooksQueryDto) {
+  findAll(query: BooksQueryDto) {
+    return this.prisma.book.findMany(this.listArgs(query));
+  }
+
+  findPage(query: BooksQueryDto) {
+    const args = this.listArgs(query);
+    return listPage(
+      query,
+      this.prisma.book.findMany({
+        ...args,
+        orderBy: [
+          ...(Array.isArray(args.orderBy) ? args.orderBy : [args.orderBy]),
+          { id: 'asc' },
+        ],
+      }),
+      this.prisma.book.count({ where: args.where }),
+    );
+  }
+
+  private listArgs(query: BooksQueryDto) {
     const {
       page = 1,
       limit = 10,
@@ -65,12 +85,13 @@ export class BooksRepository {
       sortOrder = 'asc',
     } = query;
 
-    return this.prisma.book.findMany({
+    return {
       where: {
         deletedAt: null,
 
         ...(search && {
           OR: [
+            { slug: { contains: search, mode: 'insensitive' } },
             {
               title: {
                 contains: search,
@@ -114,7 +135,7 @@ export class BooksRepository {
 
       skip: (page - 1) * limit,
       take: limit,
-    });
+    } satisfies Prisma.BookFindManyArgs;
   }
 
   remove(id: string, userId: string) {

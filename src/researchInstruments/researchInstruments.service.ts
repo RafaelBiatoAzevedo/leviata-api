@@ -123,6 +123,10 @@ export class ResearchInstrumentsService {
     return researchInstrument;
   }
 
+  findPage(query: ResearchInstrumentsQueryDto) {
+    return this.researchInstrumentsRepository.findPage(query);
+  }
+
   async findAll(query: ResearchInstrumentsQueryDto) {
     const researchInstruments =
       await this.researchInstrumentsRepository.findAll(query);

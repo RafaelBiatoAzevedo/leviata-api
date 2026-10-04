@@ -1,3 +1,4 @@
+import { listPage } from '../common/utils/list-page';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
@@ -57,11 +58,31 @@ export class ThematicsRepository {
     return count > 0;
   }
 
-  async findAll(query: ThematicsQueryDto) {
+  findAll(query: ThematicsQueryDto) {
+    return this.prisma.thematic.findMany(this.listArgs(query));
+  }
+
+  findPage(query: ThematicsQueryDto) {
+    const args = this.listArgs(query);
+    return listPage(
+      query,
+      this.prisma.thematic.findMany({
+        ...args,
+        orderBy: [
+          ...(Array.isArray(args.orderBy) ? args.orderBy : [args.orderBy]),
+          { id: 'asc' },
+        ],
+      }),
+      this.prisma.thematic.count({ where: args.where }),
+    );
+  }
+
+  private listArgs(query: ThematicsQueryDto) {
     const { page = 1, limit = 10, search, coordinatorId, mainVideoId } = query;
 
-    return this.prisma.thematic.findMany({
+    return {
       where: {
+        deletedAt: null,
         ...(search && {
           OR: [
             {
@@ -90,9 +111,10 @@ export class ThematicsRepository {
 
       include: this.include,
 
+      orderBy: { title: 'asc' },
       skip: (page - 1) * limit,
       take: limit,
-    });
+    } satisfies Prisma.ThematicFindManyArgs;
   }
 
   remove(id: string, userId: string) {

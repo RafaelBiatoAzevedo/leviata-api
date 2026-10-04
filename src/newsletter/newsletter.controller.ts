@@ -1,3 +1,4 @@
+import { ApiPageResponse } from '../common/decorators/api-page-response.decorator';
 import {
   Body,
   Controller,
@@ -47,6 +48,14 @@ export class NewsletterController {
   @ApiOkResponse({ type: NewsletterResponseDto, isArray: true })
   findAll(@Query() query: NewsletterQueryDto) {
     return this.newsletterService.findAll(query);
+  }
+
+  @ApiBearerAuth()
+  @Get('paginated')
+  @ApiOperation({ summary: 'List records with pagination totals' })
+  @ApiPageResponse(NewsletterResponseDto)
+  findPage(@Query() query: NewsletterQueryDto) {
+    return this.newsletterService.findPage(query);
   }
 
   @ApiBearerAuth()

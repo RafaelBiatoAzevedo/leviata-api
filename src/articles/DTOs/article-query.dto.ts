@@ -1,7 +1,9 @@
+import { ArticleType } from '@prisma/client';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsInt,
+  IsEnum,
   IsOptional,
   IsString,
   IsUUID,
@@ -40,6 +42,11 @@ export class ArticlesQueryDto {
   @IsOptional()
   @IsString()
   search?: string;
+
+  @ApiPropertyOptional({ enum: ArticleType })
+  @IsOptional()
+  @IsEnum(ArticleType)
+  type?: ArticleType;
 
   @ApiPropertyOptional({
     example: '550e8400-e29b-41d4-a716-446655440000',

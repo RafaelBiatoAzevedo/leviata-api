@@ -1,3 +1,4 @@
+import { listPage } from '../common/utils/list-page';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
@@ -63,7 +64,26 @@ export class MeetingsRepository {
     return count > 0;
   }
 
-  async findAll(query: MeetingsQueryDto) {
+  findAll(query: MeetingsQueryDto) {
+    return this.prisma.meeting.findMany(this.listArgs(query));
+  }
+
+  findPage(query: MeetingsQueryDto) {
+    const args = this.listArgs(query);
+    return listPage(
+      query,
+      this.prisma.meeting.findMany({
+        ...args,
+        orderBy: [
+          ...(Array.isArray(args.orderBy) ? args.orderBy : [args.orderBy]),
+          { id: 'asc' },
+        ],
+      }),
+      this.prisma.meeting.count({ where: args.where }),
+    );
+  }
+
+  private listArgs(query: MeetingsQueryDto) {
     const {
       page = 1,
       limit = 10,
@@ -76,12 +96,13 @@ export class MeetingsRepository {
       sortOrder = 'desc',
     } = query;
 
-    return this.prisma.meeting.findMany({
+    return {
       where: {
         deletedAt: null,
 
         ...(search && {
           OR: [
+            { slug: { contains: search, mode: 'insensitive' } },
             {
               title: {
                 contains: search,
@@ -125,7 +146,7 @@ export class MeetingsRepository {
 
       skip: (page - 1) * limit,
       take: limit,
-    });
+    } satisfies Prisma.MeetingFindManyArgs;
   }
 
   remove(id: string, userId: string) {

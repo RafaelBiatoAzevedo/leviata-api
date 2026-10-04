@@ -118,6 +118,10 @@ export class ArticlesService {
     return article;
   }
 
+  findPage(query: ArticlesQueryDto) {
+    return this.articlesRepository.findPage(query);
+  }
+
   async findAll(query: ArticlesQueryDto) {
     const articles = await this.articlesRepository.findAll(query);
 

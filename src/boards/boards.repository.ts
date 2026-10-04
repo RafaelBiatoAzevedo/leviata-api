@@ -1,3 +1,4 @@
+import { listPage } from '../common/utils/list-page';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
@@ -68,7 +69,26 @@ export class BoardsRepository {
     return count > 0;
   }
 
-  async findAll(query: BoardsQueryDto) {
+  findAll(query: BoardsQueryDto) {
+    return this.prisma.board.findMany(this.listArgs(query));
+  }
+
+  findPage(query: BoardsQueryDto) {
+    const args = this.listArgs(query);
+    return listPage(
+      query,
+      this.prisma.board.findMany({
+        ...args,
+        orderBy: [
+          ...(Array.isArray(args.orderBy) ? args.orderBy : [args.orderBy]),
+          { id: 'asc' },
+        ],
+      }),
+      this.prisma.board.count({ where: args.where }),
+    );
+  }
+
+  private listArgs(query: BoardsQueryDto) {
     const {
       page = 1,
       limit = 10,
@@ -79,7 +99,7 @@ export class BoardsRepository {
       dateTo,
     } = query;
 
-    return this.prisma.board.findMany({
+    return {
       where: {
         deletedAt: null,
         ...(search && {
@@ -127,7 +147,7 @@ export class BoardsRepository {
 
       skip: (page - 1) * limit,
       take: limit,
-    });
+    } satisfies Prisma.BoardFindManyArgs;
   }
 
   remove(id: string, userId: string) {

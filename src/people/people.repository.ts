@@ -1,3 +1,4 @@
+import { listPage } from '../common/utils/list-page';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { PeopleQueryDto } from './DTOs/people-query.dto';
@@ -51,6 +52,25 @@ export class PeopleRepository {
   }
 
   findAll(query: PeopleQueryDto) {
+    return this.prisma.person.findMany(this.listArgs(query));
+  }
+
+  findPage(query: PeopleQueryDto) {
+    const args = this.listArgs(query);
+    return listPage(
+      query,
+      this.prisma.person.findMany({
+        ...args,
+        orderBy: [
+          ...(Array.isArray(args.orderBy) ? args.orderBy : [args.orderBy]),
+          { id: 'asc' },
+        ],
+      }),
+      this.prisma.person.count({ where: args.where }),
+    );
+  }
+
+  private listArgs(query: PeopleQueryDto) {
     const {
       page = 1,
       limit = 10,
@@ -64,15 +84,15 @@ export class PeopleRepository {
       sortOrder = 'asc',
     } = query;
 
-    return this.prisma.person.findMany({
+    return {
       where: {
         deletedAt: null,
 
         ...(search && {
-          name: {
-            contains: search,
-            mode: 'insensitive',
-          },
+          OR: [
+            { name: { contains: search, mode: 'insensitive' } },
+            { slug: { contains: search, mode: 'insensitive' } },
+          ],
         }),
 
         ...(category && { category }),
@@ -96,7 +116,7 @@ export class PeopleRepository {
 
       skip: (page - 1) * limit,
       take: limit,
-    });
+    } satisfies Prisma.PersonFindManyArgs;
   }
 
   remove(id: string, userId: string) {

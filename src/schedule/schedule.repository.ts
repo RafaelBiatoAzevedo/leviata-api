@@ -1,3 +1,4 @@
+import { listPage } from '../common/utils/list-page';
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
@@ -25,6 +26,25 @@ export class ScheduleRepository {
   }
 
   findAll(query: ScheduleQueryDto) {
+    return this.prisma.schedule.findMany(this.listArgs(query));
+  }
+
+  findPage(query: ScheduleQueryDto) {
+    const args = this.listArgs(query);
+    return listPage(
+      query,
+      this.prisma.schedule.findMany({
+        ...args,
+        orderBy: [
+          ...(Array.isArray(args.orderBy) ? args.orderBy : [args.orderBy]),
+          { id: 'asc' },
+        ],
+      }),
+      this.prisma.schedule.count({ where: args.where }),
+    );
+  }
+
+  private listArgs(query: ScheduleQueryDto) {
     const {
       page = 1,
       limit = 10,
@@ -34,7 +54,7 @@ export class ScheduleRepository {
       sortBy = 'date',
       sortOrder = 'asc',
     } = query;
-    return this.prisma.schedule.findMany({
+    return {
       where: {
         deletedAt: null,
         ...(search && {
@@ -54,7 +74,7 @@ export class ScheduleRepository {
       orderBy: [{ [sortBy]: sortOrder }, { id: 'asc' }],
       skip: (page - 1) * limit,
       take: limit,
-    });
+    } satisfies Prisma.ScheduleFindManyArgs;
   }
 
   create(data: Prisma.ScheduleCreateInput) {

@@ -42,6 +42,10 @@ export class PeopleService {
     return person;
   }
 
+  findPage(query: PeopleQueryDto) {
+    return this.peopleRepository.findPage(query);
+  }
+
   async findAll(query: PeopleQueryDto) {
     const people = await this.peopleRepository.findAll(query);
 

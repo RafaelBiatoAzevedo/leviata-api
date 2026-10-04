@@ -1,3 +1,4 @@
+import { ApiPageResponse } from '../common/decorators/api-page-response.decorator';
 import {
   Body,
   Controller,
@@ -66,6 +67,14 @@ export class ThematicsController {
   })
   findAll(@Query() query: ThematicsQueryDto) {
     return this.ThematicsService.findAll(query);
+  }
+
+  @ApiBearerAuth()
+  @Get('paginated')
+  @ApiOperation({ summary: 'List records with pagination totals' })
+  @ApiPageResponse(ThematicResponseDto)
+  findPage(@Query() query: ThematicsQueryDto) {
+    return this.ThematicsService.findPage(query);
   }
 
   @ApiBearerAuth()

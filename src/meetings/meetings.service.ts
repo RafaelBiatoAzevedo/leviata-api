@@ -119,6 +119,10 @@ export class MeetingsService {
     return Meeting;
   }
 
+  findPage(query: MeetingsQueryDto) {
+    return this.MeetingsRepository.findPage(query);
+  }
+
   async findAll(query: MeetingsQueryDto) {
     const Meetings = await this.MeetingsRepository.findAll(query);
 

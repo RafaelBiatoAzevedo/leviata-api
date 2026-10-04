@@ -1,3 +1,4 @@
+import { ApiPageResponse } from '../common/decorators/api-page-response.decorator';
 import {
   Body,
   Controller,
@@ -49,6 +50,14 @@ export class ScheduleController {
   @ApiOkResponse({ type: ScheduleResponseDto, isArray: true })
   findAll(@Query() query: ScheduleQueryDto) {
     return this.scheduleService.findAll(query);
+  }
+
+  @ApiBearerAuth()
+  @Get('paginated')
+  @ApiOperation({ summary: 'List records with pagination totals' })
+  @ApiPageResponse(ScheduleResponseDto)
+  findPage(@Query() query: ScheduleQueryDto) {
+    return this.scheduleService.findPage(query);
   }
 
   @ApiBearerAuth()

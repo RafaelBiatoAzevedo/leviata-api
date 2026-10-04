@@ -1,3 +1,4 @@
+import { ApiPageResponse } from '../common/decorators/api-page-response.decorator';
 import {
   Body,
   Controller,
@@ -67,6 +68,14 @@ export class PresentedWorksController {
   })
   findAll(@Query() query: PresentedWorksQueryDto) {
     return this.presentedWorksService.findAll(query);
+  }
+
+  @ApiBearerAuth()
+  @Get('paginated')
+  @ApiOperation({ summary: 'List records with pagination totals' })
+  @ApiPageResponse(PresentedWorkResponseDto)
+  findPage(@Query() query: PresentedWorksQueryDto) {
+    return this.presentedWorksService.findPage(query);
   }
 
   @Public()

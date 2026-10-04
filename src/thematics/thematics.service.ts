@@ -66,6 +66,10 @@ export class ThematicsService {
     return Thematic;
   }
 
+  findPage(query: ThematicsQueryDto) {
+    return this.ThematicsRepository.findPage(query);
+  }
+
   async findAll(query: ThematicsQueryDto) {
     const Thematics = await this.ThematicsRepository.findAll(query);
 

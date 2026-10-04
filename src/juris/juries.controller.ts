@@ -1,3 +1,4 @@
+import { ApiPageResponse } from '../common/decorators/api-page-response.decorator';
 import {
   Body,
   Controller,
@@ -73,6 +74,14 @@ export class JuriesController {
   })
   findAll(@Query() query: JuriesQueryDto) {
     return this.juriesService.findAll(query);
+  }
+
+  @ApiBearerAuth()
+  @Get('paginated')
+  @ApiOperation({ summary: 'List records with pagination totals' })
+  @ApiPageResponse(JuryResponseDto)
+  findPage(@Query() query: JuriesQueryDto) {
+    return this.juriesService.findPage(query);
   }
 
   @Public()

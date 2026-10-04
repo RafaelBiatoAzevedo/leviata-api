@@ -1,3 +1,4 @@
+import { listPage } from '../common/utils/list-page';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
@@ -85,7 +86,26 @@ export class JuriesRepository {
     return count > 0;
   }
 
-  async findAll(query: JuriesQueryDto) {
+  findAll(query: JuriesQueryDto) {
+    return this.prisma.jury.findMany(this.listArgs(query));
+  }
+
+  findPage(query: JuriesQueryDto) {
+    const args = this.listArgs(query);
+    return listPage(
+      query,
+      this.prisma.jury.findMany({
+        ...args,
+        orderBy: [
+          ...(Array.isArray(args.orderBy) ? args.orderBy : [args.orderBy]),
+          { id: 'asc' },
+        ],
+      }),
+      this.prisma.jury.count({ where: args.where }),
+    );
+  }
+
+  private listArgs(query: JuriesQueryDto) {
     const {
       page = 1,
       limit = 10,
@@ -101,15 +121,15 @@ export class JuriesRepository {
       sortOrder = 'desc',
     } = query;
 
-    return this.prisma.jury.findMany({
+    return {
       where: {
         deletedAt: null,
 
         ...(search && {
-          title: {
-            contains: search,
-            mode: 'insensitive',
-          },
+          OR: [
+            { title: { contains: search, mode: 'insensitive' } },
+            { slug: { contains: search, mode: 'insensitive' } },
+          ],
         }),
 
         ...(dateFrom || dateTo
@@ -174,7 +194,7 @@ export class JuriesRepository {
 
       skip: (page - 1) * limit,
       take: limit,
-    });
+    } satisfies Prisma.JuryFindManyArgs;
   }
 
   remove(id: string, userId: string) {

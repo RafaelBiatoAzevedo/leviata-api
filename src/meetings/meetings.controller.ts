@@ -1,3 +1,4 @@
+import { ApiPageResponse } from '../common/decorators/api-page-response.decorator';
 import {
   Body,
   Controller,
@@ -73,6 +74,14 @@ export class MeetingsController {
   })
   findAll(@Query() query: MeetingsQueryDto) {
     return this.meetingsService.findAll(query);
+  }
+
+  @ApiBearerAuth()
+  @Get('paginated')
+  @ApiOperation({ summary: 'List records with pagination totals' })
+  @ApiPageResponse(MeetingResponseDto)
+  findPage(@Query() query: MeetingsQueryDto) {
+    return this.meetingsService.findPage(query);
   }
 
   @Public()

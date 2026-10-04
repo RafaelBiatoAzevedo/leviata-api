@@ -1,3 +1,4 @@
+import { listPage } from '../common/utils/list-page';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
@@ -40,7 +41,26 @@ export class NewsRepository {
     return count > 0;
   }
 
-  async findAll(query: NewsQueryDto) {
+  findAll(query: NewsQueryDto) {
+    return this.prisma.news.findMany(this.listArgs(query));
+  }
+
+  findPage(query: NewsQueryDto) {
+    const args = this.listArgs(query);
+    return listPage(
+      query,
+      this.prisma.news.findMany({
+        ...args,
+        orderBy: [
+          ...(Array.isArray(args.orderBy) ? args.orderBy : [args.orderBy]),
+          { id: 'asc' },
+        ],
+      }),
+      this.prisma.news.count({ where: args.where }),
+    );
+  }
+
+  private listArgs(query: NewsQueryDto) {
     const {
       page = 1,
       limit = 10,
@@ -53,12 +73,13 @@ export class NewsRepository {
       sortOrder = 'desc',
     } = query;
 
-    return this.prisma.news.findMany({
+    return {
       where: {
         deletedAt: null,
 
         ...(search && {
           OR: [
+            { slug: { contains: search, mode: 'insensitive' } },
             {
               title: {
                 contains: search,
@@ -100,7 +121,7 @@ export class NewsRepository {
 
       skip: (page - 1) * limit,
       take: limit,
-    });
+    } satisfies Prisma.NewsFindManyArgs;
   }
 
   remove(id: string, userId: string) {

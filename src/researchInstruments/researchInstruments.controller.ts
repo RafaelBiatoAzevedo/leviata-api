@@ -1,3 +1,4 @@
+import { ApiPageResponse } from '../common/decorators/api-page-response.decorator';
 import {
   Body,
   Controller,
@@ -76,6 +77,14 @@ export class ResearchInstrumentsController {
   })
   findAll(@Query() query: ResearchInstrumentsQueryDto) {
     return this.researchInstrumentsService.findAll(query);
+  }
+
+  @ApiBearerAuth()
+  @Get('paginated')
+  @ApiOperation({ summary: 'List records with pagination totals' })
+  @ApiPageResponse(ResearchInstrumentResponseDto)
+  findPage(@Query() query: ResearchInstrumentsQueryDto) {
+    return this.researchInstrumentsService.findPage(query);
   }
 
   @ApiBearerAuth()

@@ -43,6 +43,12 @@ export class ScheduleService {
     });
   }
 
+  findPage(query: ScheduleQueryDto) {
+    if (query.dateFrom && query.dateTo)
+      this.validateDates(query.dateFrom, query.dateTo);
+    return this.scheduleRepository.findPage(query);
+  }
+
   findAll(query: ScheduleQueryDto) {
     if (query.dateFrom && query.dateTo)
       this.validateDates(query.dateFrom, query.dateTo);

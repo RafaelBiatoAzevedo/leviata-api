@@ -1,3 +1,4 @@
+import { ApiPageResponse } from '../common/decorators/api-page-response.decorator';
 import {
   Body,
   Controller,
@@ -66,6 +67,14 @@ export class VideosController {
   })
   findAll(@Query() query: VideosQueryDto) {
     return this.videosService.findAll(query);
+  }
+
+  @ApiBearerAuth()
+  @Get('paginated')
+  @ApiOperation({ summary: 'List records with pagination totals' })
+  @ApiPageResponse(VideoResponseDto)
+  findPage(@Query() query: VideosQueryDto) {
+    return this.videosService.findPage(query);
   }
 
   @ApiBearerAuth()

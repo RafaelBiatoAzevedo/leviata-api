@@ -104,6 +104,10 @@ export class NewsService {
     return News;
   }
 
+  findPage(query: NewsQueryDto) {
+    return this.newsRepository.findPage(query);
+  }
+
   async findAll(query: NewsQueryDto) {
     const news = await this.newsRepository.findAll(query);
 

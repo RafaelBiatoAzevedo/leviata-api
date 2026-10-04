@@ -1,3 +1,4 @@
+import { listPage } from '../common/utils/list-page';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
@@ -57,7 +58,26 @@ export class PresentedWorksRepository {
     return count > 0;
   }
 
-  async findAll(query: PresentedWorksQueryDto) {
+  findAll(query: PresentedWorksQueryDto) {
+    return this.prisma.presentedWork.findMany(this.listArgs(query));
+  }
+
+  findPage(query: PresentedWorksQueryDto) {
+    const args = this.listArgs(query);
+    return listPage(
+      query,
+      this.prisma.presentedWork.findMany({
+        ...args,
+        orderBy: [
+          ...(Array.isArray(args.orderBy) ? args.orderBy : [args.orderBy]),
+          { id: 'asc' },
+        ],
+      }),
+      this.prisma.presentedWork.count({ where: args.where }),
+    );
+  }
+
+  private listArgs(query: PresentedWorksQueryDto) {
     const {
       page = 1,
       limit = 10,
@@ -70,15 +90,15 @@ export class PresentedWorksRepository {
       sortOrder = 'desc',
     } = query;
 
-    return this.prisma.presentedWork.findMany({
+    return {
       where: {
         deletedAt: null,
 
         ...(search && {
-          title: {
-            contains: search,
-            mode: 'insensitive',
-          },
+          OR: [
+            { title: { contains: search, mode: 'insensitive' } },
+            { slug: { contains: search, mode: 'insensitive' } },
+          ],
         }),
 
         ...(dateFrom || dateTo
@@ -115,7 +135,7 @@ export class PresentedWorksRepository {
 
       skip: (page - 1) * limit,
       take: limit,
-    });
+    } satisfies Prisma.PresentedWorkFindManyArgs;
   }
 
   remove(id: string, userId: string) {

@@ -136,6 +136,10 @@ export class ResearchService {
     return search;
   }
 
+  findPage(query: ResearchQueryDto) {
+    return this.researchRepository.findPage(query);
+  }
+
   async findAll(query: ResearchQueryDto) {
     const research = await this.researchRepository.findAll(query);
 

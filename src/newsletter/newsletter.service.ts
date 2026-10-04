@@ -30,6 +30,10 @@ export class NewsletterService {
     });
   }
 
+  findPage(query: NewsletterQueryDto) {
+    return this.newsletterRepository.findPage(query);
+  }
+
   findAll(query: NewsletterQueryDto) {
     return this.newsletterRepository.findAll(query);
   }

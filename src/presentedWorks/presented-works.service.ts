@@ -72,6 +72,10 @@ export class PresentedWorksService {
     return presentedWork;
   }
 
+  findPage(query: PresentedWorksQueryDto) {
+    return this.presentedWorksRepository.findPage(query);
+  }
+
   async findAll(query: PresentedWorksQueryDto) {
     const presentedWorks = await this.presentedWorksRepository.findAll(query);
 

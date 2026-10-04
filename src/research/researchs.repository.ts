@@ -1,3 +1,4 @@
+import { listPage } from '../common/utils/list-page';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
@@ -62,15 +63,35 @@ export class ResearchRepository {
     return count > 0;
   }
 
-  async findAll(query: ResearchQueryDto) {
+  findAll(query: ResearchQueryDto) {
+    return this.prisma.search.findMany(this.listArgs(query));
+  }
+
+  findPage(query: ResearchQueryDto) {
+    const args = this.listArgs(query);
+    return listPage(
+      query,
+      this.prisma.search.findMany({
+        ...args,
+        orderBy: [
+          ...(Array.isArray(args.orderBy) ? args.orderBy : [args.orderBy]),
+          { id: 'asc' },
+        ],
+      }),
+      this.prisma.search.count({ where: args.where }),
+    );
+  }
+
+  private listArgs(query: ResearchQueryDto) {
     const { page = 1, limit = 10, search } = query;
 
-    return this.prisma.search.findMany({
+    return {
       where: {
         deletedAt: null,
 
         ...(search && {
           OR: [
+            { title: { contains: search, mode: 'insensitive' } },
             {
               slug: {
                 contains: search,
@@ -95,7 +116,7 @@ export class ResearchRepository {
 
       skip: (page - 1) * limit,
       take: limit,
-    });
+    } satisfies Prisma.SearchFindManyArgs;
   }
 
   remove(id: string, userId: string) {

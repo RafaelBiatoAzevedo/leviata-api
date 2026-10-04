@@ -61,6 +61,10 @@ export class BoardsService {
     return board;
   }
 
+  findPage(query: BoardsQueryDto) {
+    return this.boardsRepository.findPage(query);
+  }
+
   async findAll(query: BoardsQueryDto) {
     const boards = await this.boardsRepository.findAll(query);
 

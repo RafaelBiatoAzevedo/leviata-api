@@ -1,3 +1,4 @@
+import { listPage } from '../common/utils/list-page';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
@@ -53,13 +54,34 @@ export class VideosRepository {
     return count > 0;
   }
 
-  async findAll(query: VideosQueryDto) {
+  findAll(query: VideosQueryDto) {
+    return this.prisma.video.findMany(this.listArgs(query));
+  }
+
+  findPage(query: VideosQueryDto) {
+    const args = this.listArgs(query);
+    return listPage(
+      query,
+      this.prisma.video.findMany({
+        ...args,
+        orderBy: [
+          ...(Array.isArray(args.orderBy) ? args.orderBy : [args.orderBy]),
+          { id: 'asc' },
+        ],
+      }),
+      this.prisma.video.count({ where: args.where }),
+    );
+  }
+
+  private listArgs(query: VideosQueryDto) {
     const { page = 1, limit = 10, search, personId } = query;
 
-    return this.prisma.video.findMany({
+    return {
       where: {
+        deletedAt: null,
         ...(search && {
           OR: [
+            { slug: { contains: search, mode: 'insensitive' } },
             {
               title: {
                 contains: search,
@@ -93,7 +115,7 @@ export class VideosRepository {
       skip: (page - 1) * limit,
 
       take: limit,
-    });
+    } satisfies Prisma.VideoFindManyArgs;
   }
 
   remove(id: string, userId: string) {

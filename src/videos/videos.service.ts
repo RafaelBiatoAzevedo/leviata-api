@@ -102,6 +102,10 @@ export class VideosService {
     return video;
   }
 
+  findPage(query: VideosQueryDto) {
+    return this.videosRepository.findPage(query);
+  }
+
   async findAll(query: VideosQueryDto) {
     const videos = await this.videosRepository.findAll(query);
 

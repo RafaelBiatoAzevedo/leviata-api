@@ -1,3 +1,4 @@
+import { ApiPageResponse } from '../common/decorators/api-page-response.decorator';
 import {
   Body,
   Controller,
@@ -74,6 +75,14 @@ export class NewsController {
   })
   findAll(@Query() query: NewsQueryDto) {
     return this.newsService.findAll(query);
+  }
+
+  @ApiBearerAuth()
+  @Get('paginated')
+  @ApiOperation({ summary: 'List records with pagination totals' })
+  @ApiPageResponse(NewsResponseDto)
+  findPage(@Query() query: NewsQueryDto) {
+    return this.newsService.findPage(query);
   }
 
   @ApiBearerAuth()
