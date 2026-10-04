@@ -24,6 +24,7 @@ export class AuthService {
       sub: user.id,
       email: user.email,
       role: user.role,
+      version: user.tokenVersion,
     });
 
     return accessToken;
@@ -35,6 +36,7 @@ export class AuthService {
         sub: user.id,
         email: user.email,
         role: user.role,
+        version: user.tokenVersion,
       },
       {
         secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
@@ -88,17 +90,17 @@ export class AuthService {
       const payload = await this.jwtService.verifyAsync<JwtPayload>(
         dto.refreshToken,
         {
-          secret: process.env.JWT_REFRESH_SECRET,
+          secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
         },
       );
 
-      const user = await this.authRepository.findUserByEmail(payload.email);
+      const user = await this.authRepository.findUserById(payload.sub);
 
       if (!user) {
         throw new UnauthorizedException('User not found.');
       }
 
-      if (!user.isActive) {
+      if (!user.isActive || user.tokenVersion !== (payload.version ?? 0)) {
         throw new UnauthorizedException('User is inactive.');
       }
 

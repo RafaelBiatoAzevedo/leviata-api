@@ -11,4 +11,10 @@ export class MeResponseDto {
     example: 'SUPER_ADMIN',
   })
   role!: string;
+
+  @ApiProperty({ type: String, nullable: true })
+  firstName!: string | null;
+
+  @ApiProperty({ type: String, nullable: true })
+  lastName!: string | null;
 }

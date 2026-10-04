@@ -56,7 +56,7 @@ export class AuthController {
     return this.authService.logout(req.user.id);
   }
 
-  @ApiBearerAuth()
+  @Public()
   @Post('refresh')
   @ApiOperation({
     summary: 'Refresh access token',

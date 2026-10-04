@@ -6,11 +6,16 @@ export class AuthRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   findUserByEmail(email: string) {
-    return this.prisma.user.findUnique({
+    return this.prisma.user.findFirst({
       where: {
-        email,
+        email: { equals: email.trim().toLowerCase(), mode: 'insensitive' },
+        deletedAt: null,
       },
     });
+  }
+
+  findUserById(id: string) {
+    return this.prisma.user.findFirst({ where: { id, deletedAt: null } });
   }
 
   async clearRefreshToken(userId: string) {
@@ -20,6 +25,7 @@ export class AuthRepository {
       },
       data: {
         hashedRefreshToken: null,
+        tokenVersion: { increment: 1 },
       },
     });
   }
