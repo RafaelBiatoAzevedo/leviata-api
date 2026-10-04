@@ -9,24 +9,53 @@ export class ThematicsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   private readonly include = {
-    mainVideo: true,
+    mainVideo: { where: { deletedAt: null } },
     coordinator: {
+      where: { deletedAt: null },
       include: {
         institution: true,
         academicTitle: true,
       },
     },
     additionalVideos: {
+      where: { video: { deletedAt: null } },
+      orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
       include: {
         video: true,
+        person: {
+          where: { deletedAt: null },
+          include: { institution: true, academicTitle: true },
+        },
       },
     },
-  };
+  } satisfies Prisma.ThematicInclude;
+
+  findAvailableVideos(ids: string[]) {
+    return this.prisma.video.findMany({
+      where: { id: { in: ids }, deletedAt: null },
+      select: { id: true },
+    });
+  }
+
+  findAvailablePeople(ids: string[]) {
+    return this.prisma.person.findMany({
+      where: { id: { in: ids }, deletedAt: null },
+      select: { id: true },
+    });
+  }
+
+  findVideoLinks(thematicId: string) {
+    return this.prisma.thematicVideo.findMany({
+      where: { thematicId },
+      select: { id: true },
+    });
+  }
 
   findById(id: string) {
     return this.prisma.thematic.findFirst({
       where: {
         id,
+        deletedAt: null,
       },
 
       include: this.include,
@@ -34,9 +63,10 @@ export class ThematicsRepository {
   }
 
   findBySlug(slug: string) {
-    return this.prisma.thematic.findUnique({
+    return this.prisma.thematic.findFirst({
       where: {
         slug,
+        deletedAt: null,
       },
 
       include: this.include,

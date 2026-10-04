@@ -12,7 +12,7 @@ export class ThematicVideoResponseDto {
   @ApiProperty()
   videoId!: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional({ nullable: true })
   personId!: string | null;
 
   @ApiProperty({

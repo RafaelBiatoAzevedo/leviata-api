@@ -5,6 +5,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Query,
@@ -34,7 +35,7 @@ import { UpdateThematicDto } from './DTOs/update-thematic.dto';
 import { CreateThematicDto } from './DTOs/create-thematic.dto';
 
 @UseGuards(JwtAuthGuard)
-@Controller('Thematics')
+@Controller('thematics')
 @ApiTags('Thematics')
 export class ThematicsController {
   constructor(private readonly ThematicsService: ThematicsService) {}
@@ -77,7 +78,7 @@ export class ThematicsController {
     return this.ThematicsService.findPage(query);
   }
 
-  @ApiBearerAuth()
+  @Public()
   @Get(':id')
   @ApiOperation({
     summary: 'Get Thematic by id',
@@ -90,7 +91,7 @@ export class ThematicsController {
     description: 'Thematic retrieved successfully.',
     type: ThematicResponseDto,
   })
-  findOneById(@Param('id') id: string) {
+  findOneById(@Param('id', ParseUUIDPipe) id: string) {
     return this.ThematicsService.findOneById(id);
   }
 
@@ -107,7 +108,10 @@ export class ThematicsController {
     description: 'Thematic updated successfully.',
     type: ThematicResponseDto,
   })
-  updateById(@Param('id') id: string, @Body() dto: UpdateThematicDto) {
+  updateById(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateThematicDto,
+  ) {
     return this.ThematicsService.update(id, dto);
   }
 
@@ -124,13 +128,13 @@ export class ThematicsController {
     description: 'Thematic deleted successfully.',
   })
   removeById(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Req() req: Request & { user: IUserJwt },
   ) {
     return this.ThematicsService.remove(id, req.user);
   }
 
-  @ApiBearerAuth()
+  @Public()
   @Get('slug/:slug')
   @ApiOperation({
     summary: 'Get Thematic by slug',

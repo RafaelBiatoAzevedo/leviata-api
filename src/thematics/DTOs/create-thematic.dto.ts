@@ -1,18 +1,26 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
+  IsNotEmpty,
   IsOptional,
   IsString,
   IsUUID,
   MaxLength,
+  ValidateIf,
+  ValidateNested,
 } from 'class-validator';
+import { ThematicVideoInputDto } from './thematic-video-input.dto';
 
 export class CreateThematicDto {
   @ApiProperty({
     example: 'Nome do temático',
   })
   @IsString()
+  @IsNotEmpty()
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.trim() : value,
+  )
   @MaxLength(255)
   title!: string;
 
@@ -22,46 +30,35 @@ export class CreateThematicDto {
   })
   @IsOptional()
   @IsString()
-  description?: string;
-
-  @ApiProperty({
-    description: 'ID do coordenador',
-    example: '550e8400-e29b-41d4-a716-446655440000',
-  })
-  @IsUUID()
-  mainVideoId!: string;
-
-  @ApiProperty({
-    description: 'ID do coordenador',
-    example: '550e8400-e29b-41d4-a716-446655440000',
-  })
-  @IsUUID()
-  coordinatorId!: string;
+  @MaxLength(1000)
+  description?: string | null;
 
   @ApiPropertyOptional({
-    description: 'IDs dos vídeos relacionados.',
-    type: [String],
-    example: [
-      '550e8400-e29b-41d4-a716-446655440000',
-      '550e8400-e29b-41d4-a716-446655440001',
-    ],
-  })
-  @Transform(({ value }) => {
-    if (typeof value !== 'string') {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-      return value;
-    }
-
-    try {
-      const parsed: unknown = JSON.parse(value);
-
-      return Array.isArray(parsed) ? parsed : value;
-    } catch {
-      return value;
-    }
+    description: 'ID do vídeo principal',
+    nullable: true,
+    example: '550e8400-e29b-41d4-a716-446655440000',
   })
   @IsOptional()
+  @IsUUID('4')
+  mainVideoId?: string | null;
+
+  @ApiPropertyOptional({
+    description: 'ID do coordenador',
+    nullable: true,
+    example: '550e8400-e29b-41d4-a716-446655440000',
+  })
+  @IsOptional()
+  @IsUUID('4')
+  coordinatorId?: string | null;
+
+  @ApiPropertyOptional({
+    description:
+      'Vídeos vinculados à temática, com título, descrição e pessoa.',
+    type: () => [ThematicVideoInputDto],
+  })
+  @ValidateIf((_object, value: unknown) => value !== undefined)
   @IsArray()
-  @IsUUID('4', { each: true })
-  additionalVideos?: string[];
+  @ValidateNested({ each: true })
+  @Type(() => ThematicVideoInputDto)
+  additionalVideos?: ThematicVideoInputDto[];
 }

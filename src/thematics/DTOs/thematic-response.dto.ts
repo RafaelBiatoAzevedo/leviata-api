@@ -19,31 +19,38 @@ export class ThematicResponseDto {
   })
   title!: string;
 
-  @ApiProperty({
-    example: '550e8400-e29b-41d4-a716-446655440000',
-  })
-  mainVideoId!: string;
-
-  @ApiProperty({
-    type: () => VideoResponseDto,
-  })
-  mainVideo!: VideoResponseDto;
-
-  @ApiProperty({
-    example: '550e8400-e29b-41d4-a716-446655440000',
-  })
-  coordinatorId!: string;
-
-  @ApiProperty({
-    type: () => PersonResponseDto,
-  })
-  coordinator!: PersonResponseDto;
+  @ApiPropertyOptional({ nullable: true })
+  description!: string | null;
 
   @ApiPropertyOptional({
-    type: 'array',
+    nullable: true,
+    example: '550e8400-e29b-41d4-a716-446655440000',
+  })
+  mainVideoId!: string | null;
+
+  @ApiPropertyOptional({
+    nullable: true,
+    type: () => VideoResponseDto,
+  })
+  mainVideo!: VideoResponseDto | null;
+
+  @ApiPropertyOptional({
+    nullable: true,
+    example: '550e8400-e29b-41d4-a716-446655440000',
+  })
+  coordinatorId!: string | null;
+
+  @ApiPropertyOptional({
+    nullable: true,
+    type: () => PersonResponseDto,
+  })
+  coordinator!: PersonResponseDto | null;
+
+  @ApiProperty({
+    type: () => [ThematicVideoResponseDto],
     description: 'Videos relacionadas à temática.',
   })
-  additionalVideos?: ThematicVideoResponseDto[];
+  additionalVideos!: ThematicVideoResponseDto[];
 
   @ApiProperty({
     example: '2026-08-19T10:00:00.000Z',
