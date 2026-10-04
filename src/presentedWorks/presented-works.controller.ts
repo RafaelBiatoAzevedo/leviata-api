@@ -69,7 +69,7 @@ export class PresentedWorksController {
     return this.presentedWorksService.findAll(query);
   }
 
-  @ApiBearerAuth()
+  @Public()
   @Get(':id')
   @ApiOperation({
     summary: 'Get presentedWork by id',
@@ -122,7 +122,7 @@ export class PresentedWorksController {
     return this.presentedWorksService.remove(id, req.user);
   }
 
-  @ApiBearerAuth()
+  @Public()
   @Get('slug/:slug')
   @ApiOperation({
     summary: 'Get presentedWork by slug',

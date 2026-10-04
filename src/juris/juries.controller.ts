@@ -75,7 +75,7 @@ export class JuriesController {
     return this.juriesService.findAll(query);
   }
 
-  @ApiBearerAuth()
+  @Public()
   @Get(':id')
   @ApiOperation({
     summary: 'Get jury by id',
@@ -166,7 +166,7 @@ export class JuriesController {
     return this.juriesService.removeCover(slug);
   }
 
-  @ApiBearerAuth()
+  @Public()
   @Get('slug/:slug')
   @ApiOperation({
     summary: 'Get jury by slug',

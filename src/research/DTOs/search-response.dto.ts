@@ -1,3 +1,4 @@
+import { ImageResponseDto } from '../../images/DTOs/image-response.dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class SearchResponseDto {
@@ -55,39 +56,11 @@ export class SearchResponseDto {
     lastName: string;
   }[];
 
-  @ApiProperty({
-    description: 'Imagens relacionadas à pesquisa.',
-    type: [Object],
-    example: [
-      {
-        id: '550e8400-e29b-41d4-a716-446655440002',
-        imageUrl: 'https://cdn.exemplo.com/search/imagem.jpg',
-        description: 'Documento histórico relacionado à pesquisa.',
-      },
-    ],
-  })
-  images!: {
-    id: string;
-    imageUrl: string;
-    description: string | null;
-  }[];
+  @ApiProperty({ type: () => [ImageResponseDto] })
+  images!: ImageResponseDto[];
 
-  @ApiProperty({
-    description: 'Imagens utilizadas como apoio à pesquisa.',
-    type: [Object],
-    example: [
-      {
-        id: '550e8400-e29b-41d4-a716-446655440004',
-        imageUrl: 'https://cdn.exemplo.com/search/support.jpg',
-        description: 'Imagem de apoio.',
-      },
-    ],
-  })
-  supports!: {
-    id: string;
-    imageUrl: string;
-    description: string | null;
-  }[];
+  @ApiProperty({ type: () => [ImageResponseDto] })
+  supports!: ImageResponseDto[];
 
   @ApiProperty({
     example: '2026-09-14T12:00:00.000Z',

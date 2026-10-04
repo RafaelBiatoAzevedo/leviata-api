@@ -15,13 +15,16 @@ export class PresentedWorksRepository {
       },
     },
     meeting: true,
-    images: true,
+    images: {
+      orderBy: [{ createdAt: 'asc' as const }, { id: 'asc' as const }],
+    },
   };
 
   findById(id: string) {
     return this.prisma.presentedWork.findFirst({
       where: {
         id,
+        deletedAt: null,
       },
 
       include: this.include,
@@ -32,6 +35,7 @@ export class PresentedWorksRepository {
     return this.prisma.presentedWork.findUnique({
       where: {
         slug,
+        deletedAt: null,
       },
 
       include: this.include,

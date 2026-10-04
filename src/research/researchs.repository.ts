@@ -15,9 +15,13 @@ export class ResearchRepository {
       },
     },
 
-    images: true,
+    images: {
+      orderBy: [{ createdAt: 'asc' as const }, { id: 'asc' as const }],
+    },
 
-    supports: true,
+    supports: {
+      orderBy: [{ createdAt: 'asc' as const }, { id: 'asc' as const }],
+    },
   };
 
   findById(id: string) {
@@ -35,6 +39,7 @@ export class ResearchRepository {
     return this.prisma.search.findUnique({
       where: {
         slug,
+        deletedAt: null,
       },
 
       include: this.include,

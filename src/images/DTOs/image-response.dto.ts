@@ -10,6 +10,12 @@ export class ImageResponseDto {
   })
   imageUrl!: string;
 
+  @ApiPropertyOptional({ nullable: true })
+  publicId!: string | null;
+
+  @ApiPropertyOptional({ example: 'Fotos do seminário', nullable: true })
+  title!: string | null;
+
   @ApiPropertyOptional({
     example: 'Imagem registrada durante o seminário.',
     nullable: true,

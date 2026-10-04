@@ -8,6 +8,9 @@ export class BoardsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   private readonly include = {
+    images: {
+      orderBy: [{ createdAt: 'asc' as const }, { id: 'asc' as const }],
+    },
     candidate: {
       include: {
         institution: true,
@@ -32,6 +35,7 @@ export class BoardsRepository {
     return this.prisma.board.findFirst({
       where: {
         id,
+        deletedAt: null,
       },
 
       include: this.include,
@@ -42,6 +46,7 @@ export class BoardsRepository {
     return this.prisma.board.findUnique({
       where: {
         slug,
+        deletedAt: null,
       },
 
       include: this.include,
@@ -76,6 +81,7 @@ export class BoardsRepository {
 
     return this.prisma.board.findMany({
       where: {
+        deletedAt: null,
         ...(search && {
           OR: [
             {

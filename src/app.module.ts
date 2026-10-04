@@ -22,6 +22,8 @@ import { VideosModule } from './videos/videos.module';
 import { ResearchInstrumentsModule } from './researchInstruments/researchInstruments.module';
 import { NewsletterModule } from './newsletter/newsletter.module';
 import { ResearchModule } from './research/researchs.module';
+import { ReportsModule } from './reports/reports.module';
+import { ScheduleModule } from './schedule/schedule.module';
 
 @Module({
   imports: [
@@ -53,6 +55,8 @@ import { ResearchModule } from './research/researchs.module';
     ResearchInstrumentsModule,
     ResearchModule,
     NewsletterModule,
+    ReportsModule,
+    ScheduleModule,
   ],
   controllers: [AppController],
   providers: [],

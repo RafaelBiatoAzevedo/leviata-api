@@ -8,6 +8,9 @@ export class JuriesRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   private readonly include = {
+    images: {
+      orderBy: [{ createdAt: 'asc' as const }, { id: 'asc' as const }],
+    },
     judges: {
       include: {
         institution: true,
@@ -59,6 +62,7 @@ export class JuriesRepository {
     return this.prisma.jury.findUnique({
       where: {
         slug,
+        deletedAt: null,
       },
 
       include: this.include,

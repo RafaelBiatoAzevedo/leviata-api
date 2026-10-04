@@ -390,6 +390,10 @@ model Image {
 
   imageUrl String
 
+  publicId String? @unique
+
+  title String?
+
   description String?
 
   boardId String?
@@ -501,6 +505,30 @@ model News {
 
   deletedAt DateTime?
   deletedById String?
+}
+
+model Schedule {
+  id String @id @default(uuid())
+
+  slug String @unique
+
+  title String
+  subtitle String?
+  description String? @db.Text
+
+  date DateTime
+  endDate DateTime?
+
+  location String?
+  externalUrl String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  deletedAt DateTime?
+  deletedById String?
+
+  @@index([deletedAt, date])
 }
 
 model Newsletter {
@@ -629,5 +657,3 @@ model Search {
   deletedAt DateTime?
   deletedById String?
 }
-
-

@@ -75,7 +75,7 @@ export class ResearchController {
     return this.researchService.findAll(query);
   }
 
-  @ApiBearerAuth()
+  @Public()
   @Get(':id')
   @ApiOperation({
     summary: 'Get search by id',
@@ -166,7 +166,7 @@ export class ResearchController {
     return this.researchService.removeCover(slug);
   }
 
-  @ApiBearerAuth()
+  @Public()
   @Get('slug/:slug')
   @ApiOperation({
     summary: 'Get search by slug',

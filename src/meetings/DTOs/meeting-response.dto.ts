@@ -76,6 +76,9 @@ export class MeetingResponseDto {
   })
   images!: ImageResponseDto[];
 
+  @ApiProperty({ type: [Object] })
+  presentedWorks!: { id: string; slug: string; title: string }[];
+
   @ApiProperty()
   createdAt!: Date;
 

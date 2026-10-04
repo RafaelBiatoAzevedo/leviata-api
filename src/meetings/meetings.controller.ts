@@ -75,7 +75,7 @@ export class MeetingsController {
     return this.meetingsService.findAll(query);
   }
 
-  @ApiBearerAuth()
+  @Public()
   @Get(':id')
   @ApiOperation({
     summary: 'Get meeting by id',
@@ -166,7 +166,7 @@ export class MeetingsController {
     return this.meetingsService.removeCover(slug);
   }
 
-  @ApiBearerAuth()
+  @Public()
   @Get('slug/:slug')
   @ApiOperation({
     summary: 'Get meeting by slug',

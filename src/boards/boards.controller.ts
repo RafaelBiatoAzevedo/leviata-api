@@ -68,7 +68,7 @@ export class BoardsController {
     return this.boardsService.findAll(query);
   }
 
-  @ApiBearerAuth()
+  @Public()
   @Get(':id')
   @ApiOperation({
     summary: 'Get board by id',
@@ -121,7 +121,7 @@ export class BoardsController {
     return this.boardsService.remove(id, req.user);
   }
 
-  @ApiBearerAuth()
+  @Public()
   @Get('slug/:slug')
   @ApiOperation({
     summary: 'Get board by slug',

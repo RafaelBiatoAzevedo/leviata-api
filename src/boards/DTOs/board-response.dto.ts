@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ImageResponseDto } from '../../images/DTOs/image-response.dto';
 import { PersonResponseDto } from 'src/people/DTOs/person-response.dto';
 
 export class BoardResponseDto {
@@ -52,11 +53,8 @@ export class BoardResponseDto {
   })
   members!: PersonResponseDto[];
 
-  @ApiPropertyOptional({
-    type: 'array',
-    description: 'Imagens relacionadas à banca.',
-  })
-  images?: any[];
+  @ApiProperty({ type: () => [ImageResponseDto] })
+  images!: ImageResponseDto[];
 
   @ApiProperty({
     example: '2026-08-19T10:00:00.000Z',
