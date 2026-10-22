@@ -4,6 +4,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -27,12 +29,23 @@ import { NewsletterQueryDto } from './DTOs/newsletter-query.dto';
 import { NewsletterResponseDto } from './DTOs/newsletter-response.dto';
 import { UpdateNewsletterDto } from './DTOs/update-newsletter.dto';
 import { NewsletterService } from './newsletter.service';
+import { SubscribeNewsletterDto } from './DTOs/subscribe-newsletter.dto';
+import { NewsletterSubscriptionResponseDto } from './DTOs/newsletter-subscription-response.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('newsletter')
 @ApiTags('Newsletter')
 export class NewsletterController {
   constructor(private readonly newsletterService: NewsletterService) {}
+
+  @Public()
+  @Post('subscribe')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Subscribe to the newsletter' })
+  @ApiOkResponse({ type: NewsletterSubscriptionResponseDto })
+  subscribe(@Body() dto: SubscribeNewsletterDto) {
+    return this.newsletterService.subscribe(dto);
+  }
 
   @ApiBearerAuth()
   @Post()

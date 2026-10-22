@@ -3,10 +3,31 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { NewsletterQueryDto } from './DTOs/newsletter-query.dto';
+import { SubscribeNewsletterDto } from './DTOs/subscribe-newsletter.dto';
 
 @Injectable()
 export class NewsletterRepository {
   constructor(private readonly prisma: PrismaService) {}
+
+  subscribe({ email, name, cellphone }: SubscribeNewsletterDto) {
+    const details = {
+      ...(name && { name }),
+      ...(cellphone && { cellphone }),
+    };
+    return this.prisma.newsletterSubscriber.upsert({
+      where: { email },
+      create: { email, ...details },
+      update: {
+        ...details,
+        isActive: true,
+        allowEmail: true,
+        unsubscribedAt: null,
+        deletedAt: null,
+        deletedById: null,
+      },
+      select: { id: true },
+    });
+  }
 
   findById(id: string) {
     return this.prisma.newsletter.findFirst({ where: { id, deletedAt: null } });

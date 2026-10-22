@@ -129,9 +129,10 @@ export class BooksRepository {
 
       include: this.include,
 
-      orderBy: {
-        [sortBy]: sortOrder,
-      },
+      orderBy:
+        sortBy === 'year'
+          ? { year: { sort: sortOrder, nulls: 'last' } }
+          : { [sortBy]: sortOrder },
 
       skip: (page - 1) * limit,
       take: limit,

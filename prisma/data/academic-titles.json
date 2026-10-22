@@ -1,6 +1,14 @@
 [
   {
+    "name": "Estudante",
+    "abbreviation": "Estud."
+  },
+  {
     "name": "Graduado",
+    "abbreviation": "Grad."
+  },
+  {
+    "name": "Graduada",
     "abbreviation": "Grad."
   },
   {

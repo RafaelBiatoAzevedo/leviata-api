@@ -6,10 +6,20 @@ import { CreateNewsletterDto } from './DTOs/create-newsletter.dto';
 import { NewsletterQueryDto } from './DTOs/newsletter-query.dto';
 import { UpdateNewsletterDto } from './DTOs/update-newsletter.dto';
 import { NewsletterRepository } from './newsletter.repository';
+import { SubscribeNewsletterDto } from './DTOs/subscribe-newsletter.dto';
 
 @Injectable()
 export class NewsletterService {
   constructor(private readonly newsletterRepository: NewsletterRepository) {}
+
+  async subscribe(dto: SubscribeNewsletterDto) {
+    await this.newsletterRepository.subscribe({
+      email: dto.email.trim().toLowerCase(),
+      name: dto.name?.trim() || undefined,
+      cellphone: dto.cellphone?.trim() || undefined,
+    });
+    return { message: 'Inscrição realizada com sucesso.' };
+  }
 
   private async uniqueSlug(title: string, ignoreId?: string) {
     const baseSlug = generateSlug(title);

@@ -59,13 +59,7 @@ export class PeopleRepository {
     const args = this.listArgs(query);
     return listPage(
       query,
-      this.prisma.person.findMany({
-        ...args,
-        orderBy: [
-          ...(Array.isArray(args.orderBy) ? args.orderBy : [args.orderBy]),
-          { id: 'asc' },
-        ],
-      }),
+      this.prisma.person.findMany(args),
       this.prisma.person.count({ where: args.where }),
     );
   }
@@ -110,9 +104,7 @@ export class PeopleRepository {
 
       include: this.include,
 
-      orderBy: {
-        [sortBy]: sortOrder,
-      },
+      orderBy: [{ [sortBy]: sortOrder }, { id: 'asc' }],
 
       skip: (page - 1) * limit,
       take: limit,
