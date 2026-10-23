@@ -25,6 +25,7 @@ describe('Cloudinary galleries', () => {
     juryId: null,
     meetingId: null,
     presentedWorkId: null,
+    newsId: null,
     createdAt: new Date(),
     _count: { photos: 0, supports: 0 },
   };
@@ -33,6 +34,7 @@ describe('Cloudinary galleries', () => {
     jury: { findFirst: jest.Mock };
     meeting: { findFirst: jest.Mock };
     presentedWork: { findFirst: jest.Mock };
+    news: { findFirst: jest.Mock };
     search: { findFirst: jest.Mock };
     image: {
       create: jest.Mock;
@@ -53,6 +55,7 @@ describe('Cloudinary galleries', () => {
       presentedWork: {
         findFirst: jest.fn().mockResolvedValue({ id: ownerId }),
       },
+      news: { findFirst: jest.fn().mockResolvedValue({ id: ownerId }) },
       search: { findFirst: jest.fn().mockResolvedValue({ id: ownerId }) },
       image: {
         create: jest.fn().mockResolvedValue(baseImage),
@@ -72,36 +75,44 @@ describe('Cloudinary galleries', () => {
     );
   });
 
-  it.each<ImageOwner>(['board', 'jury', 'meeting', 'presentedWork', 'search'])(
-    'uploads and associates images with %s',
-    async (owner) => {
-      await service.upload(owner, ownerId, file, {
-        title: '  Evento  ',
-        description: '  Legenda  ',
-      });
-      expect(prisma[owner].findFirst).toHaveBeenCalledWith({
-        where: { id: ownerId, deletedAt: null },
-        select: { id: true },
-      });
-      const uploadOptions = (
-        cloudinary.upload.mock.calls[0] as unknown[]
-      )[1] as Record<string, unknown>;
-      expect(uploadOptions.resourceType).toBe('image');
-      expect(typeof uploadOptions.publicId).toBe('string');
-      const call = (prisma.image.create.mock.calls[0] as unknown[])[0] as {
-        data: Record<string, unknown>;
-      };
-      expect(call.data).toMatchObject({
-        imageUrl: upload.secure_url,
-        publicId: upload.public_id,
-        title: 'Evento',
-        description: 'Legenda',
-        ...(owner === 'search'
-          ? { photos: { connect: { id: ownerId } } }
-          : { [`${owner}Id`]: ownerId }),
-      });
-    },
-  );
+  it.each<ImageOwner>([
+    'board',
+    'jury',
+    'meeting',
+    'presentedWork',
+    'search',
+    'news',
+  ])('uploads and associates images with %s', async (owner) => {
+    await service.upload(owner, ownerId, file, {
+      title: '  Evento  ',
+      description: '  Legenda  ',
+    });
+    expect(prisma[owner].findFirst).toHaveBeenCalledWith({
+      where: { id: ownerId, deletedAt: null },
+      select: { id: true },
+    });
+    const uploadOptions = (
+      cloudinary.upload.mock.calls[0] as unknown[]
+    )[1] as Record<string, unknown>;
+    expect(uploadOptions.resourceType).toBe('image');
+    expect(typeof uploadOptions.publicId).toBe('string');
+    if (owner === 'news')
+      expect(uploadOptions.folder).toBe(
+        `leviata/images/news/${ownerId}/images`,
+      );
+    const call = (prisma.image.create.mock.calls[0] as unknown[])[0] as {
+      data: Record<string, unknown>;
+    };
+    expect(call.data).toMatchObject({
+      imageUrl: upload.secure_url,
+      publicId: upload.public_id,
+      title: 'Evento',
+      description: 'Legenda',
+      ...(owner === 'search'
+        ? { photos: { connect: { id: ownerId } } }
+        : { [`${owner}Id`]: ownerId }),
+    });
+  });
 
   it('creates supporter images separately from research photos without captions', async () => {
     await service.upload('search', ownerId, file, {}, 'supports');
@@ -167,17 +178,20 @@ describe('Cloudinary galleries', () => {
     expect(cloudinary.upload).not.toHaveBeenCalled();
   });
 
-  it('removes both the asset and the unshared record', async () => {
-    prisma.image.findFirst.mockResolvedValue({
-      ...baseImage,
-      meetingId: ownerId,
-    });
-    await service.remove('meeting', ownerId, imageId);
-    expect(cloudinary.deleteFile).toHaveBeenCalledWith(upload.public_id);
-    expect(prisma.image.delete).toHaveBeenCalledWith({
-      where: { id: imageId },
-    });
-  });
+  it.each<ImageOwner>(['meeting', 'news'])(
+    'removes the asset and unshared record from %s',
+    async (owner) => {
+      prisma.image.findFirst.mockResolvedValue({
+        ...baseImage,
+        [`${owner}Id`]: ownerId,
+      });
+      await service.remove(owner, ownerId, imageId);
+      expect(cloudinary.deleteFile).toHaveBeenCalledWith(upload.public_id);
+      expect(prisma.image.delete).toHaveBeenCalledWith({
+        where: { id: imageId },
+      });
+    },
+  );
 
   it('retains a record for retry when Cloudinary deletion fails', async () => {
     prisma.image.findFirst.mockResolvedValue({
@@ -211,5 +225,48 @@ describe('Cloudinary galleries', () => {
       where: { supports: { some: { id: ownerId } } },
       orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
     });
+  });
+
+  it('only lists and modifies photos belonging to the requested news item', async () => {
+    await service.list('news', ownerId);
+    expect(prisma.image.findMany).toHaveBeenCalledWith({
+      where: { newsId: ownerId },
+      orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+    });
+    prisma.image.findFirst.mockResolvedValue(null);
+    await expect(
+      service.update('news', ownerId, imageId, { title: 'Outra notícia' }),
+    ).rejects.toBeInstanceOf(NotFoundException);
+    await expect(
+      service.remove('news', ownerId, imageId),
+    ).rejects.toBeInstanceOf(NotFoundException);
+    expect(prisma.image.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: imageId, newsId: ownerId } }),
+    );
+    expect(prisma.image.update).not.toHaveBeenCalled();
+    expect(cloudinary.deleteFile).not.toHaveBeenCalled();
+  });
+
+  it('preserves shared assets when removing a news gallery link', async () => {
+    prisma.image.findFirst.mockResolvedValue({
+      ...baseImage,
+      newsId: ownerId,
+      meetingId: 'another-owner',
+    });
+    await service.remove('news', ownerId, imageId);
+    expect(prisma.image.update).toHaveBeenCalledWith({
+      where: { id: imageId },
+      data: { newsId: null },
+    });
+    expect(cloudinary.deleteFile).not.toHaveBeenCalled();
+    expect(prisma.image.delete).not.toHaveBeenCalled();
+  });
+
+  it('rejects a missing or deleted news item before uploading', async () => {
+    prisma.news.findFirst.mockResolvedValue(null);
+    await expect(
+      service.upload('news', ownerId, file, {}),
+    ).rejects.toBeInstanceOf(NotFoundException);
+    expect(cloudinary.upload).not.toHaveBeenCalled();
   });
 });

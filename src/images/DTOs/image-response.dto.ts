@@ -46,6 +46,12 @@ export class ImageResponseDto {
   })
   presentedWorkId!: string | null;
 
+  @ApiPropertyOptional({
+    example: '550e8400-e29b-41d4-a716-446655440004',
+    nullable: true,
+  })
+  newsId!: string | null;
+
   @ApiProperty()
   createdAt!: Date;
 }

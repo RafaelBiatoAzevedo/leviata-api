@@ -13,6 +13,7 @@ import { JuriesImagesController } from '../juris/juries-images.controller';
 import { MeetingsImagesController } from '../meetings/meetings-images.controller';
 import { PresentedWorksImagesController } from '../presentedWorks/presented-works-images.controller';
 import { ResearchImagesController } from '../research/researchs-images.controller';
+import { NewsImagesController } from '../news/news-images.controller';
 import { ImagesService } from './images.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { IS_PUBLIC_KEY } from '../common/decorators/public.decorator';
@@ -37,6 +38,7 @@ describe('Gallery HTTP routes', () => {
     ['presented-works', 'presentedWork', 'images'],
     ['research', 'search', 'images'],
     ['research', 'search', 'supports'],
+    ['news', 'news', 'images'],
   ];
   let app: INestApplication;
   let server: Server;
@@ -50,6 +52,7 @@ describe('Gallery HTTP routes', () => {
         MeetingsImagesController,
         PresentedWorksImagesController,
         ResearchImagesController,
+        NewsImagesController,
       ],
       providers: [{ provide: ImagesService, useValue: service }],
     })
@@ -140,11 +143,14 @@ describe('Gallery HTTP routes', () => {
     },
   );
 
-  it('requires authentication for metadata changes and deletion', async () => {
-    const path = `/meetings/${ownerId}/images/${imageId}`;
-    await request(server).patch(path).send({ title: 'Test' }).expect(401);
-    await request(server).delete(path).expect(401);
-  });
+  it.each(['meetings', 'news'])(
+    'requires authentication for metadata changes and deletion in %s',
+    async (resource) => {
+      const path = `/${resource}/${ownerId}/images/${imageId}`;
+      await request(server).patch(path).send({ title: 'Test' }).expect(401);
+      await request(server).delete(path).expect(401);
+    },
+  );
 
   it('accepts uploads without optional captions', async () => {
     await request(server)

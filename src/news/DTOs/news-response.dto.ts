@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { NewsCategory, NewsRelatedType } from '@prisma/client';
+import { ImageResponseDto } from '../../images/DTOs/image-response.dto';
 
 export class NewsResponseDto {
   @ApiProperty()
@@ -62,6 +63,9 @@ export class NewsResponseDto {
     nullable: true,
   })
   relatedId!: string | null;
+
+  @ApiProperty({ type: () => [ImageResponseDto] })
+  images!: ImageResponseDto[];
 
   @ApiProperty()
   createdAt!: Date;

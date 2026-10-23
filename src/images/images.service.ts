@@ -11,6 +11,7 @@ export type ImageOwner =
   | 'jury'
   | 'meeting'
   | 'presentedWork'
+  | 'news'
   | 'search';
 export type ImageCollection = 'images' | 'supports';
 
@@ -19,6 +20,7 @@ const folders: Record<ImageOwner, string> = {
   jury: 'juries',
   meeting: 'meetings',
   presentedWork: 'presented-works',
+  news: 'news',
   search: 'research',
 };
 
@@ -47,6 +49,9 @@ export class ImagesService {
         break;
       case 'presentedWork':
         record = await this.prisma.presentedWork.findFirst({ where, select });
+        break;
+      case 'news':
+        record = await this.prisma.news.findFirst({ where, select });
         break;
       case 'search':
         record = await this.prisma.search.findFirst({ where, select });
@@ -170,6 +175,7 @@ export class ImagesService {
         image.juryId,
         image.meetingId,
         image.presentedWorkId,
+        image.newsId,
       ].filter(Boolean).length +
       image._count.photos +
       image._count.supports;

@@ -8,12 +8,19 @@ import { NewsQueryDto } from './DTOs/news-query.dto';
 export class NewsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  private readonly include = {
+    images: {
+      orderBy: [{ createdAt: 'asc' as const }, { id: 'asc' as const }],
+    },
+  } satisfies Prisma.NewsInclude;
+
   findById(id: string) {
     return this.prisma.news.findFirst({
       where: {
         id,
         deletedAt: null,
       },
+      include: this.include,
     });
   }
 
@@ -21,7 +28,9 @@ export class NewsRepository {
     return this.prisma.news.findUnique({
       where: {
         slug,
+        deletedAt: null,
       },
+      include: this.include,
     });
   }
 
@@ -119,6 +128,8 @@ export class NewsRepository {
         [sortBy]: sortOrder,
       },
 
+      include: this.include,
+
       skip: (page - 1) * limit,
       take: limit,
     } satisfies Prisma.NewsFindManyArgs;
@@ -144,12 +155,14 @@ export class NewsRepository {
       },
 
       data,
+      include: this.include,
     });
   }
 
   create(data: Prisma.NewsCreateInput) {
     return this.prisma.news.create({
       data,
+      include: this.include,
     });
   }
 }

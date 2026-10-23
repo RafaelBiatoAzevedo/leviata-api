@@ -415,10 +415,15 @@ model Image {
   presentedWorkId String?
   presentedWork PresentedWork? @relation(fields: [presentedWorkId], references: [id])
 
+  newsId String?
+  news News? @relation(fields: [newsId], references: [id])
+
   photos Search[] @relation("SearchImages")
   supports Search[] @relation("SearchSupports")
 
   createdAt DateTime @default(now())
+
+  @@index([newsId])
 }
 
 model Video {
@@ -506,6 +511,8 @@ model News {
 
   relatedType NewsRelatedType?
   relatedId String?
+
+  images Image[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
