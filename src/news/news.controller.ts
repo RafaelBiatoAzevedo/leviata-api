@@ -85,7 +85,7 @@ export class NewsController {
     return this.newsService.findPage(query);
   }
 
-  @ApiBearerAuth()
+  @Public()
   @Get(':id')
   @ApiOperation({
     summary: 'Get news by id',
@@ -176,7 +176,7 @@ export class NewsController {
     return this.newsService.removeCover(slug);
   }
 
-  @ApiBearerAuth()
+  @Public()
   @Get('slug/:slug')
   @ApiOperation({
     summary: 'Get news by slug',

@@ -87,7 +87,7 @@ export class ResearchInstrumentsController {
     return this.researchInstrumentsService.findPage(query);
   }
 
-  @ApiBearerAuth()
+  @Public()
   @Get(':id')
   @ApiOperation({
     summary: 'Get researchInstrument by id',
@@ -143,7 +143,7 @@ export class ResearchInstrumentsController {
     return this.researchInstrumentsService.remove(id, req.user);
   }
 
-  @ApiBearerAuth()
+  @Public()
   @Get('slug/:slug')
   @ApiOperation({
     summary: 'Get researchInstrument by slug',
