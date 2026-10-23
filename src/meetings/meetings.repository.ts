@@ -89,6 +89,7 @@ export class MeetingsRepository {
       limit = 10,
       search,
       type,
+      isInternal,
       speakerId,
       dateFrom,
       dateTo,
@@ -115,6 +116,8 @@ export class MeetingsRepository {
         ...(type && {
           type,
         }),
+
+        ...(isInternal !== undefined && { isInternal }),
 
         ...(speakerId && {
           speakers: {

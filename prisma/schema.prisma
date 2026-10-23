@@ -35,6 +35,7 @@ enum ResearchInstrumentType {
 enum MeetingType {
   SEMINAR
   MEETING
+  DOCUMENTARY
 }
 
 enum NewsCategory {
@@ -54,6 +55,7 @@ enum NewsRelatedType {
   PUBLICATION
   RESEARCH_INSTRUMENT
   THEMATIC
+  RESEARCH
 }
 
 model User {
@@ -359,6 +361,8 @@ model Meeting {
   slug String @unique
 
   type MeetingType
+
+  isInternal Boolean @default(true)
 
   title String
 

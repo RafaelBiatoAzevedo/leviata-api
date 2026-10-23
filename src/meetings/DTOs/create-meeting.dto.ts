@@ -1,6 +1,7 @@
 import {
   ArrayMinSize,
   IsArray,
+  IsBoolean,
   IsDate,
   IsEnum,
   IsNotEmpty,
@@ -28,6 +29,19 @@ export class CreateMeetingDto {
   })
   @IsEnum(MeetingType)
   type!: MeetingType;
+
+  @ApiPropertyOptional({
+    description:
+      'Encontros, seminários e documentários internos aparecem nas listas do portal; externos são divulgados por notícias.',
+    default: true,
+    example: true,
+  })
+  @IsOptional()
+  @Transform(({ value }: { value: unknown }) =>
+    value === 'true' ? true : value === 'false' ? false : value,
+  )
+  @IsBoolean()
+  isInternal?: boolean;
 
   @ApiPropertyOptional({
     example:

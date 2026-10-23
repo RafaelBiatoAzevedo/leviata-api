@@ -18,6 +18,9 @@ export class MeetingResponseDto {
   })
   type!: MeetingType;
 
+  @ApiProperty({ example: true })
+  isInternal!: boolean;
+
   @ApiProperty({
     example: 'Seminário: História e Memória',
   })

@@ -1,0 +1,1 @@
+ALTER TYPE "NewsRelatedType" ADD VALUE 'RESEARCH';

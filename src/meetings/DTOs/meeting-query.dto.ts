@@ -1,8 +1,9 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { MeetingType } from '@prisma/client';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsEnum,
+  IsBoolean,
   IsIn,
   IsInt,
   IsOptional,
@@ -50,6 +51,18 @@ export class MeetingsQueryDto {
   @IsOptional()
   @IsEnum(MeetingType)
   type?: MeetingType;
+
+  @ApiPropertyOptional({
+    description:
+      'Filtra encontros, seminários e documentários internos ou externos.',
+    example: true,
+  })
+  @IsOptional()
+  @Transform(({ value }: { value: unknown }) =>
+    value === 'true' ? true : value === 'false' ? false : value,
+  )
+  @IsBoolean()
+  isInternal?: boolean;
 
   @ApiPropertyOptional({
     example: '550e8400-e29b-41d4-a716-446655440000',
