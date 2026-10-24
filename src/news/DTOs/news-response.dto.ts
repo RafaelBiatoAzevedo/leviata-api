@@ -53,7 +53,7 @@ export class NewsResponseDto {
 
   @ApiPropertyOptional({
     enum: NewsRelatedType,
-    example: NewsRelatedType.PUBLICATION,
+    example: NewsRelatedType.PRESENTED_WORK,
     nullable: true,
   })
   relatedType!: NewsRelatedType | null;

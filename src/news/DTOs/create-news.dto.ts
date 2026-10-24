@@ -60,7 +60,7 @@ export class CreateNewsDto {
 
   @ApiPropertyOptional({
     enum: NewsRelatedType,
-    example: NewsRelatedType.PUBLICATION,
+    example: NewsRelatedType.PRESENTED_WORK,
   })
   @IsOptional()
   @IsEnum(NewsRelatedType)
