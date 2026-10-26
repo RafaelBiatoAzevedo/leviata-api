@@ -7,10 +7,25 @@ import { NewsletterQueryDto } from './DTOs/newsletter-query.dto';
 import { UpdateNewsletterDto } from './DTOs/update-newsletter.dto';
 import { NewsletterRepository } from './newsletter.repository';
 import { SubscribeNewsletterDto } from './DTOs/subscribe-newsletter.dto';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Injectable()
 export class NewsletterService {
-  constructor(private readonly newsletterRepository: NewsletterRepository) {}
+  constructor(
+    private readonly newsletterRepository: NewsletterRepository,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
+
+  private readonly coverFolder = 'leviata/images/newsletter/';
+
+  private uploadCover(file: Express.Multer.File, slug: string) {
+    return this.cloudinaryService.upload(file, {
+      folder: this.coverFolder,
+      resourceType: 'image',
+      publicId: slug,
+      displayName: slug,
+    });
+  }
 
   async subscribe(dto: SubscribeNewsletterDto) {
     await this.newsletterRepository.subscribe({
@@ -33,11 +48,30 @@ export class NewsletterService {
     return slug;
   }
 
-  async create(dto: CreateNewsletterDto) {
+  async create(dto: CreateNewsletterDto, cover?: Express.Multer.File) {
+    const slug = await this.uniqueSlug(dto.title);
+    const image = cover ? await this.uploadCover(cover, slug) : undefined;
     return this.newsletterRepository.create({
       ...dto,
-      slug: await this.uniqueSlug(dto.title),
+      slug,
+      ...(image && {
+        coverUrl: image.secure_url,
+        coverPublicId: image.public_id,
+      }),
     });
+  }
+
+  async updateCover(slug: string, cover: Express.Multer.File) {
+    const found = await this.findOneBySlug(slug);
+    const publicId = found.coverPublicId?.startsWith(this.coverFolder)
+      ? found.coverPublicId.slice(this.coverFolder.length)
+      : found.slug;
+    const image = await this.uploadCover(cover, publicId);
+    await this.newsletterRepository.update(found.id, {
+      coverUrl: image.secure_url,
+      coverPublicId: image.public_id,
+    });
+    return { url: image.secure_url, public_id: image.public_id };
   }
 
   findPage(query: NewsletterQueryDto) {

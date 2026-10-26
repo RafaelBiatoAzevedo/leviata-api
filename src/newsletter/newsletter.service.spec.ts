@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NewsletterService } from './newsletter.service';
 import { NewsletterRepository } from './newsletter.repository';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 describe('NewsletterService', () => {
   let service: NewsletterService;
@@ -10,6 +11,7 @@ describe('NewsletterService', () => {
       providers: [
         NewsletterService,
         { provide: NewsletterRepository, useValue: {} },
+        { provide: CloudinaryService, useValue: {} },
       ],
     }).compile();
 

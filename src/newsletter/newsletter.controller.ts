@@ -11,10 +11,15 @@ import {
   Post,
   Query,
   Req,
+  ParseFilePipe,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiCreatedResponse,
   ApiNoContentResponse,
   ApiOkResponse,
@@ -31,6 +36,9 @@ import { UpdateNewsletterDto } from './DTOs/update-newsletter.dto';
 import { NewsletterService } from './newsletter.service';
 import { SubscribeNewsletterDto } from './DTOs/subscribe-newsletter.dto';
 import { NewsletterSubscriptionResponseDto } from './DTOs/newsletter-subscription-response.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { CreateNewsletterWithCoverDto } from './DTOs/create-newsletter-with-cover.dto';
+import { UploadImageResponseDto } from '../images/DTOs/upload-image-response.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('newsletter')
@@ -49,10 +57,36 @@ export class NewsletterController {
 
   @ApiBearerAuth()
   @Post()
+  @UseInterceptors(FileInterceptor('cover'))
+  @ApiConsumes('multipart/form-data', 'application/json')
+  @ApiBody({ type: CreateNewsletterWithCoverDto })
   @ApiOperation({ summary: 'Create newsletter' })
   @ApiCreatedResponse({ type: NewsletterResponseDto })
-  create(@Body() dto: CreateNewsletterDto) {
-    return this.newsletterService.create(dto);
+  create(
+    @Body() dto: CreateNewsletterDto,
+    @UploadedFile() cover?: Express.Multer.File,
+  ) {
+    return this.newsletterService.create(dto, cover);
+  }
+
+  @ApiBearerAuth()
+  @Patch('slug/:slug/cover')
+  @UseInterceptors(FileInterceptor('cover'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['cover'],
+      properties: { cover: { type: 'string', format: 'binary' } },
+    },
+  })
+  @ApiOperation({ summary: 'Update newsletter cover' })
+  @ApiOkResponse({ type: UploadImageResponseDto })
+  updateCover(
+    @Param('slug') slug: string,
+    @UploadedFile(new ParseFilePipe()) cover: Express.Multer.File,
+  ) {
+    return this.newsletterService.updateCover(slug, cover);
   }
 
   @Public()

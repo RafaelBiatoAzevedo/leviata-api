@@ -11,7 +11,7 @@ export class PersonResponseDto {
   @ApiProperty()
   name!: string;
 
-  @ApiProperty()
+  @ApiProperty({ enum: PersonCategory })
   category!: PersonCategory;
 
   @ApiProperty()

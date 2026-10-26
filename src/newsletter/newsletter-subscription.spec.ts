@@ -7,6 +7,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { NewsletterController } from './newsletter.controller';
 import { NewsletterRepository } from './newsletter.repository';
 import { NewsletterService } from './newsletter.service';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 describe('Public newsletter subscription', () => {
   let app: INestApplication;
@@ -35,6 +36,7 @@ describe('Public newsletter subscription', () => {
       providers: [
         NewsletterService,
         NewsletterRepository,
+        { provide: CloudinaryService, useValue: {} },
         {
           provide: PrismaService,
           useValue: { newsletterSubscriber: { upsert } },

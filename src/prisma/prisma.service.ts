@@ -9,9 +9,13 @@ export class PrismaService
   implements OnModuleInit, OnModuleDestroy
 {
   constructor() {
-    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+    const pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      // Prisma serializes dates as UTC; keep native SQL and database defaults aligned.
+      options: '-c timezone=UTC',
+    });
 
-    const adapter = new PrismaPg(pool);
+    const adapter = new PrismaPg(pool, { disposeExternalPool: true });
 
     super({ adapter });
   }

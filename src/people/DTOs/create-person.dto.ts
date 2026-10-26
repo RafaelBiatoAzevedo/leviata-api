@@ -9,11 +9,18 @@ import {
   IsUUID,
   MaxLength,
   Min,
+  ValidateIf,
 } from 'class-validator';
 
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { PersonCategory } from '@prisma/client';
 import { Transform } from 'class-transformer';
+
+// Pessoas externas podem participar sem formação ou vínculo institucional.
+const requiresProfileField = (person: CreatePersonDto, value: unknown) =>
+  person.category !== PersonCategory.EXTERNO || value != null;
+const emptyToNull = ({ value }: { value: unknown }) =>
+  typeof value === 'string' && value.trim() === '' ? null : value;
 
 export class CreatePersonDto {
   @ApiProperty({
@@ -70,10 +77,14 @@ export class CreatePersonDto {
 
   @ApiPropertyOptional({
     example: 'larissa@email.com',
+    description: 'Opcional para participantes externos.',
+    nullable: true,
   })
+  @Transform(emptyToNull)
+  @ValidateIf(requiresProfileField)
   @IsString()
   @IsEmail()
-  email?: string;
+  email?: string | null;
 
   @ApiPropertyOptional()
   @Transform(({ value }: { value: unknown }) =>
@@ -106,15 +117,30 @@ export class CreatePersonDto {
   @IsString()
   honorificTitle?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional({
+    description: 'Opcional para participantes externos.',
+    nullable: true,
+  })
+  @Transform(emptyToNull)
+  @ValidateIf(requiresProfileField)
   @IsUUID()
-  nationalityId!: string;
+  nationalityId?: string | null;
 
-  @ApiProperty()
+  @ApiPropertyOptional({
+    description: 'Opcional para participantes externos.',
+    nullable: true,
+  })
+  @Transform(emptyToNull)
+  @ValidateIf(requiresProfileField)
   @IsUUID()
-  academicTitleId!: string;
+  academicTitleId?: string | null;
 
-  @ApiProperty()
+  @ApiPropertyOptional({
+    description: 'Opcional para participantes externos.',
+    nullable: true,
+  })
+  @Transform(emptyToNull)
+  @ValidateIf(requiresProfileField)
   @IsUUID()
-  institutionId!: string;
+  institutionId?: string | null;
 }

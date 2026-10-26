@@ -12,9 +12,7 @@ export class SuperAdminGuard implements CanActivate {
   canActivate(context: ExecutionContext) {
     const { user } = context.switchToHttp().getRequest<{ user?: IUserJwt }>();
     if (user?.role !== Role.SUPER_ADMIN) {
-      throw new ForbiddenException(
-        'Somente superadministradores podem gerenciar usuários.',
-      );
+      throw new ForbiddenException('Esta ação exige um superadministrador.');
     }
     return true;
   }

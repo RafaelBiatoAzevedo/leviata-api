@@ -70,6 +70,7 @@ export class PeopleRepository {
       limit = 10,
       search,
       category,
+      excludeCategory,
       institutionId,
       academicTitleId,
       nationalityId,
@@ -90,6 +91,7 @@ export class PeopleRepository {
         }),
 
         ...(category && { category }),
+        ...(excludeCategory && { NOT: { category: excludeCategory } }),
 
         ...(institutionId && { institutionId }),
 

@@ -48,6 +48,15 @@ export class PeopleQueryDto {
   @IsEnum(PersonCategory)
   category?: PersonCategory;
 
+  @ApiPropertyOptional({
+    enum: PersonCategory,
+    description:
+      'Exclui uma categoria da listagem, sem afetar os vínculos em atividades.',
+  })
+  @IsOptional()
+  @IsEnum(PersonCategory)
+  excludeCategory?: PersonCategory;
+
   @ApiPropertyOptional()
   @IsOptional()
   @IsUUID()

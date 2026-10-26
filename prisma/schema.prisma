@@ -24,6 +24,7 @@ enum PersonCategory {
   PESQUISADOR
   SUB_COORDENADOR
   COORDENADOR
+  EXTERNO
 }
 
 enum ResearchInstrumentType {
@@ -78,6 +79,84 @@ model User {
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
   deletedById String?
+  approvedComments Comment[]
+  notificationReads NotificationRead[]
+  createdNotifications Notification[]
+}
+
+enum CommentTarget {
+  THEMATIC
+  RESEARCH_INSTRUMENT
+  BOARD
+  JURY
+  MEETING
+  PRESENTED_WORK
+  RESEARCH
+  NEWS
+}
+
+enum CommentStatus {
+  PENDING
+  APPROVED
+}
+
+enum NotificationType {
+  INFO
+  REMINDER
+  COMMENT
+}
+
+enum NotificationResolution {
+  APPROVED
+  REJECTED
+}
+
+model Comment {
+  id String @id @default(uuid())
+  targetType CommentTarget
+  targetId String
+  fullName String @db.VarChar(120)
+  text String @db.VarChar(300)
+  status CommentStatus @default(PENDING)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  approvedAt DateTime? @db.Timestamptz(3)
+  approvedById String?
+  approvedBy User? @relation(fields: [approvedById], references: [id], onDelete: SetNull)
+  notification Notification?
+
+  @@index([targetType, targetId, status, createdAt])
+}
+
+model Notification {
+  id String @id @default(uuid())
+  type NotificationType
+  title String @db.VarChar(120)
+  message String @db.VarChar(500)
+  targetTitle String?
+  targetPath String?
+  commentId String? @unique
+  comment Comment? @relation(fields: [commentId], references: [id], onDelete: SetNull)
+  resolution NotificationResolution?
+  resolvedAt DateTime? @db.Timestamptz(3)
+  createdById String?
+  createdBy User? @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  visibleAt DateTime @default(now()) @db.Timestamptz(3)
+  reads NotificationRead[]
+
+  @@index([visibleAt, createdAt])
+  @@index([type, resolution])
+}
+
+model NotificationRead {
+  notificationId String
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  readAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@id([notificationId, userId])
+  @@index([userId])
 }
 
 model AcademicTitle {
@@ -546,6 +625,53 @@ model Schedule {
   @@index([deletedAt, date])
 }
 
+enum NewsletterMailRecipientStatus {
+  PENDING
+  SENDING
+  SENT
+  FAILED
+  SKIPPED
+  UNKNOWN
+}
+
+model NewsletterMailCampaign {
+  id String @id @default(uuid())
+  newsletterId String @unique
+  newsletter Newsletter @relation(fields: [newsletterId], references: [id])
+  title String
+  subject String
+  htmlContent String @db.Text
+  slug String
+  createdById String
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  completedAt DateTime? @db.Timestamptz(3)
+  cancelledAt DateTime? @db.Timestamptz(3)
+  recipients NewsletterMailRecipient[]
+}
+
+model NewsletterMailRecipient {
+  id String @id @default(uuid())
+  campaignId String
+  campaign NewsletterMailCampaign @relation(fields: [campaignId], references: [id])
+  subscriberId String
+  subscriber NewsletterSubscriber @relation(fields: [subscriberId], references: [id])
+  email String
+  status NewsletterMailRecipientStatus @default(PENDING)
+  attempts Int @default(0)
+  nextAttemptAt DateTime @default(now()) @db.Timestamptz(3)
+  lastAttemptAt DateTime? @db.Timestamptz(3)
+  sentAt DateTime? @db.Timestamptz(3)
+  messageId String?
+  errorCode String?
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@unique([campaignId, subscriberId])
+  @@index([status, nextAttemptAt])
+  @@index([lastAttemptAt])
+  @@index([sentAt])
+}
+
 model Newsletter {
   id String @id @default(uuid())
 
@@ -558,6 +684,7 @@ model Newsletter {
   htmlContent String @db.Text
 
   coverUrl String?
+  coverPublicId String?
 
   pdfUrl String?
 
@@ -566,6 +693,7 @@ model Newsletter {
   sentAt DateTime?
 
   deliveries NewsletterDelivery[]
+  mailCampaign NewsletterMailCampaign?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -594,6 +722,7 @@ model NewsletterSubscriber {
   unsubscribedAt DateTime?
 
   deliveries NewsletterDelivery[]
+  mailRecipients NewsletterMailRecipient[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
