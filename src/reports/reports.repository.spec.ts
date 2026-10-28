@@ -11,6 +11,15 @@ describe('ReportsRepository', () => {
       },
       news: { count: jest.fn().mockReturnValue(5) },
       meeting: { count: jest.fn().mockReturnValue(6) },
+      jury: { count: jest.fn().mockReturnValue(8) },
+      board: { count: jest.fn().mockReturnValue(9) },
+      presentedWork: { count: jest.fn().mockReturnValue(10) },
+      search: { count: jest.fn().mockReturnValue(11) },
+      researchInstrument: { count: jest.fn().mockReturnValue(12) },
+      thematic: { count: jest.fn().mockReturnValue(13) },
+      video: { count: jest.fn().mockReturnValue(14) },
+      schedule: { count: jest.fn().mockReturnValue(15) },
+      newsletter: { count: jest.fn().mockReturnValue(16) },
       $transaction: jest
         .fn()
         .mockImplementation((counts: number[]) => Promise.resolve(counts)),
@@ -26,12 +35,35 @@ describe('ReportsRepository', () => {
       dossiers: 1,
       news: 5,
       meetings: 6,
+      juries: 8,
+      boards: 9,
+      presentedWorks: 10,
+      research: 11,
+      researchInstruments: 12,
+      thematics: 13,
+      videos: 14,
+      schedule: 15,
+      newsletters: 16,
     });
     expect(prisma.person.count).toHaveBeenCalledWith({
       where: { deletedAt: null, isActive: true },
     });
-    for (const model of [prisma.book, prisma.news, prisma.meeting]) {
+    for (const model of [
+      prisma.book,
+      prisma.news,
+      prisma.meeting,
+      prisma.jury,
+      prisma.board,
+      prisma.presentedWork,
+      prisma.search,
+      prisma.researchInstrument,
+      prisma.thematic,
+      prisma.video,
+      prisma.schedule,
+      prisma.newsletter,
+    ]) {
       expect(model.count).toHaveBeenCalledWith({ where: { deletedAt: null } });
+      expect(model.count).toHaveBeenCalledTimes(1);
     }
     expect(prisma.article.count).toHaveBeenNthCalledWith(1, {
       where: { deletedAt: null, type: 'ARTICLE' },

@@ -5,9 +5,10 @@ import { NewsletterRepository } from './newsletter.repository';
 import { PrismaModule } from '../prisma/prisma.module';
 import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 import { UploadModule } from '../upload/upload.module';
+import { NewsletterPdfModule } from './pdf/newsletter-pdf.module';
 
 @Module({
-  imports: [PrismaModule, CloudinaryModule, UploadModule],
+  imports: [PrismaModule, CloudinaryModule, UploadModule, NewsletterPdfModule],
   controllers: [NewsletterController],
   providers: [NewsletterService, NewsletterRepository],
 })

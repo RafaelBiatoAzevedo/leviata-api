@@ -33,10 +33,34 @@ export class ScheduleService {
     return slug;
   }
 
+  private async destination(
+    dto: Pick<CreateScheduleDto, 'meetingId' | 'externalUrl'>,
+  ) {
+    if (dto.meetingId && dto.externalUrl) {
+      throw new BadRequestException(
+        'Escolha um evento cadastrado ou um link externo.',
+      );
+    }
+    if (dto.meetingId) {
+      if (
+        !(await this.scheduleRepository.findAvailableMeeting(dto.meetingId))
+      ) {
+        throw new BadRequestException(
+          'O evento selecionado não existe ou foi excluído.',
+        );
+      }
+      return { meetingId: dto.meetingId, externalUrl: null };
+    }
+    if (dto.externalUrl)
+      return { externalUrl: dto.externalUrl, meetingId: null };
+    return {};
+  }
+
   async create(dto: CreateScheduleDto) {
     this.validateDates(dto.date, dto.endDate);
     return this.scheduleRepository.create({
       ...dto,
+      ...(await this.destination(dto)),
       date: new Date(dto.date),
       endDate: dto.endDate ? new Date(dto.endDate) : null,
       slug: await this.uniqueSlug(dto.title),
@@ -74,6 +98,7 @@ export class ScheduleService {
     );
     return this.scheduleRepository.update(found.id, {
       ...dto,
+      ...(await this.destination(dto)),
       ...(dto.date !== undefined && { date: new Date(dto.date) }),
       ...(dto.endDate !== undefined && {
         endDate: dto.endDate ? new Date(dto.endDate) : null,

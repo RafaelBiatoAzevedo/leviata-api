@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Header, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOkResponse,
@@ -18,6 +18,7 @@ export class ReportsController {
   constructor(private readonly reportsService: ReportsService) {}
 
   @Get('summary')
+  @Header('Cache-Control', 'private, no-store')
   @ApiOperation({ summary: 'Resumo dos conteúdos não excluídos do portal' })
   @ApiOkResponse({ type: SummaryReportResponseDto })
   @ApiUnauthorizedResponse({ description: 'Autenticação necessária.' })

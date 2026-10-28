@@ -32,7 +32,7 @@ export class CreateMeetingDto {
 
   @ApiPropertyOptional({
     description:
-      'Encontros, seminários e documentários internos aparecem nas listas do portal; externos são divulgados por notícias.',
+      'Eventos internos aparecem nas listas de atividades e agendas por tipo do portal. Eventos externos são acessados por uma notícia ou item da agenda geral vinculado.',
     default: true,
     example: true,
   })

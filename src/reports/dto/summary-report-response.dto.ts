@@ -18,7 +18,11 @@ export class SummaryReportResponseDto {
   @ApiProperty({ format: 'date-time' })
   generatedAt: string;
 
-  @ApiProperty({ example: 42 })
+  @ApiProperty({
+    example: 42,
+    description:
+      'Soma das 15 áreas de conteúdo, sem registros excluídos e somente com pessoas ativas. Os tipos de evento e instrumento não são contados novamente como subtotais.',
+  })
   totalRecords: number;
 
   @ApiProperty({ type: [ReportItemDto] })

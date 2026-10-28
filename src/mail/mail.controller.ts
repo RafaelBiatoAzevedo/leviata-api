@@ -17,7 +17,12 @@ import { AdminGuard } from '../common/guards/admin.guard';
 import { MailConfig } from './mail.config';
 import { MailService } from './mail.service';
 import { MailNewslettersService } from './mail-newsletters.service';
-import { MailDeliveriesQueryDto, MailTestDto } from './mail.dto';
+import {
+  MailAudienceQueryDto,
+  MailDeliveriesQueryDto,
+  MailSendDto,
+  MailTestDto,
+} from './mail.dto';
 import { MailWorker } from './mail.worker';
 
 @ApiTags('Mail')
@@ -66,13 +71,14 @@ export class MailController {
   @HttpCode(202)
   @ApiOperation({
     summary:
-      'Queue a published newsletter for eligible subscribers; repeated requests reuse the campaign',
+      'Queue a published newsletter for all or selected eligible subscribers; repeated requests reuse the campaign',
   })
   send(
     @Param('id', ParseUUIDPipe) id: string,
     @Req() request: { user: IUserJwt },
+    @Body() dto: MailSendDto,
   ) {
-    return this.newsletters.enqueue(id, request.user.id);
+    return this.newsletters.enqueue(id, request.user.id, dto);
   }
 
   @Get('newsletters/:id/status')
@@ -97,6 +103,18 @@ export class MailController {
   })
   audience(@Param('id', ParseUUIDPipe) id: string) {
     return this.newsletters.audience(id);
+  }
+
+  @Get('newsletters/:id/subscribers')
+  @ApiOperation({
+    summary:
+      'List eligible subscribers by name or email for admin recipient selection',
+  })
+  subscribers(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query() query: MailAudienceQueryDto,
+  ) {
+    return this.newsletters.subscribers(id, query);
   }
 
   @Get('newsletters/:id/delivery-records')

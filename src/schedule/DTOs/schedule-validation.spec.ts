@@ -25,6 +25,7 @@ describe('Schedule DTO validation', () => {
           description: null,
           endDate: null,
           externalUrl: null,
+          meetingId: null,
         }),
       ),
     ).toHaveLength(0);
@@ -37,6 +38,25 @@ describe('Schedule DTO validation', () => {
     expect(errors.map(({ property }) => property)).toEqual(
       expect.arrayContaining(['title', 'date']),
     );
+  });
+
+  it('valida o UUID do evento vinculado em criação e edição', async () => {
+    for (const Dto of [CreateScheduleDto, UpdateScheduleDto]) {
+      const invalid = await validate(
+        plainToInstance(Dto, { meetingId: 'invalid' }),
+      );
+      expect(invalid.some(({ property }) => property === 'meetingId')).toBe(
+        true,
+      );
+      const valid = await validate(
+        plainToInstance(Dto, {
+          meetingId: '550e8400-e29b-41d4-a716-446655440000',
+        }),
+      );
+      expect(valid.some(({ property }) => property === 'meetingId')).toBe(
+        false,
+      );
+    }
   });
 
   it('rejeita paginação e ordenação fora dos limites', async () => {

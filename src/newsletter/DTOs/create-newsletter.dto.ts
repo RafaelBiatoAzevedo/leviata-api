@@ -5,7 +5,11 @@ import {
   IsOptional,
   IsString,
   IsUrl,
+  ValidateNested,
+  IsObject,
 } from 'class-validator';
+import { plainToInstance, Transform } from 'class-transformer';
+import { NewsletterContentDto } from './newsletter-content.dto';
 
 export class CreateNewsletterDto {
   @ApiProperty()
@@ -18,10 +22,29 @@ export class CreateNewsletterDto {
   @IsNotEmpty()
   subject!: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  htmlContent!: string;
+  htmlContent?: string;
+
+  @ApiPropertyOptional({ type: NewsletterContentDto })
+  @IsOptional()
+  @Transform(({ value }: { value: unknown }) => {
+    let parsed: unknown = value;
+    if (typeof value === 'string') {
+      try {
+        parsed = JSON.parse(value) as unknown;
+      } catch {
+        return value;
+      }
+    }
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      ? plainToInstance(NewsletterContentDto, parsed)
+      : parsed;
+  })
+  @IsObject()
+  @ValidateNested()
+  contentData?: NewsletterContentDto;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -29,16 +52,17 @@ export class CreateNewsletterDto {
   coverUrl?: string;
 
   @ApiPropertyOptional()
-  @IsOptional()
-  @IsUrl()
-  pdfUrl?: string;
-
-  @ApiPropertyOptional()
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' && value.trim() === '' ? undefined : value,
+  )
   @IsOptional()
   @IsDateString()
   publishedAt?: string;
 
   @ApiPropertyOptional()
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' && value.trim() === '' ? undefined : value,
+  )
   @IsOptional()
   @IsDateString()
   sentAt?: string;

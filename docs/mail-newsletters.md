@@ -68,10 +68,23 @@ leva ao acompanhamento, sem exigir uma nova criação. A data de envio no formul
 O painel também utiliza duas consultas protegidas adicionais:
 
 - `GET /mail/newsletters/:id/audience`: totais de cadastros e destinatários elegíveis.
+- `GET /mail/newsletters/:id/subscribers?page=1&limit=15&search=...`: lista
+  protegida de IDs, nomes e e-mails dos inscritos aptos, com busca e paginação.
 - `GET /mail/newsletters/:id/delivery-records?page=1&limit=20`: registros reais de
   `NewsletterDelivery`, com nome, e-mail e data, inclusive os históricos.
 
 ## Fila e histórico
+
+O envio aceita `{ "mode": "ALL" }` para todos os aptos ou
+`{ "mode": "SELECTED", "subscriberIds": ["UUID", "UUID"] }` para uma seleção.
+Sem corpo, a rota mantém o comportamento anterior de enviar para todos. Seleções
+vazias, IDs repetidos ou inválidos são rejeitados; IDs informados no modo `ALL`
+também são rejeitados. Se algum escolhido estiver inativo, excluído, sem autorização
+ou já tiver recebido a edição, a campanha não é criada e o admin recebe uma mensagem
+para atualizar a seleção. As duas modalidades usam a mesma fila e registros de entrega.
+
+O público é definido antes do início da campanha. Repetir uma solicitação mantém
+a campanha e seus destinatários originais, sem ampliar a lista nem duplicar envios.
 
 Uma campanha preserva uma cópia do assunto e do conteúdo no momento do envio.
 Editar a newsletter depois não altera mensagens que já estão na fila. Há uma
@@ -142,3 +155,22 @@ MAIL_TEST_DATABASE_URL='postgresql://.../banco_de_testes' yarn test:mail:e2e
 Consulte também os [limites do Gmail](https://support.google.com/mail/answer/22839).
 O transporte pode ser substituído por outro SMTP no futuro, preservando a fila
 e o fluxo de newsletters.
+
+`yarn test:newsletter-selection:integration` verifica as duas modalidades, busca,
+paginação, autorização de recebimento e idempotência no PostgreSQL em uma transação
+com rollback. Esse teste não inicia o worker nem se conecta ao SMTP.
+# PDF da edição
+
+O cadastro visual gera HTML e PDF juntos. O PDF é renderizado do mesmo HTML,
+guardado como binário no PostgreSQL e identificado pelo hash da origem. O arquivo
+é omitido nas respostas JSON. `GET /newsletter/:id/pdf` faz o download; rascunhos
+requerem autenticação de administrador, e edições publicadas permitem acesso público.
+
+Uma campanha guarda sua própria cópia de `htmlContent` e `pdfContent`. Cada envio
+usa o HTML no corpo e anexa esse PDF, inclusive nos testes de envio. Atualizações
+posteriores da newsletter não modificam a campanha. Registros históricos sem PDF
+são completados a partir de seu HTML original ao baixar ou enviar.
+
+Dependência: Puppeteer com Chrome instalado. Veja `.env.newsletter-pdf.example`.
+Os testes de integração substituem o renderizador e o SMTP por implementações
+simuladas; a revisão visual usa o renderizador real e arquivos locais.

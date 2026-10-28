@@ -15,6 +15,10 @@ import {
   UploadedFile,
   UseGuards,
   UseInterceptors,
+  FileTypeValidator,
+  MaxFileSizeValidator,
+  StreamableFile,
+  Header,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -39,12 +43,72 @@ import { NewsletterSubscriptionResponseDto } from './DTOs/newsletter-subscriptio
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateNewsletterWithCoverDto } from './DTOs/create-newsletter-with-cover.dto';
 import { UploadImageResponseDto } from '../images/DTOs/upload-image-response.dto';
+import { NewsletterPreviewDto } from './DTOs/newsletter-preview.dto';
+import { OptionalJwtGuard } from '../auth/optional-jwt.guard';
 
 @UseGuards(JwtAuthGuard)
 @Controller('newsletter')
 @ApiTags('Newsletter')
 export class NewsletterController {
   constructor(private readonly newsletterService: NewsletterService) {}
+
+  @Public()
+  @UseGuards(OptionalJwtGuard)
+  @Get(':id/pdf')
+  @Header('Cache-Control', 'private, no-store')
+  @ApiOperation({
+    summary:
+      'Download the PDF generated from the newsletter HTML; drafts require an admin session',
+  })
+  async downloadPdf(
+    @Param('id') id: string,
+    @Req() request: { user?: IUserJwt },
+  ) {
+    const document = await this.newsletterService.downloadPdf(id, request.user);
+    return new StreamableFile(document.content, {
+      type: 'application/pdf',
+      disposition: `attachment; filename="${document.filename}"`,
+      length: document.content.length,
+    });
+  }
+
+  @ApiBearerAuth()
+  @Post('preview')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Render a visual newsletter draft without saving or sending',
+  })
+  preview(@Body() dto: NewsletterPreviewDto) {
+    return this.newsletterService.preview(dto);
+  }
+
+  @ApiBearerAuth()
+  @Post('images')
+  @UseInterceptors(
+    FileInterceptor('image', { limits: { fileSize: 10 * 1024 * 1024 } }),
+  )
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['image'],
+      properties: { image: { type: 'string', format: 'binary' } },
+    },
+  })
+  @ApiCreatedResponse({ type: UploadImageResponseDto })
+  uploadContentImage(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 10 * 1024 * 1024 }),
+          new FileTypeValidator({ fileType: /^image\/(jpeg|png|webp)$/ }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+  ) {
+    return this.newsletterService.uploadContentImage(file);
+  }
 
   @Public()
   @Post('subscribe')

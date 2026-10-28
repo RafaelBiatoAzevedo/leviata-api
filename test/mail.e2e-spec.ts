@@ -1,5 +1,9 @@
 import { randomUUID } from 'node:crypto';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import {
+  INestApplication,
+  ServiceUnavailableException,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
@@ -14,6 +18,11 @@ import { MailUnsubscribeService } from '../src/mail/mail-unsubscribe.service';
 import { MailNewslettersService } from '../src/mail/mail-newsletters.service';
 import { PrismaModule } from '../src/prisma/prisma.module';
 import { PrismaService } from '../src/prisma/prisma.service';
+import { NewsletterModule } from '../src/newsletter/newsletter.module';
+import { CloudinaryService } from '../src/cloudinary/cloudinary.service';
+import { newsletterContent } from './fixtures/newsletter-content';
+import type { NewsletterContentDto } from '../src/newsletter/DTOs/newsletter-content.dto';
+import { NewsletterPdfService } from '../src/newsletter/pdf/newsletter-pdf.service';
 
 const databaseDescribe = process.env.MAIL_TEST_DATABASE_URL
   ? describe
@@ -55,22 +64,42 @@ databaseDescribe(
               html: string;
               text: string;
               unsubscribeUrl?: string;
+              attachments?: {
+                filename: string;
+                content: Buffer;
+                contentType: string;
+              }[];
             },
           ]
         >()
         .mockResolvedValue({ messageId: 'fake-smtp-message' }),
+    };
+    const cloudinary = {
+      upload: jest.fn().mockResolvedValue({
+        secure_url: 'https://example.test/permanent-cover.png',
+        public_id: 'mocked-newsletter-image',
+      }),
+    };
+    const pdf = {
+      render: jest.fn((html: string) =>
+        Promise.resolve(Buffer.from(`%PDF-1.7\n${html}`)),
+      ),
     };
 
     beforeAll(async () => {
       process.env.DATABASE_URL = process.env.MAIL_TEST_DATABASE_URL;
       process.env.JWT_SECRET = 'mail-integration-jwt-test-secret';
       const module = await Test.createTestingModule({
-        imports: [PrismaModule, AuthModule, MailModule],
+        imports: [PrismaModule, AuthModule, MailModule, NewsletterModule],
       })
         .overrideProvider(MailConfig)
         .useValue(new MailConfig(config))
         .overrideProvider(MailService)
         .useValue(smtp)
+        .overrideProvider(CloudinaryService)
+        .useValue(cloudinary)
+        .overrideProvider(NewsletterPdfService)
+        .useValue(pdf)
         .compile();
       app = module.createNestApplication();
       app.useLogger(false);
@@ -123,6 +152,8 @@ databaseDescribe(
         .mockReset()
         .mockResolvedValue({ messageId: 'fake-smtp-message' });
       smtp.verify.mockClear();
+      cloudinary.upload.mockClear();
+      pdf.render.mockClear();
       config.set('MAIL_ENABLED', 'true');
       config.set('MAIL_DAILY_LIMIT', '400');
     });
@@ -152,6 +183,236 @@ databaseDescribe(
       });
     const post = (path: string) =>
       request(app.getHttpServer()).post(path).auth(token, { type: 'bearer' });
+
+    it('protects draft previews and content uploads with authentication', async () => {
+      await request(app.getHttpServer())
+        .post('/newsletter/preview')
+        .send({})
+        .expect(401);
+      await request(app.getHttpServer()).post('/newsletter/images').expect(401);
+    });
+
+    it('uploads a validated content image using mocked storage', async () => {
+      const png = Buffer.from(
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j1ioAAAAASUVORK5CYII=',
+        'base64',
+      );
+      const response = await post('/newsletter/images')
+        .attach('image', png, {
+          filename: 'imagem.png',
+          contentType: 'image/png',
+        })
+        .expect(201);
+      expect(readBody<{ url: string }>(response).url).toBe(
+        'https://example.test/permanent-cover.png',
+      );
+      expect(cloudinary.upload).toHaveBeenCalledTimes(1);
+    });
+
+    it('previews a local visual draft without saving or uploading it', async () => {
+      const count = await db.newsletter.count();
+      const response = await post('/newsletter/preview')
+        .send({
+          title: '',
+          subject: '',
+          publishedAt: '',
+          sentAt: '',
+          htmlContent: '',
+          contentData: newsletterContent(),
+          coverUrl: 'blob:local-crop',
+        })
+        .expect(200);
+      expect(readBody<{ htmlContent: string }>(response).htmlContent).toContain(
+        'blob:local-crop',
+      );
+      expect(await db.newsletter.count()).toBe(count);
+      expect(cloudinary.upload).not.toHaveBeenCalled();
+      expect(smtp.send).not.toHaveBeenCalled();
+    });
+
+    it('saves and reopens structured sections, renders them on the server and preserves them on update', async () => {
+      const created = await post('/newsletter')
+        .send({
+          title: `${tag} visual edition`,
+          subject: 'Boletim de junho',
+          contentData: newsletterContent(),
+        })
+        .expect(201);
+      const saved = readBody<{
+        id: string;
+        slug: string;
+        htmlContent: string;
+        contentData: NewsletterContentDto;
+      }>(created);
+      expect(saved.htmlContent).toContain('Encontro de pesquisadores');
+      expect(saved.contentData.template).toBe('MAGAZINE');
+      expect(created.body).not.toHaveProperty('pdfContent');
+      expect(created.body).toHaveProperty(
+        'pdfUrl',
+        `/newsletter/${saved.id}/pdf`,
+      );
+      await request(app.getHttpServer())
+        .get(`/newsletter/${saved.id}/pdf`)
+        .expect(404);
+      const document = await request(app.getHttpServer())
+        .get(`/newsletter/${saved.id}/pdf`)
+        .auth(token, { type: 'bearer' })
+        .expect(200);
+      expect(document.headers['content-type']).toContain('application/pdf');
+      expect(document.headers['content-disposition']).toContain('.pdf');
+      const reopened = await request(app.getHttpServer())
+        .get(`/newsletter/slug/${saved.slug}`)
+        .auth(token, { type: 'bearer' })
+        .expect(200);
+      expect(
+        readBody<{ contentData: NewsletterContentDto }>(reopened).contentData,
+      ).toEqual(newsletterContent());
+      const contentData = newsletterContent();
+      contentData.template = 'CLASSIC';
+      contentData.sections[0].items[0].text = 'Texto revisado e persistido.';
+      const changed = await request(app.getHttpServer())
+        .patch(`/newsletter/slug/${saved.slug}`)
+        .auth(token, { type: 'bearer' })
+        .send({ contentData })
+        .expect(200);
+      expect(readBody<{ htmlContent: string }>(changed).htmlContent).toContain(
+        'Texto revisado e persistido.',
+      );
+      expect(
+        await db.newsletterDelivery.count({
+          where: { newsletterId: saved.id },
+        }),
+      ).toBe(0);
+      expect(smtp.send).not.toHaveBeenCalled();
+    });
+
+    it('accepts multipart content and renders the uploaded permanent cover, including subsequent changes', async () => {
+      const response = await post('/newsletter')
+        .field('title', `${tag} multipart edition`)
+        .field('subject', 'Edição com capa')
+        .field('contentData', JSON.stringify(newsletterContent()))
+        .attach('cover', Buffer.from('image handled by mocked storage'), {
+          filename: 'cover.png',
+          contentType: 'image/png',
+        })
+        .expect(201);
+      const saved = readBody<{ id: string; slug: string; htmlContent: string }>(
+        response,
+      );
+      expect(saved.htmlContent).toContain(
+        'https://example.test/permanent-cover.png',
+      );
+      expect(saved.htmlContent).not.toContain('blob:');
+      cloudinary.upload.mockResolvedValueOnce({
+        secure_url: 'https://example.test/revised-cover.png',
+        public_id: 'mocked-newsletter-image',
+      });
+      await request(app.getHttpServer())
+        .patch(`/newsletter/slug/${saved.slug}/cover`)
+        .auth(token, { type: 'bearer' })
+        .attach('cover', Buffer.from('mock storage image'), {
+          filename: 'new.png',
+          contentType: 'image/png',
+        })
+        .expect(200);
+      const updated = await db.newsletter.findUniqueOrThrow({
+        where: { id: saved.id },
+      });
+      expect(updated.htmlContent).toContain(
+        'https://example.test/revised-cover.png',
+      );
+      expect(updated.contentData).toEqual(newsletterContent());
+      expect(Buffer.from(updated.pdfContent!).toString()).toContain(
+        'https://example.test/revised-cover.png',
+      );
+    });
+
+    it('retains advanced HTML source with its editable cover placeholder', async () => {
+      const contentData = newsletterContent();
+      contentData.mode = 'html';
+      contentData.customHtml =
+        '<h1>Código personalizado</h1><img src="{{newsletterCover}}">';
+      const response = await post('/newsletter')
+        .send({
+          title: `${tag} advanced edition`,
+          subject: 'Personalizada',
+          contentData,
+          coverUrl: 'https://example.test/capa.png',
+        })
+        .expect(201);
+      const saved = readBody<{
+        htmlContent: string;
+        contentData: NewsletterContentDto;
+      }>(response);
+      expect(saved.htmlContent).toContain(
+        'src="https://example.test/capa.png"',
+      );
+      expect(saved.contentData.customHtml).toContain('{{newsletterCover}}');
+      expect(saved.contentData.sections).toEqual(contentData.sections);
+    });
+
+    it('downloads a published PDF without login and reuses its generated bytes', async () => {
+      const edition = await newsletter();
+      await request(app.getHttpServer())
+        .get(`/newsletter/${edition.id}/pdf`)
+        .expect(200);
+      await request(app.getHttpServer())
+        .get(`/newsletter/${edition.id}/pdf`)
+        .expect(200);
+      expect(pdf.render).toHaveBeenCalledTimes(1);
+      const saved = await db.newsletter.findUniqueOrThrow({
+        where: { id: edition.id },
+      });
+      expect(saved.pdfContent).toBeTruthy();
+      expect(saved.pdfGeneratedAt).toBeInstanceOf(Date);
+      await db.newsletter.update({
+        where: { id: edition.id },
+        data: { deletedAt: new Date() },
+      });
+      await request(app.getHttpServer())
+        .get(`/newsletter/${edition.id}/pdf`)
+        .expect(404);
+    });
+
+    it('keeps the saved edition intact when PDF generation fails and rejects a manual PDF URL', async () => {
+      const edition = await newsletter();
+      pdf.render.mockRejectedValueOnce(
+        new ServiceUnavailableException('Falha simulada no PDF'),
+      );
+      await request(app.getHttpServer())
+        .patch(`/newsletter/slug/${edition.slug}`)
+        .auth(token, { type: 'bearer' })
+        .send({ htmlContent: '<p>Uma alteração</p>' })
+        .expect(503);
+      expect(
+        (await db.newsletter.findUniqueOrThrow({ where: { id: edition.id } }))
+          .htmlContent,
+      ).toBe(edition.htmlContent);
+      await post('/newsletter')
+        .send({
+          title: `${tag} manual PDF`,
+          subject: 'Assunto',
+          htmlContent: '<p>Texto</p>',
+          pdfUrl: 'https://example.test/manual.pdf',
+        })
+        .expect(400);
+    });
+
+    it('rejects malformed nested content and empty editions before writing', async () => {
+      const count = await db.newsletter.count();
+      for (const contentData of [
+        'bad json',
+        [],
+        { ...newsletterContent(), template: 'invalid' },
+        { ...newsletterContent(), sections: [] },
+      ]) {
+        await post('/newsletter')
+          .send({ title: `${tag} invalid`, subject: 'Assunto', contentData })
+          .expect(400);
+      }
+      expect(await db.newsletter.count()).toBe(count);
+      expect(cloudinary.upload).not.toHaveBeenCalled();
+    });
     const queue = (id: string) =>
       post(`/mail/newsletters/${id}/send`).expect(202);
     async function advanceQueue() {
@@ -209,6 +470,9 @@ databaseDescribe(
       await request(app.getHttpServer())
         .get(`/mail/newsletters/${edition.id}/audience`)
         .expect(401);
+      await request(app.getHttpServer())
+        .get(`/mail/newsletters/${edition.id}/subscribers`)
+        .expect(401);
       const audience = await request(app.getHttpServer())
         .get(`/mail/newsletters/${edition.id}/audience`)
         .auth(token, { type: 'bearer' })
@@ -256,6 +520,14 @@ databaseDescribe(
       expect(message.html).not.toContain('Texto alterado');
       expect(message.unsubscribeUrl).toContain('/mail/unsubscribe?token=');
       expect(message.text).toContain('Cancelar inscrição');
+      expect(message.attachments).toHaveLength(1);
+      expect(message.attachments![0].contentType).toBe('application/pdf');
+      expect(message.attachments![0].content.toString()).toContain(
+        'Texto original da edição',
+      );
+      expect(message.attachments![0].content.toString()).not.toContain(
+        'Texto alterado',
+      );
       expect(
         (await db.newsletter.findUniqueOrThrow({ where: { id: edition.id } }))
           .sentAt,

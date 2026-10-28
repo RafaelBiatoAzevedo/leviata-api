@@ -121,7 +121,7 @@ export class MailWorker implements OnApplicationBootstrap, OnModuleDestroy {
             newsletter: { deletedAt: null, publishedAt: { lte: now } },
           },
         },
-        include: { subscriber: true, campaign: true },
+        include: { subscriber: true, campaign: { omit: { pdfContent: true } } },
         orderBy: [{ nextAttemptAt: 'asc' }, { id: 'asc' }],
       });
       if (!recipient) return null;
@@ -175,7 +175,11 @@ export class MailWorker implements OnApplicationBootstrap, OnModuleDestroy {
       where: { id: recipient.id },
       include: {
         subscriber: true,
-        campaign: { include: { newsletter: true } },
+        campaign: {
+          include: {
+            newsletter: { select: { deletedAt: true, publishedAt: true } },
+          },
+        },
       },
     });
     if (!current || current.status !== 'SENDING') return false;
@@ -206,10 +210,10 @@ export class MailWorker implements OnApplicationBootstrap, OnModuleDestroy {
         to: current.email,
         subject: current.campaign.subject,
         messageId: `<newsletter-${current.id}@${settings.from.split('@')[1]}>`,
-        ...this.newsletters.message(current.campaign, {
+        ...(await this.newsletters.message(current.campaign, {
           id: current.subscriberId,
           email: current.email,
-        }),
+        })),
       });
       messageId = result.messageId;
     } catch (error) {

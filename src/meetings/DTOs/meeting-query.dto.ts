@@ -54,7 +54,7 @@ export class MeetingsQueryDto {
 
   @ApiPropertyOptional({
     description:
-      'Filtra encontros, seminários e documentários internos ou externos.',
+      'Filtra eventos internos ou externos: encontros, seminários, simpósios e mostras de documentários.',
     example: true,
   })
   @IsOptional()

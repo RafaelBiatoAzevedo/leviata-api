@@ -8,9 +8,10 @@ import { MailUnsubscribeService } from './mail-unsubscribe.service';
 import { MailWorker } from './mail.worker';
 import { MailController } from './mail.controller';
 import { MailUnsubscribeController } from './mail-unsubscribe.controller';
+import { NewsletterPdfModule } from '../newsletter/pdf/newsletter-pdf.module';
 
 @Module({
-  imports: [ConfigModule, PrismaModule],
+  imports: [ConfigModule, PrismaModule, NewsletterPdfModule],
   controllers: [MailController, MailUnsubscribeController],
   providers: [
     MailConfig,

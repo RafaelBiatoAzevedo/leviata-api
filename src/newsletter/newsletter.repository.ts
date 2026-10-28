@@ -30,12 +30,16 @@ export class NewsletterRepository {
   }
 
   findById(id: string) {
-    return this.prisma.newsletter.findFirst({ where: { id, deletedAt: null } });
+    return this.prisma.newsletter.findFirst({
+      where: { id, deletedAt: null },
+      omit: { pdfContent: true },
+    });
   }
 
   findBySlug(slug: string) {
     return this.prisma.newsletter.findFirst({
       where: { slug, deletedAt: null },
+      omit: { pdfContent: true },
     });
   }
 
@@ -78,6 +82,7 @@ export class NewsletterRepository {
     sortOrder = 'desc',
   }: NewsletterQueryDto) {
     return {
+      omit: { pdfContent: true },
       where: {
         deletedAt: null,
         ...(search && {
@@ -94,11 +99,15 @@ export class NewsletterRepository {
   }
 
   create(data: Prisma.NewsletterCreateInput) {
-    return this.prisma.newsletter.create({ data });
+    return this.prisma.newsletter.create({ data, omit: { pdfContent: true } });
   }
 
   update(id: string, data: Prisma.NewsletterUpdateInput) {
-    return this.prisma.newsletter.update({ where: { id }, data });
+    return this.prisma.newsletter.update({
+      where: { id },
+      data,
+      omit: { pdfContent: true },
+    });
   }
 
   remove(id: string, userId: string) {

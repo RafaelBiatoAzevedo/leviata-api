@@ -12,6 +12,7 @@ describe('ScheduleService', () => {
     update: jest.fn(),
     remove: jest.fn(),
     findAll: jest.fn(),
+    findAvailableMeeting: jest.fn(),
   };
   const service = new ScheduleService(
     repository as unknown as ScheduleRepository,
@@ -24,6 +25,7 @@ describe('ScheduleService', () => {
     description: null,
     location: null,
     externalUrl: null,
+    meetingId: null,
     date: new Date('2026-10-15T12:00:00Z'),
     endDate: new Date('2026-10-15T14:00:00Z'),
     createdAt: new Date(),
@@ -37,6 +39,7 @@ describe('ScheduleService', () => {
     repository.findById.mockResolvedValue(found);
     repository.findBySlug.mockResolvedValue(found);
     repository.existsSlug.mockResolvedValue(false);
+    repository.findAvailableMeeting.mockResolvedValue({ id: 'meeting-id' });
   });
 
   it('reserva slugs já utilizados e preserva o horário recebido', async () => {
@@ -119,5 +122,98 @@ describe('ScheduleService', () => {
       service.updateBySlug('excluido', { title: 'Novo título' }),
     ).rejects.toThrow(NotFoundException);
     expect(repository.update).not.toHaveBeenCalled();
+  });
+
+  it('substitui a inscrição pelo evento cadastrado, preservando os dados da agenda', async () => {
+    repository.findById.mockResolvedValue({
+      ...found,
+      externalUrl: 'https://example.com/inscricao',
+    });
+    await service.update(found.id, { meetingId: 'meeting-id' });
+    expect(repository.findAvailableMeeting).toHaveBeenCalledWith('meeting-id');
+    expect(repository.update).toHaveBeenCalledWith(found.id, {
+      meetingId: 'meeting-id',
+      externalUrl: null,
+      slug: found.slug,
+    });
+  });
+
+  it('também aceita vincular na criação e trocar o vínculo de volta por um link', async () => {
+    await service.create({
+      title: 'Simpósio externo',
+      date: '2026-10-15',
+      meetingId: 'meeting-id',
+    });
+    expect(repository.create).toHaveBeenCalledWith(
+      expect.objectContaining({ meetingId: 'meeting-id', externalUrl: null }),
+    );
+    repository.findBySlug.mockResolvedValue({
+      ...found,
+      meetingId: 'meeting-id',
+    });
+    await service.updateBySlug(found.slug, {
+      externalUrl: 'https://example.com',
+    });
+    expect(repository.update).toHaveBeenCalledWith(found.id, {
+      externalUrl: 'https://example.com',
+      meetingId: null,
+      slug: found.slug,
+    });
+  });
+
+  it.each(['create', 'update'] as const)(
+    'rejeita destinos simultâneos em %s',
+    async (method) => {
+      const dto = {
+        title: 'Evento',
+        date: '2026-10-15',
+        meetingId: 'meeting-id',
+        externalUrl: 'https://example.com',
+      };
+      await expect(
+        method === 'create'
+          ? service.create(dto)
+          : service.update(found.id, dto),
+      ).rejects.toThrow(BadRequestException);
+      expect(repository.create).not.toHaveBeenCalled();
+      expect(repository.update).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(['create', 'update'] as const)(
+    'rejeita evento ausente ou excluído em %s',
+    async (method) => {
+      repository.findAvailableMeeting.mockResolvedValue(null);
+      const dto = {
+        title: 'Evento',
+        date: '2026-10-15',
+        meetingId: 'deleted-id',
+      };
+      await expect(
+        method === 'create'
+          ? service.create(dto)
+          : service.update(found.id, dto),
+      ).rejects.toThrow(BadRequestException);
+      expect(repository.create).not.toHaveBeenCalled();
+      expect(repository.update).not.toHaveBeenCalled();
+    },
+  );
+
+  it('preserva um vínculo omitido no PATCH e permite removê-lo explicitamente', async () => {
+    repository.findById.mockResolvedValue({
+      ...found,
+      meetingId: 'meeting-id',
+    });
+    await service.update(found.id, { description: 'Registro do evento' });
+    expect(repository.update).toHaveBeenLastCalledWith(found.id, {
+      description: 'Registro do evento',
+      slug: found.slug,
+    });
+    await service.update(found.id, { meetingId: null });
+    expect(repository.update).toHaveBeenLastCalledWith(found.id, {
+      meetingId: null,
+      slug: found.slug,
+    });
+    expect(repository.findAvailableMeeting).not.toHaveBeenCalled();
   });
 });

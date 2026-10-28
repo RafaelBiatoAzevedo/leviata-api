@@ -37,6 +37,7 @@ enum MeetingType {
   SEMINAR
   MEETING
   DOCUMENTARY
+  SYMPOSIUM
 }
 
 enum NewsCategory {
@@ -463,6 +464,8 @@ model Meeting {
 
   presentedWorks PresentedWork[]
 
+  scheduleEntries Schedule[]
+
   images Image[]
 
   createdAt DateTime @default(now())
@@ -616,6 +619,9 @@ model Schedule {
   location String?
   externalUrl String?
 
+  meetingId String?
+  meeting Meeting? @relation(fields: [meetingId], references: [id], onDelete: SetNull)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -623,6 +629,7 @@ model Schedule {
   deletedById String?
 
   @@index([deletedAt, date])
+  @@index([meetingId])
 }
 
 enum NewsletterMailRecipientStatus {
@@ -641,6 +648,7 @@ model NewsletterMailCampaign {
   title String
   subject String
   htmlContent String @db.Text
+  pdfContent Bytes?
   slug String
   createdById String
   createdAt DateTime @default(now()) @db.Timestamptz(3)
@@ -683,10 +691,15 @@ model Newsletter {
 
   htmlContent String @db.Text
 
+  contentData Json?
+
   coverUrl String?
   coverPublicId String?
 
   pdfUrl String?
+  pdfContent Bytes?
+  pdfSourceHash String?
+  pdfGeneratedAt DateTime?
 
   publishedAt DateTime?
 

@@ -49,7 +49,9 @@ export async function findCommentTarget(
           ? '/atividades/seminarios/'
           : meeting?.type === 'DOCUMENTARY'
             ? '/atividades/mostra-de-documentarios/'
-            : '/atividades/encontros/';
+            : meeting?.type === 'SYMPOSIUM'
+              ? '/atividades/simposios/'
+              : '/atividades/encontros/';
       break;
     }
     case CommentTarget.PRESENTED_WORK:

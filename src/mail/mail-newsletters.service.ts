@@ -12,7 +12,17 @@ import { MailConfig } from './mail.config';
 import { MailService } from './mail.service';
 import { MailUnsubscribeService } from './mail-unsubscribe.service';
 import { newsletterMessage } from './mail.template';
-import { MailDeliveriesQueryDto } from './mail.dto';
+import {
+  MailAudienceQueryDto,
+  MailDeliveriesQueryDto,
+  MailSendDto,
+} from './mail.dto';
+import { NewsletterDocumentsService } from '../newsletter/pdf/newsletter-documents.service';
+import {
+  NewsletterPdfService,
+  newsletterPdfFilename,
+  newsletterPdfHash,
+} from '../newsletter/pdf/newsletter-pdf.service';
 
 @Injectable()
 export class MailNewslettersService {
@@ -21,6 +31,8 @@ export class MailNewslettersService {
     private readonly config: MailConfig,
     private readonly mail: MailService,
     private readonly unsubscribe: MailUnsubscribeService,
+    private readonly documents: NewsletterDocumentsService,
+    private readonly pdf: NewsletterPdfService,
   ) {}
 
   private async newsletter(id: string) {
@@ -31,9 +43,18 @@ export class MailNewslettersService {
     return newsletter;
   }
 
+  private eligibleWhere(id: string): Prisma.NewsletterSubscriberWhereInput {
+    return {
+      isActive: true,
+      allowEmail: true,
+      deletedAt: null,
+      deliveries: { none: { newsletterId: id, errorMessage: null } },
+    };
+  }
+
   async test(id: string, to: string) {
     const settings = this.config.requireReady();
-    const newsletter = await this.newsletter(id);
+    const { newsletter, content, filename } = await this.documents.ensure(id);
     const message = newsletterMessage({
       ...newsletter,
       portalUrl: `${settings.portalUrl}/noticias/newsletter`,
@@ -43,6 +64,7 @@ export class MailNewslettersService {
         to,
         subject: `[TESTE] ${newsletter.subject}`,
         ...message,
+        attachments: [{ filename, content, contentType: 'application/pdf' }],
       });
       return {
         message:
@@ -56,8 +78,22 @@ export class MailNewslettersService {
     }
   }
 
-  async enqueue(id: string, userId: string) {
+  async enqueue(
+    id: string,
+    userId: string,
+    dto: MailSendDto = { mode: 'ALL' },
+  ) {
+    const selected = dto.mode === 'SELECTED';
+    if (selected && !dto.subscriberIds?.length)
+      throw new BadRequestException(
+        'Selecione pelo menos um inscrito para enviar.',
+      );
+    if (!selected && dto.subscriberIds !== undefined)
+      throw new BadRequestException(
+        'Use o modo SELECTED para informar os inscritos selecionados.',
+      );
     this.config.requireReady();
+    await this.documents.ensure(id);
     try {
       await this.prisma.$transaction(
         async (tx) => {
@@ -66,6 +102,14 @@ export class MailNewslettersService {
           });
           if (!newsletter)
             throw new NotFoundException('Newsletter não encontrada.');
+          if (
+            !newsletter.pdfContent ||
+            newsletter.pdfSourceHash !==
+              newsletterPdfHash(newsletter.htmlContent)
+          )
+            throw new ConflictException(
+              'A edição mudou durante a geração do PDF. Tente iniciar o envio novamente.',
+            );
           const existing = await tx.newsletterMailCampaign.findUnique({
             where: { newsletterId: id },
           });
@@ -80,10 +124,8 @@ export class MailNewslettersService {
             );
           const subscribers = await tx.newsletterSubscriber.findMany({
             where: {
-              isActive: true,
-              allowEmail: true,
-              deletedAt: null,
-              deliveries: { none: { newsletterId: id, errorMessage: null } },
+              ...this.eligibleWhere(id),
+              ...(selected && { id: { in: dto.subscriberIds } }),
             },
             select: { id: true, email: true },
             orderBy: { id: 'asc' },
@@ -91,6 +133,10 @@ export class MailNewslettersService {
           const eligible = subscribers.filter((subscriber) =>
             isEmail(subscriber.email),
           );
+          if (selected && eligible.length !== dto.subscriberIds!.length)
+            throw new BadRequestException(
+              'Um ou mais inscritos selecionados não estão aptos a receber esta edição. Atualize a lista e confira a seleção.',
+            );
           if (!eligible.length)
             throw new BadRequestException(
               'Nenhum inscrito elegível para receber esta newsletter.',
@@ -101,6 +147,7 @@ export class MailNewslettersService {
               title: newsletter.title,
               subject: newsletter.subject,
               htmlContent: newsletter.htmlContent,
+              pdfContent: newsletter.pdfContent,
               slug: newsletter.slug,
               createdById: userId,
             },
@@ -183,10 +230,7 @@ export class MailNewslettersService {
       this.prisma.newsletterSubscriber.count({ where: { deletedAt: null } }),
       this.prisma.newsletterSubscriber.findMany({
         where: {
-          deletedAt: null,
-          isActive: true,
-          allowEmail: true,
-          deliveries: { none: { newsletterId: id, errorMessage: null } },
+          ...this.eligibleWhere(id),
         },
         select: { email: true },
       }),
@@ -195,6 +239,39 @@ export class MailNewslettersService {
       isEmail(subscriber.email),
     ).length;
     return { registered, eligible, excluded: registered - eligible };
+  }
+
+  async subscribers(id: string, query: MailAudienceQueryDto) {
+    await this.newsletter(id);
+    const search = query.search?.trim();
+    const candidates = await this.prisma.newsletterSubscriber.findMany({
+      where: {
+        ...this.eligibleWhere(id),
+        ...(search && {
+          OR: [
+            { name: { contains: search, mode: 'insensitive' } },
+            { email: { contains: search, mode: 'insensitive' } },
+          ],
+        }),
+      },
+      select: { id: true, name: true, email: true },
+      orderBy: [
+        { name: { sort: 'asc', nulls: 'last' } },
+        { email: 'asc' },
+        { id: 'asc' },
+      ],
+    });
+    // Validate addresses before pagination so rows and totals match the send eligibility.
+    const eligible = candidates.filter((subscriber) =>
+      isEmail(subscriber.email),
+    );
+    const { page = 1, limit = 20 } = query;
+    return {
+      items: eligible.slice((page - 1) * limit, page * limit),
+      total: eligible.length,
+      page,
+      limit,
+    };
   }
 
   async deliveryRecords(id: string, query: MailDeliveriesQueryDto) {
@@ -295,12 +372,27 @@ export class MailNewslettersService {
     return this.status(id);
   }
 
-  message(
-    campaign: { title: string; slug: string; htmlContent: string },
+  async message(
+    campaign: {
+      id: string;
+      title: string;
+      slug: string;
+      htmlContent: string;
+      pdfContent?: Uint8Array | null;
+    },
     subscriber: { id: string; email: string },
   ) {
     const settings = this.config.requireReady();
     const unsubscribeUrl = this.unsubscribe.link(subscriber);
+    // Older campaigns also render from their immutable HTML snapshot.
+    const content = campaign.pdfContent
+      ? Buffer.from(campaign.pdfContent)
+      : await this.pdf.render(campaign.htmlContent);
+    if (!campaign.pdfContent)
+      await this.prisma.newsletterMailCampaign.update({
+        where: { id: campaign.id },
+        data: { pdfContent: new Uint8Array(content) },
+      });
     return {
       ...newsletterMessage({
         ...campaign,
@@ -308,6 +400,13 @@ export class MailNewslettersService {
         unsubscribeUrl,
       }),
       unsubscribeUrl,
+      attachments: [
+        {
+          filename: newsletterPdfFilename(campaign.slug),
+          content,
+          contentType: 'application/pdf',
+        },
+      ],
     };
   }
 }

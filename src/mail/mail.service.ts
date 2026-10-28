@@ -14,6 +14,7 @@ export interface MailMessage {
   text: string;
   messageId?: string;
   unsubscribeUrl?: string;
+  attachments?: { filename: string; content: Buffer; contentType: string }[];
 }
 
 @Injectable()
@@ -77,6 +78,7 @@ export class MailService implements OnApplicationShutdown {
       html: message.html,
       text: message.text,
       messageId: message.messageId,
+      attachments: message.attachments,
       disableFileAccess: true,
       disableUrlAccess: true,
       ...(message.unsubscribeUrl && {

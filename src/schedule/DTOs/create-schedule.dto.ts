@@ -6,6 +6,7 @@ import {
   IsOptional,
   IsString,
   IsUrl,
+  IsUUID,
   MaxLength,
 } from 'class-validator';
 
@@ -45,8 +46,22 @@ export class CreateScheduleDto {
   @MaxLength(255)
   location?: string | null;
 
-  @ApiPropertyOptional({ nullable: true })
+  @ApiPropertyOptional({
+    nullable: true,
+    description:
+      'Link de inscrição ou site externo. Use este campo ou meetingId.',
+  })
   @IsOptional()
   @IsUrl({ protocols: ['http', 'https'], require_protocol: true })
   externalUrl?: string | null;
+
+  @ApiPropertyOptional({
+    nullable: true,
+    format: 'uuid',
+    description:
+      'Evento cadastrado (interno ou externo). Ao vincular, substitui externalUrl.',
+  })
+  @IsOptional()
+  @IsUUID('4')
+  meetingId?: string | null;
 }

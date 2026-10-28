@@ -4,16 +4,37 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { ScheduleQueryDto } from './DTOs/schedule-query.dto';
 
+// External meetings may be linked explicitly; deleted meetings must not produce a public link.
+const includeMeeting = {
+  meeting: {
+    where: { deletedAt: null },
+    select: { id: true, slug: true, title: true, type: true, isInternal: true },
+  },
+} satisfies Prisma.ScheduleInclude;
+
 @Injectable()
 export class ScheduleRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   findById(id: string) {
-    return this.prisma.schedule.findFirst({ where: { id, deletedAt: null } });
+    return this.prisma.schedule.findFirst({
+      where: { id, deletedAt: null },
+      include: includeMeeting,
+    });
   }
 
   findBySlug(slug: string) {
-    return this.prisma.schedule.findFirst({ where: { slug, deletedAt: null } });
+    return this.prisma.schedule.findFirst({
+      where: { slug, deletedAt: null },
+      include: includeMeeting,
+    });
+  }
+
+  findAvailableMeeting(id: string) {
+    return this.prisma.meeting.findFirst({
+      where: { id, deletedAt: null },
+      select: { id: true },
+    });
   }
 
   async existsSlug(slug: string, ignoreId?: string) {
@@ -55,6 +76,7 @@ export class ScheduleRepository {
       sortOrder = 'asc',
     } = query;
     return {
+      include: includeMeeting,
       where: {
         deletedAt: null,
         ...(search && {
@@ -77,12 +99,16 @@ export class ScheduleRepository {
     } satisfies Prisma.ScheduleFindManyArgs;
   }
 
-  create(data: Prisma.ScheduleCreateInput) {
-    return this.prisma.schedule.create({ data });
+  create(data: Prisma.ScheduleUncheckedCreateInput) {
+    return this.prisma.schedule.create({ data, include: includeMeeting });
   }
 
-  update(id: string, data: Prisma.ScheduleUpdateInput) {
-    return this.prisma.schedule.update({ where: { id }, data });
+  update(id: string, data: Prisma.ScheduleUncheckedUpdateInput) {
+    return this.prisma.schedule.update({
+      where: { id },
+      data,
+      include: includeMeeting,
+    });
   }
 
   remove(id: string, userId: string) {

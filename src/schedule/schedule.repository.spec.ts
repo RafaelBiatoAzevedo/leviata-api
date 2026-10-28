@@ -2,13 +2,28 @@ import { PrismaService } from '../prisma/prisma.service';
 import { ScheduleRepository } from './schedule.repository';
 
 describe('ScheduleRepository', () => {
+  const include = {
+    meeting: {
+      where: { deletedAt: null },
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        type: true,
+        isInternal: true,
+      },
+    },
+  };
   const schedule = {
     findFirst: jest.fn(),
     count: jest.fn(),
     update: jest.fn(),
+    findMany: jest.fn(),
   };
+  const meeting = { findFirst: jest.fn() };
   const repository = new ScheduleRepository({
     schedule,
+    meeting,
   } as unknown as PrismaService);
 
   beforeEach(() => jest.resetAllMocks());
@@ -18,9 +33,11 @@ describe('ScheduleRepository', () => {
     await repository.findBySlug('evento');
     expect(schedule.findFirst).toHaveBeenNthCalledWith(1, {
       where: { id: 'event-id', deletedAt: null },
+      include,
     });
     expect(schedule.findFirst).toHaveBeenNthCalledWith(2, {
       where: { slug: 'evento', deletedAt: null },
+      include,
     });
   });
 
@@ -36,5 +53,36 @@ describe('ScheduleRepository', () => {
       where: { id: 'event-id' },
       data: { deletedAt: expect.any(Date) as Date, deletedById: 'user-id' },
     });
+  });
+
+  it('permite selecionar eventos externos, mas nunca excluídos', async () => {
+    await repository.findAvailableMeeting('meeting-id');
+    expect(meeting.findFirst).toHaveBeenCalledWith({
+      where: { id: 'meeting-id', deletedAt: null },
+      select: { id: true },
+    });
+  });
+
+  it('inclui o destino público também nas listas e na paginação, omitindo eventos excluídos', async () => {
+    schedule.findMany.mockResolvedValue([]);
+    schedule.count.mockResolvedValue(0);
+    await repository.findAll({});
+    await repository.findPage({});
+    for (const [args] of schedule.findMany.mock.calls) {
+      expect(args).toMatchObject({
+        include: {
+          meeting: {
+            where: { deletedAt: null },
+            select: {
+              id: true,
+              slug: true,
+              title: true,
+              type: true,
+              isInternal: true,
+            },
+          },
+        },
+      });
+    }
   });
 });
