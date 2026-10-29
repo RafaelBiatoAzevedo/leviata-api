@@ -27,6 +27,7 @@ import { ScheduleModule } from './schedule/schedule.module';
 import { CommentsModule } from './comments/comments.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { MailModule } from './mail/mail.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
   imports: [
@@ -63,6 +64,7 @@ import { MailModule } from './mail/mail.module';
     CommentsModule,
     NotificationsModule,
     MailModule,
+    AnalyticsModule,
   ],
   controllers: [AppController],
   providers: [],

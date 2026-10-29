@@ -7,6 +7,24 @@ datasource db {
   provider = "postgresql"
 }
 
+// Analytics is isolated from CMS data. UUID identifies a pageview, never a person.
+model AnalyticsEvent {
+  id      String   @id @db.Uuid
+  day     DateTime @db.Date
+  path    String   @db.VarChar(150)
+  source  String   @db.VarChar(20)
+  device  String   @db.VarChar(20)
+  browser String   @db.VarChar(20)
+
+  @@index([day])
+}
+
+model AnalyticsMonth {
+  month  String  @id @db.VarChar(7)
+  used   Int     @default(0)
+  capped Boolean @default(false)
+}
+
 enum Role {
   SUPER_ADMIN
   ADMIN
