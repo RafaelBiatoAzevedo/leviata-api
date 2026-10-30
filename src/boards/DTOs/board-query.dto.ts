@@ -1,7 +1,9 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import { BoardType } from '@prisma/client';
 import {
   IsDateString,
+  IsEnum,
   IsInt,
   IsOptional,
   IsString,
@@ -41,6 +43,15 @@ export class BoardsQueryDto {
   @IsOptional()
   @IsString()
   search?: string;
+
+  @ApiPropertyOptional({
+    description: 'Filtra bancas por qualificação ou defesa.',
+    enum: BoardType,
+    enumName: 'BoardType',
+  })
+  @IsOptional()
+  @IsEnum(BoardType)
+  type?: BoardType;
 
   @ApiPropertyOptional({
     example: '550e8400-e29b-41d4-a716-446655440000',

@@ -93,6 +93,7 @@ export class BoardsRepository {
       page = 1,
       limit = 10,
       search,
+      type,
       candidateId,
       advisorId,
       dateFrom,
@@ -102,6 +103,7 @@ export class BoardsRepository {
     return {
       where: {
         deletedAt: null,
+        ...(type && { type }),
         ...(search && {
           OR: [
             {

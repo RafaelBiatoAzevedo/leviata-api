@@ -1,9 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
+import { BoardType } from '@prisma/client';
 import {
   ArrayMinSize,
   IsArray,
   IsDate,
+  IsEnum,
   IsNotEmpty,
   IsString,
   IsUrl,
@@ -19,6 +21,16 @@ export class CreateBoardDto {
   @IsString()
   @MaxLength(255)
   title!: string;
+
+  @ApiProperty({
+    description:
+      'Tipo da banca de progressão ou conclusão de curso: qualificação ou defesa.',
+    enum: BoardType,
+    enumName: 'BoardType',
+    example: BoardType.QUALIFICATION,
+  })
+  @IsEnum(BoardType)
+  type!: BoardType;
 
   @ApiProperty({
     description: 'ID do candidato',
@@ -62,11 +74,17 @@ export class CreateBoardDto {
   members!: string[];
 
   @ApiProperty({
-    example: '1985-05-12',
+    description: 'Data e hora da banca em ISO 8601, com fuso horário.',
+    format: 'date-time',
+    example: '2026-10-30T14:30:00-03:00',
   })
   @IsNotEmpty()
   @IsDate()
-  @Transform(({ value }) => new Date(value))
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' || value instanceof Date
+      ? new Date(value)
+      : new Date(NaN),
+  )
   date!: Date;
 
   @ApiProperty({

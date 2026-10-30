@@ -58,6 +58,11 @@ enum MeetingType {
   SYMPOSIUM
 }
 
+enum BoardType {
+  QUALIFICATION
+  DEFENSE
+}
+
 enum NewsCategory {
   PUBLICATION // publicação
   EVENT       // evento
@@ -363,6 +368,9 @@ model Board {
   slug String @unique
 
   title String
+
+  // Existing boards remain unclassified until reviewed in the admin.
+  type BoardType?
 
   candidateId String
   candidate   Person @relation("BoardCandidate", fields: [candidateId], references: [id])

@@ -274,6 +274,8 @@ Guia do módulo: [docs/analytics.md](docs/analytics.md). O guia completo de impl
 | `yarn test:cov` | Relatório de cobertura |
 | `yarn test:e2e` | Testes de ponta a ponta |
 | `yarn test:gallery` | Galerias |
+| `yarn test:boards` | Bancas: tipos, validação, edição e filtros |
+| `yarn test:boards:integration` | Migration e persistência de bancas em PostgreSQL isolado |
 | `yarn test:mail` | Envio de e-mail |
 | `yarn test:mail:e2e` | Fluxos HTTP de e-mail |
 | `yarn test:analytics` | Analytics: configuração, privacidade, filtros, JWT, cota e cache |
@@ -347,6 +349,7 @@ docs/                   # Guias dos módulos
 ## Documentação complementar
 
 - [Usuários e permissões](docs/users.md)
+- [Bancas: qualificação, defesa e publicação](docs/boards.md)
 - [Comentários e notificações](docs/comments-notifications.md)
 - [Galerias](docs/galleries.md)
 - [Vídeos e temáticas](docs/thematic-videos.md)

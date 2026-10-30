@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ImageResponseDto } from '../../images/DTOs/image-response.dto';
 import { PersonResponseDto } from 'src/people/DTOs/person-response.dto';
+import { BoardType } from '@prisma/client';
 
 export class BoardResponseDto {
   @ApiProperty({
@@ -17,6 +18,16 @@ export class BoardResponseDto {
     example: 'Defesa de Mestrado - João Silva',
   })
   title!: string;
+
+  @ApiProperty({
+    description:
+      'Qualificação ou defesa. Bancas antigas ainda não classificadas retornam null.',
+    enum: BoardType,
+    enumName: 'BoardType',
+    nullable: true,
+    example: BoardType.DEFENSE,
+  })
+  type!: BoardType | null;
 
   @ApiProperty({
     example: '550e8400-e29b-41d4-a716-446655440000',
@@ -39,6 +50,8 @@ export class BoardResponseDto {
   advisor!: PersonResponseDto;
 
   @ApiProperty({
+    description: 'Data e hora da banca em UTC.',
+    format: 'date-time',
     example: '2026-08-19T14:00:00.000Z',
   })
   date!: Date;
