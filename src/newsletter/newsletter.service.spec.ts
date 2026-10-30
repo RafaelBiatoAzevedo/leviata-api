@@ -6,6 +6,7 @@ import { NewsletterPdfService } from './pdf/newsletter-pdf.service';
 import { NewsletterDocumentsService } from './pdf/newsletter-documents.service';
 import type { Newsletter, Prisma } from '@prisma/client';
 import { newsletterContent } from '../../test/fixtures/newsletter-content';
+import { renderNewsletter } from './newsletter-renderer';
 
 describe('NewsletterService', () => {
   let service: NewsletterService;
@@ -25,6 +26,8 @@ describe('NewsletterService', () => {
     update: jest.fn<Promise<unknown>, [string, Prisma.NewsletterUpdateInput]>(),
     findById: jest.fn(),
     findBySlug: jest.fn(),
+    findAll: jest.fn(),
+    findPage: jest.fn(),
   };
   const pdf = { render: jest.fn() };
 
@@ -49,6 +52,58 @@ describe('NewsletterService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  it.each(['CLASSIC', 'EDITORIAL', 'MAGAZINE'] as const)(
+    'returns current %s visual formatting in all read paths without changing the saved edition',
+    async (template) => {
+      const contentData = { ...newsletterContent(), template };
+      const stored = {
+        ...found,
+        contentData: contentData as unknown as Prisma.JsonValue,
+        htmlContent: '<p style="text-align:center">HTML visual anterior</p>',
+      };
+      repository.findById.mockResolvedValue(stored);
+      repository.findBySlug.mockResolvedValue(stored);
+      repository.findAll.mockResolvedValue([stored]);
+      repository.findPage.mockResolvedValue({
+        items: [stored],
+        total: 1,
+        page: 1,
+        limit: 10,
+      });
+      const expected = renderNewsletter({ ...stored, contentData });
+      for (const edition of [
+        await service.findOneById(stored.id),
+        await service.findOneBySlug(stored.slug),
+        ...(await service.findAll({})),
+        ...(await service.findPage({})).items,
+      ]) {
+        expect(edition.htmlContent).toBe(expected);
+        expect(edition.htmlContent).toContain('text-align:justify');
+        expect(edition.contentData).toEqual(stored.contentData);
+      }
+      expect(repository.update).not.toHaveBeenCalled();
+      expect(pdf.render).not.toHaveBeenCalled();
+      expect(stored.htmlContent).toContain('HTML visual anterior');
+    },
+  );
+
+  it('preserves the formatting of legacy and custom HTML editions', async () => {
+    for (const contentData of [
+      null,
+      { ...newsletterContent(), mode: 'html' },
+    ]) {
+      const stored = {
+        ...found,
+        contentData,
+        htmlContent: '<p style="text-align:right">HTML personalizado</p>',
+      };
+      repository.findById.mockResolvedValue(stored);
+      expect((await service.findOneById(stored.id)).htmlContent).toBe(
+        stored.htmlContent,
+      );
+    }
   });
 
   it('saves visual content with a date-only publication as UTC midnight and its generated PDF', async () => {

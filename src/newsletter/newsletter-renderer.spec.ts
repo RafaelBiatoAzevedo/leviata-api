@@ -42,7 +42,7 @@ describe('Newsletter visual renderer', () => {
   });
 
   it.each(['CLASSIC', 'EDITORIAL', 'MAGAZINE'] as const)(
-    'centers %s text and details, right-aligns links and separates content',
+    'justifies %s paragraphs, keeps centered headings and details, and preserves links and dividers',
     (template) => {
       const data = newsletterContent();
       data.template = template;
@@ -58,7 +58,16 @@ describe('Newsletter visual renderer', () => {
       const html = renderNewsletter({ contentData: data });
       expect(html).toContain('Texto copiado de um PDF com linhas quebradas.');
       expect(html).not.toContain('PDF<br>');
-      expect(html).toMatch(/text-align:center">Texto copiado/);
+      expect(html).toMatch(
+        /text-align:justify;text-align-last:start">Texto copiado/,
+      );
+      expect(html).toMatch(
+        /class="nl-prose"[^>]*text-align:justify[^>]*>Bem-vindos/,
+      );
+      expect(html).toMatch(
+        /class="nl-prose"[^>]*text-align:justify[^>]*>Grupo Leviatã/,
+      );
+      expect(html).toMatch(/<h3[^>]*text-align:center/);
       expect(html).toMatch(/text-align:center">UNESP\/campus de Franca\/SP/);
       expect(html).toMatch(/class="nl-action"[^>]*align="right"/);
       expect(html).toContain('float:none;margin:8px 0 0 auto');
@@ -86,6 +95,7 @@ describe('Newsletter visual renderer', () => {
     ];
     const html = renderNewsletter({ contentData: data });
     expect(html).toContain('Chamadas');
+    expect(html).toMatch(/class="nl-prose"[^>]*text-align:justify/);
     expect(html).not.toContain('src="https://example.org/foto.jpg"');
     expect(html.indexOf('Segundo assunto')).toBeLessThan(
       html.indexOf('Primeiro assunto'),

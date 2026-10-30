@@ -41,7 +41,7 @@ function richText(value: string, ending = '') {
           return `<a href="${safeUrl(url)}" target="_blank" rel="noopener noreferrer" style="color:#80591f;text-decoration:underline;text-underline-offset:3px">${escape(url)}</a>${escape(suffix)}`;
         })
         .join('');
-      return `<p style="margin:0 0 16px;font:16px/1.75 Arial,sans-serif;color:#35332e;text-align:center">${linked}</p>`;
+      return `<p class="nl-prose" style="margin:0 0 16px;font:16px/1.75 Arial,sans-serif;color:#35332e;text-align:justify;text-align-last:start">${linked}</p>`;
     });
   if (ending) {
     paragraphs.push(`<div class="nl-content-end">${ending}</div>`);
@@ -153,6 +153,6 @@ export function renderNewsletter(
   ${data.intro.trim() ? `<tr><td class="nl-pad" style="padding:30px 32px 0;text-align:center">${richText(data.intro)}</td></tr>` : ''}
   ${sections || (preview ? '<tr><td style="padding:40px;color:#666;text-align:center;font:16px Georgia,serif">As suas notícias e seções aparecerão aqui.</td></tr>' : '')}
   <tr class="nl-footer"><td class="nl-pad" style="padding:32px;background:${colors.soft};text-align:center;border-top:1px solid #d9c6a0">
-    <p style="margin:0;color:#725e3a;font:14px/1.8 Georgia,serif">${escape(data.footer || 'Leviatã e o Cativeiro').replace(/\n/g, '<br>')}</p>
+    <p class="nl-prose" style="margin:0;color:#725e3a;font:14px/1.8 Georgia,serif;text-align:justify;text-align-last:start">${escape(data.footer || 'Leviatã e o Cativeiro').replace(/\n/g, '<br>')}</p>
   </td></tr></table></td></tr></table></body></html>`;
 }

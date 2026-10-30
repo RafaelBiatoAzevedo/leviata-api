@@ -78,47 +78,51 @@ describe('Newsletter PDF documents', () => {
       }),
     );
   });
-  it('regenerates saved visual HTML and PDF together when the renderer layout changes', async () => {
-    const contentData = newsletterContent();
-    contentData.template = 'CLASSIC';
-    const stored = {
-      id: 'one',
-      slug: 'boletim',
-      title: 'Edição',
-      subject: 'Novidades',
-      coverUrl: null,
-      contentData,
-      htmlContent: '<p>Layout antigo</p>',
-      pdfContent: Buffer.from('%PDF old'),
-      pdfSourceHash: newsletterPdfHash('<p>Layout antigo</p>'),
-      updatedAt: new Date('2026-10-28T12:00:00.000Z'),
-    };
-    const findFirst = jest.fn().mockResolvedValue(stored);
-    const updateMany = jest
-      .fn<Promise<{ count: number }>, [Prisma.NewsletterUpdateManyArgs]>()
-      .mockResolvedValue({ count: 1 });
-    const render = jest
-      .fn<Promise<Buffer>, [string]>()
-      .mockResolvedValue(Buffer.from('%PDF new'));
-    const service = new NewsletterDocumentsService(
-      { newsletter: { findFirst, updateMany } } as unknown as PrismaService,
-      { render } as unknown as NewsletterPdfService,
-    );
-    const htmlContent = renderNewsletter({ ...stored, contentData });
-    const result = await service.ensure('one');
-    expect(render).toHaveBeenCalledWith(htmlContent);
-    expect(result.newsletter.htmlContent).toBe(htmlContent);
-    expect(result.content.toString()).toBe('%PDF new');
-    const update = updateMany.mock.calls[0][0];
-    expect(update.where).toEqual({
-      id: stored.id,
-      htmlContent: stored.htmlContent,
-      updatedAt: stored.updatedAt,
-      deletedAt: null,
-    });
-    expect(update.data.htmlContent).toBe(htmlContent);
-    expect(update.data.pdfSourceHash).toBe(newsletterPdfHash(htmlContent));
-  });
+  it.each(['CLASSIC', 'EDITORIAL', 'MAGAZINE'] as const)(
+    'regenerates %s saved visual HTML and PDF together with justified paragraphs',
+    async (template) => {
+      const contentData = newsletterContent();
+      contentData.template = template;
+      const stored = {
+        id: 'one',
+        slug: 'boletim',
+        title: 'Edição',
+        subject: 'Novidades',
+        coverUrl: null,
+        contentData,
+        htmlContent: '<p>Layout antigo</p>',
+        pdfContent: Buffer.from('%PDF old'),
+        pdfSourceHash: newsletterPdfHash('<p>Layout antigo</p>'),
+        updatedAt: new Date('2026-10-28T12:00:00.000Z'),
+      };
+      const findFirst = jest.fn().mockResolvedValue(stored);
+      const updateMany = jest
+        .fn<Promise<{ count: number }>, [Prisma.NewsletterUpdateManyArgs]>()
+        .mockResolvedValue({ count: 1 });
+      const render = jest
+        .fn<Promise<Buffer>, [string]>()
+        .mockResolvedValue(Buffer.from('%PDF new'));
+      const service = new NewsletterDocumentsService(
+        { newsletter: { findFirst, updateMany } } as unknown as PrismaService,
+        { render } as unknown as NewsletterPdfService,
+      );
+      const htmlContent = renderNewsletter({ ...stored, contentData });
+      expect(htmlContent).toContain('text-align:justify;text-align-last:start');
+      const result = await service.ensure('one');
+      expect(render).toHaveBeenCalledWith(htmlContent);
+      expect(result.newsletter.htmlContent).toBe(htmlContent);
+      expect(result.content.toString()).toBe('%PDF new');
+      const update = updateMany.mock.calls[0][0];
+      expect(update.where).toEqual({
+        id: stored.id,
+        htmlContent: stored.htmlContent,
+        updatedAt: stored.updatedAt,
+        deletedAt: null,
+      });
+      expect(update.data.htmlContent).toBe(htmlContent);
+      expect(update.data.pdfSourceHash).toBe(newsletterPdfHash(htmlContent));
+    },
+  );
   it('invalidates PDFs generated before the pagination layout version changed', () => {
     const { createHash } =
       jest.requireActual<typeof import('node:crypto')>('node:crypto');

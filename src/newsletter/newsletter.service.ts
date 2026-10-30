@@ -188,24 +188,39 @@ export class NewsletterService {
     return { url: image.secure_url, public_id: image.public_id };
   }
 
-  findPage(query: NewsletterQueryDto) {
-    return this.newsletterRepository.findPage(query);
+  private currentEdition(newsletter: Omit<Newsletter, 'pdfContent'>) {
+    const contentData =
+      newsletter.contentData as unknown as NewsletterContentDto | null;
+    if (contentData?.mode !== 'visual') return newsletter;
+    return {
+      ...newsletter,
+      htmlContent: renderNewsletter({ ...newsletter, contentData }),
+    };
   }
 
-  findAll(query: NewsletterQueryDto) {
-    return this.newsletterRepository.findAll(query);
+  async findPage(query: NewsletterQueryDto) {
+    const page = await this.newsletterRepository.findPage(query);
+    return {
+      ...page,
+      items: page.items.map((edition) => this.currentEdition(edition)),
+    };
+  }
+
+  async findAll(query: NewsletterQueryDto) {
+    const editions = await this.newsletterRepository.findAll(query);
+    return editions.map((edition) => this.currentEdition(edition));
   }
 
   async findOneById(id: string) {
     const newsletter = await this.newsletterRepository.findById(id);
     if (!newsletter) throw new NotFoundException('Newsletter not found.');
-    return newsletter;
+    return this.currentEdition(newsletter);
   }
 
   async findOneBySlug(slug: string) {
     const newsletter = await this.newsletterRepository.findBySlug(slug);
     if (!newsletter) throw new NotFoundException('Newsletter not found.');
-    return newsletter;
+    return this.currentEdition(newsletter);
   }
 
   private async prepareUpdate(
