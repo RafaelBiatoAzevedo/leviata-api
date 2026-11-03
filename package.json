@@ -17,6 +17,7 @@
     "test:watch": "jest --watch",
     "test:analytics": "jest --runInBand --testPathPatterns=analytics/",
     "test:boards": "jest --runInBand --testPathPatterns=boards/",
+    "test:institutions": "jest --runInBand --testPathPatterns=institutions/",
     "test:boards:integration": "npm run build && node test/boards-postgres.integration.cjs",
     "test:analytics:integration": "npm run build && node test/analytics-postgres.integration.cjs",
     "test:cov": "jest --coverage",

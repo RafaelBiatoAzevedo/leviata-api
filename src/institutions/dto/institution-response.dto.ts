@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { CountryResponseDto } from '../../countries/dto/country-response.dto';
 
 export class InstitutionResponseDto {
   @ApiProperty({
@@ -20,6 +21,9 @@ export class InstitutionResponseDto {
     example: '2a0d97f2-0c7f-4d36-b8d8-9e59d96dfdf9',
   })
   countryId!: string;
+
+  @ApiProperty({ type: CountryResponseDto })
+  country!: CountryResponseDto;
 
   @ApiProperty({
     example: '2026-07-31T10:00:00.000Z',

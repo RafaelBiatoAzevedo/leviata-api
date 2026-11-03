@@ -20,6 +20,6 @@ import { NewsletterPdfModule } from '../newsletter/pdf/newsletter-pdf.module';
     MailUnsubscribeService,
     MailWorker,
   ],
-  exports: [MailService],
+  exports: [MailService, MailConfig],
 })
 export class MailModule {}

@@ -84,6 +84,38 @@ enum NewsRelatedType {
   PRESENTED_WORK
 }
 
+enum AdminActivityMailStatus {
+  RECORDING
+  PENDING
+  SENDING
+  SENT
+  FAILED
+  UNKNOWN
+  ACTION_FAILED
+}
+
+model AdminActivity {
+  id String @id @default(uuid())
+  actorId String
+  actorEmail String
+  actorName String?
+  method String
+  path String
+  outcome String @default("STARTED")
+  details Json
+  status AdminActivityMailStatus @default(RECORDING)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  completedAt DateTime? @db.Timestamptz(3)
+  sentAt DateTime? @db.Timestamptz(3)
+  lastAttemptAt DateTime? @db.Timestamptz(3)
+  nextAttemptAt DateTime @default(now()) @db.Timestamptz(3)
+  attempts Int @default(0)
+  errorCode String?
+
+  @@index([status, nextAttemptAt])
+  @@index([actorId, createdAt])
+}
+
 model User {
   id        String   @id @default(uuid())
   email     String   @unique

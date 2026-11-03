@@ -2,6 +2,16 @@
 
 As rotas são autenticadas e usam IDs UUID. O gerenciamento de outras contas exige `SUPER_ADMIN`; `ADMIN` pode editar apenas sua própria conta.
 
+`ADMIN` não pode excluir registros ou arquivos em nenhuma área: todas as rotas
+`DELETE` autenticadas recusam esse nível com `403`, incluindo fotos, capas e PDFs.
+Os controles de exclusão de registros e arquivos salvos ficam ocultos na interface.
+É possível descartar imagens ainda não enviadas e editar campos ou vínculos de um formulário.
+`SUPER_ADMIN` mantém suas permissões e o acesso ao gerenciamento de usuários.
+
+Criações e edições feitas por `ADMIN` são registradas e notificadas ao endereço
+remetente configurado da newsletter. Consulte [Auditoria administrativa](admin-activity.md)
+para a migration obrigatória, configuração e recuperação da fila de e-mails.
+
 | Método | Rota               | Acesso                                                      |
 | ------ | ------------------ | ----------------------------------------------------------- |
 | POST   | `/users`           | Superadministrador                                          |

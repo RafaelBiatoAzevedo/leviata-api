@@ -28,6 +28,7 @@ import { CommentsModule } from './comments/comments.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { MailModule } from './mail/mail.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { AdminActivityModule } from './admin-activity/admin-activity.module';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
     NotificationsModule,
     MailModule,
     AnalyticsModule,
+    AdminActivityModule,
   ],
   controllers: [AppController],
   providers: [],
